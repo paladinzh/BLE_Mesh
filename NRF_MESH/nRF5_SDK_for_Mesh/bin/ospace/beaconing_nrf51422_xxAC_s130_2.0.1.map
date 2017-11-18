@@ -1076,7 +1076,7 @@ LOAD c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi
 LOAD c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libnosys.a
 END GROUP
 
-.text           0x0001b000     0x9a50
+.text           0x0001b000     0x9a58
  *(.isr_vector)
  .isr_vector    0x0001b000       0xc0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/external/nRF5_SDK_14.0.0_3bcc1f7/components/toolchain/gcc/gcc_startup_nrf51.S.obj
                 0x0001b000                __isr_vector
@@ -1088,988 +1088,988 @@ END GROUP
  .text.rx_callback
                 0x0001b198      0x130 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
  .text.startup.main
-                0x0001b2c8      0x144 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
+                0x0001b2c8      0x14c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
                 0x0001b2c8                main
  .text.sd_evt_get
-                0x0001b40c        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
- .text.sd_softdevice_enable
-                0x0001b410        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
- .text.sd_ble_enable
                 0x0001b414        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
- .text.sd_ble_evt_get
+ .text.sd_softdevice_enable
                 0x0001b418        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+ .text.sd_ble_enable
+                0x0001b41c        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+ .text.sd_ble_evt_get
+                0x0001b420        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .text.sleep_forever
-                0x0001b41c       0x24 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b424       0x24 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .text.mesh_assert_handler
-                0x0001b440       0x64 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b440                mesh_assert_handler
+                0x0001b448       0x64 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b448                mesh_assert_handler
  .text.softdevice_assert_handler
-                0x0001b4a4       0x7c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b4a4                softdevice_assert_handler
+                0x0001b4ac       0x7c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b4ac                softdevice_assert_handler
  .text.app_error_handler
-                0x0001b520       0x7c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b520                app_error_handler
+                0x0001b528       0x7c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b528                app_error_handler
  .text.HardFault_Handler
-                0x0001b59c       0x60 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b59c                HardFault_Handler
+                0x0001b5a4       0x60 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b5a4                HardFault_Handler
  .text.SWI2_IRQHandler
-                0x0001b5fc       0x38 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b5fc                SWI2_IRQHandler
+                0x0001b604       0x38 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b604                SWI2_IRQHandler
  .text.mesh_softdevice_enable
-                0x0001b634      0x12c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b634                mesh_softdevice_enable
+                0x0001b63c      0x12c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b63c                mesh_softdevice_enable
  .text.mesh_softdevice_setup
-                0x0001b760       0x80 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b760                mesh_softdevice_setup
+                0x0001b768       0x80 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b768                mesh_softdevice_setup
  .text.mesh_core_setup
-                0x0001b7e0      0x158 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
-                0x0001b7e0                mesh_core_setup
+                0x0001b7e8      0x158 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x0001b7e8                mesh_core_setup
  .text.bitfield_get
-                0x0001b938       0x18 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001b940       0x18 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
  .text.virtual_address_uuid_index_get
-                0x0001b950       0x58 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001b958       0x58 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
  .text.get_subnet_handle
-                0x0001b9a8       0x44 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001b9b0       0x44 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
  .text.get_app_handle
-                0x0001b9ec       0x50 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001b9f4       0x50 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
  .text.nrf_mesh_net_secmat_next_get
-                0x0001ba3c       0x70 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
-                0x0001ba3c                nrf_mesh_net_secmat_next_get
+                0x0001ba44       0x70 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001ba44                nrf_mesh_net_secmat_next_get
  .text.nrf_mesh_app_secmat_next_get
-                0x0001baac       0xa0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
-                0x0001baac                nrf_mesh_app_secmat_next_get
+                0x0001bab4       0xa0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001bab4                nrf_mesh_app_secmat_next_get
  .text.nrf_mesh_devkey_secmat_get
-                0x0001bb4c       0x34 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
-                0x0001bb4c                nrf_mesh_devkey_secmat_get
+                0x0001bb54       0x34 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001bb54                nrf_mesh_devkey_secmat_get
  .text.nrf_mesh_beacon_info_next_get
-                0x0001bb80       0xc0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
-                0x0001bb80                nrf_mesh_beacon_info_next_get
+                0x0001bb88       0xc0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001bb88                nrf_mesh_beacon_info_next_get
  .text.nrf_mesh_rx_address_get
-                0x0001bc40      0x108 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
-                0x0001bc40                nrf_mesh_rx_address_get
+                0x0001bc48      0x108 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/mesh/access/src/device_state_manager.c.obj
+                0x0001bc48                nrf_mesh_rx_address_get
  .text._weak_handler
-                0x0001bd48        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_weak.c.obj
-                0x0001bd48                nrf_mesh_dfu_init
-                0x0001bd48                prov_beacon_unprov_packet_in
-                0x0001bd48                nrf_mesh_dfu_jump_to_bootloader
-                0x0001bd48                prov_utils_opt_get
-                0x0001bd48                nrf_mesh_dfu_rx
-                0x0001bd48                prov_utils_opt_set
-                0x0001bd48                prov_provisioner_provision
-                0x0001bd48                nrf_mesh_dfu_bank_info_get
-                0x0001bd48                prov_provisioner_oob_pubkey
-                0x0001bd48                nrf_mesh_dfu_request
-                0x0001bd48                nrf_mesh_dfu_bank_flash
-                0x0001bd48                _weak_handler
-                0x0001bd48                prov_provisionee_auth_data
-                0x0001bd48                nrf_mesh_dfu_relay
-                0x0001bd48                prov_provisionee_shared_secret
-                0x0001bd48                nrf_mesh_dfu_abort
-                0x0001bd48                mesh_flash_op_execute
-                0x0001bd48                prov_provisionee_init
-                0x0001bd48                nrf_mesh_dfu_state_get
-                0x0001bd48                prov_provisioner_shared_secret
-                0x0001bd48                prov_provisioner_auth_data
-                0x0001bd48                prov_bearer_adv_packet_in
-                0x0001bd48                prov_provisioner_oob_use
+                0x0001bd50        0x4 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_weak.c.obj
+                0x0001bd50                nrf_mesh_dfu_init
+                0x0001bd50                prov_beacon_unprov_packet_in
+                0x0001bd50                nrf_mesh_dfu_jump_to_bootloader
+                0x0001bd50                prov_utils_opt_get
+                0x0001bd50                nrf_mesh_dfu_rx
+                0x0001bd50                prov_utils_opt_set
+                0x0001bd50                prov_provisioner_provision
+                0x0001bd50                nrf_mesh_dfu_bank_info_get
+                0x0001bd50                prov_provisioner_oob_pubkey
+                0x0001bd50                nrf_mesh_dfu_request
+                0x0001bd50                nrf_mesh_dfu_bank_flash
+                0x0001bd50                _weak_handler
+                0x0001bd50                prov_provisionee_auth_data
+                0x0001bd50                nrf_mesh_dfu_relay
+                0x0001bd50                prov_provisionee_shared_secret
+                0x0001bd50                nrf_mesh_dfu_abort
+                0x0001bd50                mesh_flash_op_execute
+                0x0001bd50                prov_provisionee_init
+                0x0001bd50                nrf_mesh_dfu_state_get
+                0x0001bd50                prov_provisioner_shared_secret
+                0x0001bd50                prov_provisioner_auth_data
+                0x0001bd50                prov_bearer_adv_packet_in
+                0x0001bd50                prov_provisioner_oob_use
  .text.SystemInit
-                0x0001bd4c       0xe0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/external/nRF5_SDK_14.0.0_3bcc1f7/components/toolchain/system_nrf51.c.obj
-                0x0001bd4c                SystemInit
- .text          0x0001be2c       0x4c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/external/nRF5_SDK_14.0.0_3bcc1f7/components/toolchain/gcc/gcc_startup_nrf51.S.obj
-                0x0001be2c                Reset_Handler
-                0x0001be6c                NMI_Handler
-                0x0001be70                SVC_Handler
-                0x0001be72                PendSV_Handler
-                0x0001be74                SysTick_Handler
-                0x0001be76                GPIOTE_IRQHandler
-                0x0001be76                RTC0_IRQHandler
-                0x0001be76                POWER_CLOCK_IRQHandler
-                0x0001be76                SPI0_TWI0_IRQHandler
-                0x0001be76                LPCOMP_IRQHandler
-                0x0001be76                SWI4_IRQHandler
-                0x0001be76                TEMP_IRQHandler
-                0x0001be76                UART0_IRQHandler
-                0x0001be76                SWI5_IRQHandler
-                0x0001be76                TIMER0_IRQHandler
-                0x0001be76                RADIO_IRQHandler
-                0x0001be76                SWI0_IRQHandler
-                0x0001be76                TIMER1_IRQHandler
-                0x0001be76                ECB_IRQHandler
-                0x0001be76                Default_Handler
-                0x0001be76                ADC_IRQHandler
-                0x0001be76                SWI3_IRQHandler
-                0x0001be76                CCM_AAR_IRQHandler
-                0x0001be76                WDT_IRQHandler
-                0x0001be76                TIMER2_IRQHandler
-                0x0001be76                RNG_IRQHandler
-                0x0001be76                SPI1_TWI1_IRQHandler
-                0x0001be76                RTC1_IRQHandler
-                0x0001be76                SWI1_IRQHandler
+                0x0001bd54       0xe0 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/external/nRF5_SDK_14.0.0_3bcc1f7/components/toolchain/system_nrf51.c.obj
+                0x0001bd54                SystemInit
+ .text          0x0001be34       0x4c examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/__/external/nRF5_SDK_14.0.0_3bcc1f7/components/toolchain/gcc/gcc_startup_nrf51.S.obj
+                0x0001be34                Reset_Handler
+                0x0001be74                NMI_Handler
+                0x0001be78                SVC_Handler
+                0x0001be7a                PendSV_Handler
+                0x0001be7c                SysTick_Handler
+                0x0001be7e                GPIOTE_IRQHandler
+                0x0001be7e                RTC0_IRQHandler
+                0x0001be7e                POWER_CLOCK_IRQHandler
+                0x0001be7e                SPI0_TWI0_IRQHandler
+                0x0001be7e                LPCOMP_IRQHandler
+                0x0001be7e                SWI4_IRQHandler
+                0x0001be7e                TEMP_IRQHandler
+                0x0001be7e                UART0_IRQHandler
+                0x0001be7e                SWI5_IRQHandler
+                0x0001be7e                TIMER0_IRQHandler
+                0x0001be7e                RADIO_IRQHandler
+                0x0001be7e                SWI0_IRQHandler
+                0x0001be7e                TIMER1_IRQHandler
+                0x0001be7e                ECB_IRQHandler
+                0x0001be7e                Default_Handler
+                0x0001be7e                ADC_IRQHandler
+                0x0001be7e                SWI3_IRQHandler
+                0x0001be7e                CCM_AAR_IRQHandler
+                0x0001be7e                WDT_IRQHandler
+                0x0001be7e                TIMER2_IRQHandler
+                0x0001be7e                RNG_IRQHandler
+                0x0001be7e                SPI1_TWI1_IRQHandler
+                0x0001be7e                RTC1_IRQHandler
+                0x0001be7e                SWI1_IRQHandler
  .text.event_handle
-                0x0001be78       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(event.c.obj)
-                0x0001be78                event_handle
+                0x0001be80       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(event.c.obj)
+                0x0001be80                event_handle
  .text.flash_mem_available
-                0x0001beac       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001beb4       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.flash_store_iv_index
-                0x0001becc       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001bed4       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.seqnum_block_allocate
-                0x0001bf00       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001bf08       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.flash_write_complete
-                0x0001bf50       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001bf58       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.net_state_recover_from_flash
-                0x0001bfd0       0x8c mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001bfd0                net_state_recover_from_flash
+                0x0001bfd8       0x8c mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001bfd8                net_state_recover_from_flash
  .text.net_state_flash_area_get
-                0x0001c05c       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c05c                net_state_flash_area_get
+                0x0001c064       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c064                net_state_flash_area_get
  .text.init_flash_storage
-                0x0001c06c       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c074       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.net_state_init
-                0x0001c0ac       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c0ac                net_state_init
+                0x0001c0b4       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c0b4                net_state_init
  .text.net_state_iv_update_start
-                0x0001c0f4       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c0f4                net_state_iv_update_start
+                0x0001c0fc       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c0fc                net_state_iv_update_start
  .text.iv_update_trigger_if_pending
-                0x0001c158       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c160       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.iv_update_timer_handler
-                0x0001c1ec       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c1f4       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
  .text.net_state_seqnum_alloc
-                0x0001c26c       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c26c                net_state_seqnum_alloc
+                0x0001c274       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c274                net_state_seqnum_alloc
  .text.net_state_iv_index_lock
-                0x0001c2d4       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c2d4                net_state_iv_index_lock
+                0x0001c2dc       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c2dc                net_state_iv_index_lock
  .text.net_state_beacon_received
-                0x0001c320       0x98 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c320                net_state_beacon_received
+                0x0001c328       0x98 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c328                net_state_beacon_received
  .text.net_state_beacon_iv_index_get
-                0x0001c3b8        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c3b8                net_state_beacon_iv_index_get
+                0x0001c3c0        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c3c0                net_state_beacon_iv_index_get
  .text.net_state_tx_iv_index_get
-                0x0001c3c4       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c3c4                net_state_tx_iv_index_get
+                0x0001c3cc       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c3cc                net_state_tx_iv_index_get
  .text.net_state_rx_iv_index_get
-                0x0001c3d8       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c3d8                net_state_rx_iv_index_get
+                0x0001c3e0       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c3e0                net_state_rx_iv_index_get
  .text.net_state_iv_update_get
-                0x0001c3ec        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
-                0x0001c3ec                net_state_iv_update_get
+                0x0001c3f4        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(net_state.c.obj)
+                0x0001c3f4                net_state_iv_update_get
  .text.nrf_mesh_address_type_get
-                0x0001c3f8       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_utils.c.obj)
-                0x0001c3f8                nrf_mesh_address_type_get
+                0x0001c400       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_utils.c.obj)
+                0x0001c400                nrf_mesh_address_type_get
  .text.sd_softdevice_is_enabled
-                0x0001c40c        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c414        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
  .text.nrf_mesh_init
-                0x0001c410       0xb8 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c410                nrf_mesh_init
+                0x0001c418       0xb8 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c418                nrf_mesh_init
  .text.nrf_mesh_enable
-                0x0001c4c8       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c4c8                nrf_mesh_enable
+                0x0001c4d0       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c4d0                nrf_mesh_enable
  .text.nrf_mesh_process
-                0x0001c514      0x1c4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c514                nrf_mesh_process
+                0x0001c51c      0x1c4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c51c                nrf_mesh_process
  .text.nrf_mesh_on_ble_evt
-                0x0001c6d8        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c6d8                nrf_mesh_on_ble_evt
+                0x0001c6e0        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c6e0                nrf_mesh_on_ble_evt
  .text.nrf_mesh_on_sd_evt
-                0x0001c6dc        0xa mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c6dc                nrf_mesh_on_sd_evt
- *fill*         0x0001c6e6        0x2 
+                0x0001c6e4        0xa mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c6e4                nrf_mesh_on_sd_evt
+ *fill*         0x0001c6ee        0x2 
  .text.nrf_mesh_rx_cb_set
-                0x0001c6e8        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
-                0x0001c6e8                nrf_mesh_rx_cb_set
+                0x0001c6f0        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+                0x0001c6f0                nrf_mesh_rx_cb_set
  .text.hal_lfclk_ppm_get
-                0x0001c6f4       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(hal.c.obj)
-                0x0001c6f4                hal_lfclk_ppm_get
+                0x0001c6fc       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(hal.c.obj)
+                0x0001c6fc                hal_lfclk_ppm_get
  .text.add_to_add_list
-                0x0001c708       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c710       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.process_dirty_events
-                0x0001c754       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c75c       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.timer_cb
-                0x0001c7b8       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c7c0       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.add_evt.constprop.0
-                0x0001c7c8       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c7d0       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.process_add_list
-                0x0001c838       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c840       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.flag_event_cb
-                0x0001c884      0x104 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c88c      0x104 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
  .text.timer_sch_init
-                0x0001c988       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
-                0x0001c988                timer_sch_init
+                0x0001c990       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c990                timer_sch_init
  .text.timer_sch_schedule
-                0x0001c9ac       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
-                0x0001c9ac                timer_sch_schedule
+                0x0001c9b4       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001c9b4                timer_sch_schedule
  .text.timer_sch_abort
-                0x0001ca00       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
-                0x0001ca00                timer_sch_abort
+                0x0001ca08       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001ca08                timer_sch_abort
  .text.timer_sch_reschedule
-                0x0001ca68       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
-                0x0001ca68                timer_sch_reschedule
+                0x0001ca70       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(timer_scheduler.c.obj)
+                0x0001ca70                timer_sch_reschedule
  .text.timer_mut_unlock
-                0x0001cae0       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001cae8       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
  .text.timer_order_cb
-                0x0001caf0       0x90 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
-                0x0001caf0                timer_order_cb
+                0x0001caf8       0x90 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001caf8                timer_order_cb
  .text.timer_now
-                0x0001cb80       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
-                0x0001cb80                timer_now
+                0x0001cb88       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001cb88                timer_now
  .text.timer_event_handler
-                0x0001cbd4       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
-                0x0001cbd4                timer_event_handler
+                0x0001cbdc       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001cbdc                timer_event_handler
  .text.timer_on_ts_begin
-                0x0001cc68      0x104 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
-                0x0001cc68                timer_on_ts_begin
+                0x0001cc70      0x104 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001cc70                timer_on_ts_begin
  .text.timer_on_ts_end
-                0x0001cd6c       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
-                0x0001cd6c                timer_on_ts_end
+                0x0001cd74       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(timer.c.obj)
+                0x0001cd74                timer_on_ts_end
  .text.timer_cb
-                0x0001cdd0       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(ticker.c.obj)
+                0x0001cdd8       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(ticker.c.obj)
  .text.ticker_init
-                0x0001cde0       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(ticker.c.obj)
-                0x0001cde0                ticker_init
+                0x0001cde8       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(ticker.c.obj)
+                0x0001cde8                ticker_init
  .text.sd_rand_application_bytes_available_get
-                0x0001ce18        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
+                0x0001ce20        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
  .text.sd_rand_application_vector_get
-                0x0001ce1c        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
+                0x0001ce24        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
  .text.rand_prng_get
-                0x0001ce20       0x2e mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
-                0x0001ce20                rand_prng_get
- *fill*         0x0001ce4e        0x2 
+                0x0001ce28       0x2e mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
+                0x0001ce28                rand_prng_get
+ *fill*         0x0001ce56        0x2 
  .text.rand_hw_rng_get
-                0x0001ce50       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
-                0x0001ce50                rand_hw_rng_get
+                0x0001ce58       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
+                0x0001ce58                rand_hw_rng_get
  .text.rand_prng_seed
-                0x0001ce9c       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
-                0x0001ce9c                rand_prng_seed
+                0x0001cea4       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(rand.c.obj)
+                0x0001cea4                rand_prng_seed
  .text.sd_radio_session_open
-                0x0001cecc        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
- .text.sd_radio_session_close
-                0x0001ced0        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
- .text.sd_radio_request
                 0x0001ced4        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+ .text.sd_radio_session_close
+                0x0001ced8        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+ .text.sd_radio_request
+                0x0001cedc        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
  .text.end_timer_handler
-                0x0001ced8       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001cee0       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
  .text.get_end_time.constprop.10
-                0x0001cf04       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001cf0c       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
  .text.handle_extend_end.constprop.3
-                0x0001cf2c       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001cf34       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
  .text.radio_signal_callback
-                0x0001cff0      0x160 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001cff8      0x160 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
  .text.timeslot_sd_event_handler
-                0x0001d150       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d150                timeslot_sd_event_handler
+                0x0001d158       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d158                timeslot_sd_event_handler
  .text.timeslot_init
-                0x0001d198       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d198                timeslot_init
+                0x0001d1a0       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d1a0                timeslot_init
  .text.timeslot_start
-                0x0001d1e4       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d1e4                timeslot_start
+                0x0001d1ec       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d1ec                timeslot_start
  .text.timeslot_end_is_pending
-                0x0001d200       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d200                timeslot_end_is_pending
+                0x0001d208       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d208                timeslot_end_is_pending
  .text.timeslot_start_time_get
-                0x0001d22c        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d22c                timeslot_start_time_get
+                0x0001d234        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d234                timeslot_start_time_get
  .text.timeslot_remaining_time_get
-                0x0001d238       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d238                timeslot_remaining_time_get
+                0x0001d240       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d240                timeslot_remaining_time_get
  .text.timeslot_is_in_cb
-                0x0001d25c        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d25c                timeslot_is_in_cb
+                0x0001d264        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d264                timeslot_is_in_cb
  .text.timeslot_trigger
-                0x0001d268       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d268                timeslot_trigger
+                0x0001d270       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d270                timeslot_trigger
  .text.timeslot_stop
-                0x0001d290       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d290                timeslot_stop
+                0x0001d298       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d298                timeslot_stop
  .text.timeslot_state_lock
-                0x0001d2a4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
-                0x0001d2a4                timeslot_state_lock
+                0x0001d2ac       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(timeslot.c.obj)
+                0x0001d2ac                timeslot_state_lock
  .text.evt_push
-                0x0001d2d0       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d2d8       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
  .text.QDEC_IRQHandler
-                0x0001d2f4       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d2f4                QDEC_IRQHandler
+                0x0001d2fc       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d2fc                QDEC_IRQHandler
  .text.bearer_event_init
-                0x0001d3b8       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d3b8                bearer_event_init
+                0x0001d3c0       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d3c0                bearer_event_init
  .text.bearer_event_timer_post
-                0x0001d400       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d400                bearer_event_timer_post
+                0x0001d408       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d408                bearer_event_timer_post
  .text.bearer_event_critical_section_begin
-                0x0001d434       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d434                bearer_event_critical_section_begin
+                0x0001d43c       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d43c                bearer_event_critical_section_begin
  .text.bearer_event_critical_section_end
-                0x0001d47c       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d47c                bearer_event_critical_section_end
+                0x0001d484       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d484                bearer_event_critical_section_end
  .text.bearer_event_flag_add
-                0x0001d4c4       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d4c4                bearer_event_flag_add
+                0x0001d4cc       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d4cc                bearer_event_flag_add
  .text.bearer_event_flag_set
-                0x0001d518       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d518                bearer_event_flag_set
+                0x0001d520       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d520                bearer_event_flag_set
  .text.bearer_event_sequential_add
-                0x0001d570       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d570                bearer_event_sequential_add
+                0x0001d578       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d578                bearer_event_sequential_add
  .text.bearer_event_sequential_post
-                0x0001d5bc       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d5bc                bearer_event_sequential_post
+                0x0001d5c4       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d5c4                bearer_event_sequential_post
  .text.bearer_event_sequential_pending
-                0x0001d624       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
-                0x0001d624                bearer_event_sequential_pending
+                0x0001d62c       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_event.c.obj)
+                0x0001d62c                bearer_event_sequential_pending
  .text.header_transfuscate
-                0x0001d644       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d64c       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
  .text.allocate_packet
-                0x0001d69c      0x140 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d6a4      0x140 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
  .text.network_init
-                0x0001d7dc       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
-                0x0001d7dc                network_init
+                0x0001d7e4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d7e4                network_init
  .text.network_packet_alloc
-                0x0001d808       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
-                0x0001d808                network_packet_alloc
+                0x0001d810       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d810                network_packet_alloc
  .text.network_packet_send
-                0x0001d860      0x154 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
-                0x0001d860                network_packet_send
+                0x0001d868      0x154 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d868                network_packet_send
  .text.network_packet_in
-                0x0001d9b4      0x484 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
-                0x0001d9b4                network_packet_in
+                0x0001d9bc      0x484 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x0001d9bc                network_packet_in
  .text.log_callback_rtt
-                0x0001de38       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
-                0x0001de38                log_callback_rtt
+                0x0001de40       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+                0x0001de40                log_callback_rtt
  .text.log_init
-                0x0001de60       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
-                0x0001de60                log_init
+                0x0001de68       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+                0x0001de68                log_init
  .text.log_vprintf
-                0x0001de7c       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
-                0x0001de7c                log_vprintf
+                0x0001de84       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+                0x0001de84                log_vprintf
  .text.log_printf
-                0x0001de98       0x16 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
-                0x0001de98                log_printf
+                0x0001dea0       0x16 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+                0x0001dea0                log_printf
  .text.get_area_end
-                0x0001deae        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
- *fill*         0x0001deba        0x2 
+                0x0001deb6        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+ *fill*         0x0001dec2        0x2 
  .text.handle_matches_filter
-                0x0001debc       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001dec4       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.get_packet_buffer
-                0x0001dee4       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001deec       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.get_entry_action
-                0x0001df14       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001df1c       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.flash_area_is_blank
-                0x0001df44       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
- .text.flash    0x0001df94       0x1e mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
- *fill*         0x0001dfb2        0x2 
+                0x0001df4c       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+ .text.flash    0x0001df9c       0x1e mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+ *fill*         0x0001dfba        0x2 
  .text.free_packet_buffer
-                0x0001dfb4       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001dfbc       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.reserve_action_buffer
-                0x0001e000       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e008       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.commit_action_buffer
-                0x0001e020       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e028       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.schedule_processing
-                0x0001e038       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e040       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.get_next_entry
-                0x0001e048       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e050       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.get_last_entry.isra.1
-                0x0001e08c       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e094       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.process_action_queue
-                0x0001e0c0      0x49c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e0c8      0x49c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.flash_op_ended_callback
-                0x0001e55c       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e564       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
  .text.flash_manager_init
-                0x0001e580       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e580                flash_manager_init
+                0x0001e588       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e588                flash_manager_init
  .text.flash_manager_entry_next_get
-                0x0001e5e8       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e5e8                flash_manager_entry_next_get
+                0x0001e5f0       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e5f0                flash_manager_entry_next_get
  .text.flash_manager_entry_alloc
-                0x0001e65c       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e65c                flash_manager_entry_alloc
+                0x0001e664       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e664                flash_manager_entry_alloc
  .text.flash_manager_entry_commit
-                0x0001e6e4       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e6e4                flash_manager_entry_commit
+                0x0001e6ec       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e6ec                flash_manager_entry_commit
  .text.flash_manager_entry_invalidate
-                0x0001e6f4       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e6f4                flash_manager_entry_invalidate
+                0x0001e6fc       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e6fc                flash_manager_entry_invalidate
  .text.flash_manager_add
-                0x0001e764      0x250 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e764                flash_manager_add
+                0x0001e76c      0x250 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e76c                flash_manager_add
  .text.flash_manager_mem_listener_register
-                0x0001e9b4       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e9b4                flash_manager_mem_listener_register
+                0x0001e9bc       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001e9bc                flash_manager_mem_listener_register
  .text.flash_manager_is_stable
-                0x0001e9fc       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001e9fc                flash_manager_is_stable
+                0x0001ea04       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001ea04                flash_manager_is_stable
  .text.flash_manager_on_defrag_end
-                0x0001ea20       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001ea20                flash_manager_on_defrag_end
+                0x0001ea28       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001ea28                flash_manager_on_defrag_end
  .text.flash_manager_recovery_page_get
-                0x0001ea7c        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0001ea7c                flash_manager_recovery_page_get
+                0x0001ea84        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0001ea84                flash_manager_recovery_page_get
  .text.beacon_init
-                0x0001ea84       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
-                0x0001ea84                beacon_init
+                0x0001ea8c       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
+                0x0001ea8c                beacon_init
  .text.beacon_create
-                0x0001ead0       0x46 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
-                0x0001ead0                beacon_create
- *fill*         0x0001eb16        0x2 
+                0x0001ead8       0x46 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
+                0x0001ead8                beacon_create
+ *fill*         0x0001eb1e        0x2 
  .text.beacon_tx
-                0x0001eb18       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
-                0x0001eb18                beacon_tx
+                0x0001eb20       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
+                0x0001eb20                beacon_tx
  .text.beacon_packet_in
-                0x0001eb58      0x164 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
-                0x0001eb58                beacon_packet_in
+                0x0001eb60      0x164 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
+                0x0001eb60                beacon_packet_in
  .text.entry_get
-                0x0001ecbc       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_internal.c.obj)
-                0x0001ecbc                entry_get
+                0x0001ecc4       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_internal.c.obj)
+                0x0001ecc4                entry_get
  .text.adv_tx_complete_callback
-                0x0001ed3c       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001ed44       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
  .text.core_tx_init
-                0x0001ed8c       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
-                0x0001ed8c                core_tx_init
+                0x0001ed94       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001ed94                core_tx_init
  .text.core_tx_complete_cb_set
-                0x0001edd8        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
-                0x0001edd8                core_tx_complete_cb_set
+                0x0001ede0        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001ede0                core_tx_complete_cb_set
  .text.core_tx_packet_alloc
-                0x0001ede4       0xa4 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
-                0x0001ede4                core_tx_packet_alloc
+                0x0001edec       0xa4 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001edec                core_tx_packet_alloc
  .text.core_tx_packet_send
-                0x0001ee88       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
-                0x0001ee88                core_tx_packet_send
+                0x0001ee90       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001ee90                core_tx_packet_send
  .text.core_tx_packet_discard
-                0x0001ef00       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
-                0x0001ef00                core_tx_packet_discard
+                0x0001ef08       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(core_tx.c.obj)
+                0x0001ef08                core_tx_packet_discard
  .text.network_beacon_tx_cb
-                0x0001ef78       0xf0 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
+                0x0001ef80       0xf0 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
  .text.net_beacon_init
-                0x0001f068       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
-                0x0001f068                net_beacon_init
+                0x0001f070       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
+                0x0001f070                net_beacon_init
  .text.net_beacon_packet_in
-                0x0001f0c4       0xd8 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
-                0x0001f0c4                net_beacon_packet_in
+                0x0001f0cc       0xd8 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
+                0x0001f0cc                net_beacon_packet_in
  .text.set_gap_addr_type
-                0x0001f19c       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f1a4       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
  .text.tx_complete_event_callback
-                0x0001f1cc       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f1d4       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
  .text.broadcast_complete_cb
-                0x0001f210       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f218       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
  .text.schedule_first_time
-                0x0001f278       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f280       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
  .text.timeout_event
-                0x0001f2a0      0x12c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f2a8      0x12c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
  .text.advertiser_init
-                0x0001f3cc       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f3cc                advertiser_init
+                0x0001f3d4       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f3d4                advertiser_init
  .text.advertiser_enable
-                0x0001f3dc       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f3dc                advertiser_enable
+                0x0001f3e4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f3e4                advertiser_enable
  .text.advertiser_packet_alloc
-                0x0001f408       0xac mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f408                advertiser_packet_alloc
+                0x0001f410       0xac mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f410                advertiser_packet_alloc
  .text.advertiser_packet_send
-                0x0001f4b4       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f4b4                advertiser_packet_send
+                0x0001f4bc       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f4bc                advertiser_packet_send
  .text.advertiser_packet_discard
-                0x0001f528       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f528                advertiser_packet_discard
+                0x0001f530       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f530                advertiser_packet_discard
  .text.advertiser_interval_set
-                0x0001f554       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f554                advertiser_interval_set
+                0x0001f55c       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f55c                advertiser_interval_set
  .text.advertiser_address_default_get
-                0x0001f5bc       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f5bc                advertiser_address_default_get
+                0x0001f5c4       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f5c4                advertiser_address_default_get
  .text.advertiser_instance_init
-                0x0001f5ec       0xb4 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
-                0x0001f5ec                advertiser_instance_init
+                0x0001f5f4       0xb4 mesh/core/libmesh_core_nrf51422_xxAC.a(advertiser.c.obj)
+                0x0001f5f4                advertiser_instance_init
  .text.action_switch
-                0x0001f6a0       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f6a8       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
  .text.bearer_handler_init
-                0x0001f764       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f764                bearer_handler_init
+                0x0001f76c       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f76c                bearer_handler_init
  .text.bearer_handler_start
-                0x0001f790       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f790                bearer_handler_start
+                0x0001f798       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f798                bearer_handler_start
  .text.bearer_handler_action_enqueue
-                0x0001f7ac       0x9c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f7ac                bearer_handler_action_enqueue
+                0x0001f7b4       0x9c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f7b4                bearer_handler_action_enqueue
  .text.bearer_handler_action_end
-                0x0001f848       0x7c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f848                bearer_handler_action_end
+                0x0001f850       0x7c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f850                bearer_handler_action_end
  .text.bearer_handler_radio_irq_handler
-                0x0001f8c4       0x6c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f8c4                bearer_handler_radio_irq_handler
+                0x0001f8cc       0x6c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f8cc                bearer_handler_radio_irq_handler
  .text.bearer_handler_timer_irq_handler
-                0x0001f930       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f930                bearer_handler_timer_irq_handler
+                0x0001f938       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f938                bearer_handler_timer_irq_handler
  .text.bearer_handler_on_ts_begin
-                0x0001f960       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f960                bearer_handler_on_ts_begin
+                0x0001f968       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f968                bearer_handler_on_ts_begin
  .text.bearer_handler_on_ts_end
-                0x0001f9ac       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
-                0x0001f9ac                bearer_handler_on_ts_end
+                0x0001f9b4       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(bearer_handler.c.obj)
+                0x0001f9b4                bearer_handler_on_ts_end
  .text.radio_irq_handler
-                0x0001f9fc       0xbc mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
+                0x0001fa04       0xbc mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
  .text.broadcast_start
-                0x0001fab8       0x98 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
+                0x0001fac0       0x98 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
  .text.broadcast_send
-                0x0001fb50       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
-                0x0001fb50                broadcast_send
+                0x0001fb58       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
+                0x0001fb58                broadcast_send
  .text.radio_config_reset
-                0x0001fbd0       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
-                0x0001fbd0                radio_config_reset
+                0x0001fbd8       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
+                0x0001fbd8                radio_config_reset
  .text.radio_config_channel_set
-                0x0001fc18       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
-                0x0001fc18                radio_config_channel_set
+                0x0001fc20       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
+                0x0001fc20                radio_config_channel_set
  .text.radio_config_config
-                0x0001fc54       0xb0 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
-                0x0001fc54                radio_config_config
+                0x0001fc5c       0xb0 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
+                0x0001fc5c                radio_config_config
  .text.radio_config_access_addr_set
-                0x0001fd04       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
-                0x0001fd04                radio_config_access_addr_set
+                0x0001fd0c       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
+                0x0001fd0c                radio_config_access_addr_set
  .text.radio_trigger
-                0x0001fd78       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fd80       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.scan_window_end
-                0x0001fd9c       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fda4       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.scan_window_start
-                0x0001fdb0       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fdb8       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.radio_configure
-                0x0001fdd8       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fde0       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.radio_set_packet
-                0x0001fe60       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fe68       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.radio_start
-                0x0001feb8       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001fec0       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.radio_stop
-                0x0001ff0c       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001ff14       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.schedule_timers
-                0x0001ff44       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001ff4c       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .text.scanner_radio_start
-                0x0001ff78       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x0001ff78                scanner_radio_start
+                0x0001ff80       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001ff80                scanner_radio_start
  .text.scanner_radio_stop
-                0x0001ffa0       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x0001ffa0                scanner_radio_stop
+                0x0001ffa8       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001ffa8                scanner_radio_stop
  .text.scanner_radio_irq_handler
-                0x0001ffb4      0x124 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x0001ffb4                scanner_radio_irq_handler
+                0x0001ffbc      0x124 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0001ffbc                scanner_radio_irq_handler
  .text.scanner_enable
-                0x000200d8       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x000200d8                scanner_enable
+                0x000200e0       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x000200e0                scanner_enable
  .text.scanner_packet_release
-                0x0002010c       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x0002010c                scanner_packet_release
+                0x00020114       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x00020114                scanner_packet_release
  .text.scanner_rx
-                0x00020144       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x00020144                scanner_rx
+                0x0002014c       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x0002014c                scanner_rx
  .text.scanner_config_scan_time_set
-                0x00020178       0x6c mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x00020178                scanner_config_scan_time_set
+                0x00020180       0x6c mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x00020180                scanner_config_scan_time_set
  .text.scanner_config_channels_set
-                0x000201e4       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x000201e4                scanner_config_channels_set
+                0x000201ec       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x000201ec                scanner_config_channels_set
  .text.scanner_config_access_addresses_set
-                0x0002024c       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x0002024c                scanner_config_access_addresses_set
+                0x00020254       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x00020254                scanner_config_access_addresses_set
  .text.scanner_config_reset
-                0x00020290       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x00020290                scanner_config_reset
+                0x00020298       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x00020298                scanner_config_reset
  .text.scanner_init
-                0x000202d4       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
-                0x000202d4                scanner_init
+                0x000202dc       0x48 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x000202dc                scanner_init
  .text.internal_event_push
-                0x0002031c       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(internal_event.c.obj)
-                0x0002031c                internal_event_push
+                0x00020324       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(internal_event.c.obj)
+                0x00020324                internal_event_push
  .text.nrf_mesh_configure_device_uuid_reset
-                0x0002034c       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_configure.c.obj)
-                0x0002034c                nrf_mesh_configure_device_uuid_reset
+                0x00020354       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_configure.c.obj)
+                0x00020354                nrf_mesh_configure_device_uuid_reset
  .text.msg_cache_init
-                0x00020374       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
-                0x00020374                msg_cache_init
+                0x0002037c       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
+                0x0002037c                msg_cache_init
  .text.msg_cache_entry_exists
-                0x0002039c       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
-                0x0002039c                msg_cache_entry_exists
+                0x000203a4       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
+                0x000203a4                msg_cache_entry_exists
  .text.msg_cache_entry_add
-                0x000203dc       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
-                0x000203dc                msg_cache_entry_add
+                0x000203e4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(msg_cache.c.obj)
+                0x000203e4                msg_cache_entry_add
  .text.block_ack_full
-                0x00020408       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020410       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.seqauth_sequence_number_get
-                0x00020434       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x0002043c       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_rx_session_mark_as_handled
-                0x0002044c       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020454       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ctx_find
-                0x000204a0       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000204a8       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.m_send_sar_cancel_event
-                0x000204e0       0x26 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
- *fill*         0x00020506        0x2 
+                0x000204e8       0x26 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+ *fill*         0x0002050e        0x2 
  .text.tx_complete
-                0x00020508       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020510       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.upper_trs_packet_alloc
-                0x00020538       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020540       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.upper_trs_packet_encrypt
-                0x00020568       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020570       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ctx_free
-                0x0002062c       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020634       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ctx_tx_complete
-                0x00020664       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x0002066c       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ctx_cancel
-                0x000206a0      0x110 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000206a8      0x110 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.abort_timeout
-                0x000207b0        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000207b8        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ctx_alloc
-                0x000207bc       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000207c4       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.test_transport_decrypt
-                0x00020880       0x90 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020888       0x90 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.upper_transport_access_packet_in
-                0x00020910      0x290 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020918      0x290 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.trs_packet_header_build
-                0x00020ba0       0x96 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
- *fill*         0x00020c36        0x2 
+                0x00020ba8       0x96 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+ *fill*         0x00020c3e        0x2 
  .text.trs_sar_packet_out
-                0x00020c38       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020c40       0xc4 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.retry_timeout
-                0x00020cfc       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020d04       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.sar_ack_send
-                0x00020d50      0x11c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020d58      0x11c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.ack_timeout
-                0x00020e6c       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020e74       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.tx_retry_timer_reset
-                0x00020ea8       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020eb0       0x50 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.upper_transport_packet_in
-                0x00020ef8      0x174 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00020f00      0x174 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.transport_sar_process
-                0x0002106c       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00021074       0x78 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .text.transport_sar_mem_funcs_reset
-                0x000210e4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
-                0x000210e4                transport_sar_mem_funcs_reset
+                0x000210ec       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000210ec                transport_sar_mem_funcs_reset
  .text.transport_init
-                0x00021110       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
-                0x00021110                transport_init
+                0x00021118       0x74 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00021118                transport_init
  .text.transport_packet_in
-                0x00021184      0x4f0 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
-                0x00021184                transport_packet_in
+                0x0002118c      0x4f0 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x0002118c                transport_packet_in
  .text.m_adjust_desired_packet_length
-                0x00021674       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x0002167c       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
  .text.m_index_increment.part.0
-                0x000216a8       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x000216b0       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
  .text.m_free_popped_packet
-                0x000216c0       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x000216c8       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
  .text.free_skipped_packets
-                0x00021724       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x0002172c       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
  .text.packet_buffer_init
-                0x00021740       0xe0 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021740                packet_buffer_init
+                0x00021748       0xe0 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021748                packet_buffer_init
  .text.packet_buffer_reserve
-                0x00021820      0x11c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021820                packet_buffer_reserve
+                0x00021828      0x11c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021828                packet_buffer_reserve
  .text.packet_buffer_commit
-                0x0002193c      0x10c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x0002193c                packet_buffer_commit
+                0x00021944      0x10c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021944                packet_buffer_commit
  .text.packet_buffer_pop
-                0x00021a48       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021a48                packet_buffer_pop
+                0x00021a50       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021a50                packet_buffer_pop
  .text.packet_buffer_can_pop
-                0x00021aac       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021aac                packet_buffer_can_pop
+                0x00021ab4       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021ab4                packet_buffer_can_pop
  .text.packet_buffer_packets_ready_to_pop
-                0x00021ad8       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021ad8                packet_buffer_packets_ready_to_pop
+                0x00021ae0       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021ae0                packet_buffer_packets_ready_to_pop
  .text.packet_buffer_free
-                0x00021b30       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
-                0x00021b30                packet_buffer_free
+                0x00021b38       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_buffer.c.obj)
+                0x00021b38                packet_buffer_free
  .text.get_last_page
-                0x00021bc4       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021bcc       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.defrag_on_end
-                0x00021bd8       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021be0       0x1c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.execute_procedure_step
-                0x00021bf4       0xac mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021bfc       0xac mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.get_next_entry
-                0x00021ca0       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021ca8       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.get_next_data_entry
-                0x00021ce4       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021cec       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.on_flash_op_end
-                0x00021d08       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021d10       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.check_for_invalid_entries
-                0x00021d3c       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021d44       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.erase_recovery_area
-                0x00021d78       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021d80       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.flash.constprop.6
-                0x00021da8       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021db0       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.seal_storage_page
-                0x00021dc8       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021dd0       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.invalidate_duplicate_entries
-                0x00021e20       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021e28       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.copy_metadata
-                0x00021ea8       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021eb0       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.write_defrag_start_pointer
-                0x00021ee8       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021ef0       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.write_back
-                0x00021f08       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021f10       0x2c mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.post_process
-                0x00021f34       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021f3c       0x44 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.backup_entries
-                0x00021f78      0x128 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00021f80      0x128 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.erase_source
-                0x000220a0       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x000220a8       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .text.flash_manager_defrag_init
-                0x000220d0       0xa0 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
-                0x000220d0                flash_manager_defrag_init
+                0x000220d8       0xa0 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x000220d8                flash_manager_defrag_init
  .text.flash_manager_defrag_is_running
-                0x00022170       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
-                0x00022170                flash_manager_defrag_is_running
+                0x00022178       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00022178                flash_manager_defrag_is_running
  .text.flash_manager_defrag
-                0x00022180       0xdc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
-                0x00022180                flash_manager_defrag
+                0x00022188       0xdc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00022188                flash_manager_defrag
  .text.flash_manager_defrag_recovery_page_get
-                0x0002225c        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
-                0x0002225c                flash_manager_defrag_recovery_page_get
+                0x00022264        0xc mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00022264                flash_manager_defrag_recovery_page_get
  .text.fifo_init
-                0x00022268       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
-                0x00022268                fifo_init
+                0x00022270       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
+                0x00022270                fifo_init
  .text.fifo_push
-                0x000222c4       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
-                0x000222c4                fifo_push
+                0x000222cc       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
+                0x000222cc                fifo_push
  .text.fifo_pop
-                0x00022320       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
-                0x00022320                fifo_pop
+                0x00022328       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(fifo.c.obj)
+                0x00022328                fifo_pop
  .text.packet_mgr_init
-                0x0002237c       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_mgr.c.obj)
-                0x0002237c                packet_mgr_init
+                0x00022384       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(packet_mgr.c.obj)
+                0x00022384                packet_mgr_init
  .text.send_end_events
-                0x000223d0       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x000223d8       0x80 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
  .text.flash_op_schedule
-                0x00022450       0xa0 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x00022458       0xa0 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
  .text.flash_op_start
-                0x000224f0      0x178 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x000224f8      0x178 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
  .text.mesh_flash_init
-                0x00022668       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
-                0x00022668                mesh_flash_init
+                0x00022670       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x00022670                mesh_flash_init
  .text.mesh_flash_user_callback_set
-                0x000226fc       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
-                0x000226fc                mesh_flash_user_callback_set
+                0x00022704       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x00022704                mesh_flash_user_callback_set
  .text.mesh_flash_op_push
-                0x0002272c      0x140 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
-                0x0002272c                mesh_flash_op_push
+                0x00022734      0x140 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x00022734                mesh_flash_op_push
  .text.queue_init
-                0x0002286c       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
-                0x0002286c                queue_init
+                0x00022874       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
+                0x00022874                queue_init
  .text.queue_push
-                0x00022890       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
-                0x00022890                queue_push
+                0x00022898       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
+                0x00022898                queue_push
  .text.queue_pop
-                0x000228e4       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
-                0x000228e4                queue_pop
+                0x000228ec       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
+                0x000228ec                queue_pop
  .text.queue_peek
-                0x00022920       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
-                0x00022920                queue_peek
+                0x00022928       0x20 mesh/core/libmesh_core_nrf51422_xxAC.a(queue.c.obj)
+                0x00022928                queue_peek
  .text.enc_aes_encrypt
-                0x00022940        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022940                enc_aes_encrypt
- .text.enc_aes_cmac
                 0x00022948        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022948                enc_aes_cmac
- .text.enc_aes_ccm_encrypt
+                0x00022948                enc_aes_encrypt
+ .text.enc_aes_cmac
                 0x00022950        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022950                enc_aes_ccm_encrypt
- .text.enc_aes_ccm_decrypt
+                0x00022950                enc_aes_cmac
+ .text.enc_aes_ccm_encrypt
                 0x00022958        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022958                enc_aes_ccm_decrypt
+                0x00022958                enc_aes_ccm_encrypt
+ .text.enc_aes_ccm_decrypt
+                0x00022960        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
+                0x00022960                enc_aes_ccm_decrypt
  .text.enc_nonce_generate
-                0x00022960       0xd8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022960                enc_nonce_generate
- .text.enc_s1   0x00022a38       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
-                0x00022a38                enc_s1
+                0x00022968       0xd8 mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
+                0x00022968                enc_nonce_generate
+ .text.enc_s1   0x00022a40       0x3c mesh/core/libmesh_core_nrf51422_xxAC.a(enc.c.obj)
+                0x00022a40                enc_s1
  .text.stage_get_available
-                0x00022a74       0x26 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
- *fill*         0x00022a9a        0x2 
- .text.msq_get  0x00022a9c       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
-                0x00022a9c                msq_get
+                0x00022a7c       0x26 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+ *fill*         0x00022aa2        0x2 
+ .text.msq_get  0x00022aa4       0x54 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+                0x00022aa4                msq_get
  .text.msq_move
-                0x00022af0       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
-                0x00022af0                msq_move
+                0x00022af8       0x4c mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+                0x00022af8                msq_move
  .text.msq_reset
-                0x00022b3c       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
-                0x00022b3c                msq_reset
+                0x00022b44       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+                0x00022b44                msq_reset
  .text.msq_init
-                0x00022b6c       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
-                0x00022b6c                msq_init
+                0x00022b74       0x88 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+                0x00022b74                msq_init
  .text.msq_available
-                0x00022bf4       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
-                0x00022bf4                msq_available
+                0x00022bfc       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(msqueue.c.obj)
+                0x00022bfc                msq_available
  .text.utils_xor
-                0x00022c34       0x16 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022c3c       0x16 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
  .text.ccm_soft_authenticate_blocks
-                0x00022c4a       0x66 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022c52       0x66 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
  .text.utils_reverse_memcpy.constprop.0
-                0x00022cb0        0xa mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022cb8        0xa mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
  .text.ccm_soft_authenticate
-                0x00022cba       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022cc2       0x94 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
  .text.ccm_soft_crypt
-                0x00022d4e       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022d56       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
  .text.ccm_soft_encrypt
-                0x00022da6       0x6e mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
-                0x00022da6                ccm_soft_encrypt
+                0x00022dae       0x6e mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022dae                ccm_soft_encrypt
  .text.ccm_soft_decrypt
-                0x00022e14      0x10c mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
-                0x00022e14                ccm_soft_decrypt
+                0x00022e1c      0x10c mesh/core/libmesh_core_nrf51422_xxAC.a(ccm_soft.c.obj)
+                0x00022e1c                ccm_soft_decrypt
  .text.replay_cache_add
-                0x00022f20       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
-                0x00022f20                replay_cache_add
+                0x00022f28       0x68 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
+                0x00022f28                replay_cache_add
  .text.replay_cache_has_room
-                0x00022f88       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
-                0x00022f88                replay_cache_has_room
+                0x00022f90       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
+                0x00022f90                replay_cache_has_room
  .text.replay_cache_has_elem
-                0x00022fc0       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
-                0x00022fc0                replay_cache_has_elem
+                0x00022fc8       0x38 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
+                0x00022fc8                replay_cache_has_elem
  .text.replay_cache_clear
-                0x00022ff8       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
-                0x00022ff8                replay_cache_clear
+                0x00023000       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
+                0x00023000                replay_cache_clear
  .text.replay_cache_init
-                0x00023020        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
-                0x00023020                replay_cache_init
+                0x00023028        0x8 mesh/core/libmesh_core_nrf51422_xxAC.a(replay_cache.c.obj)
+                0x00023028                replay_cache_init
  .text.fen_filters_apply
-                0x00023028       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(filter_engine.c.obj)
-                0x00023028                fen_filters_apply
+                0x00023030       0x34 mesh/core/libmesh_core_nrf51422_xxAC.a(filter_engine.c.obj)
+                0x00023030                fen_filters_apply
  .text.sd_ecb_block_encrypt
-                0x0002305c        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(aes.c.obj)
+                0x00023064        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(aes.c.obj)
  .text.aes_encrypt
-                0x00023060       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(aes.c.obj)
-                0x00023060                aes_encrypt
+                0x00023068       0x30 mesh/core/libmesh_core_nrf51422_xxAC.a(aes.c.obj)
+                0x00023068                aes_encrypt
  .text.wait_for_ready
-                0x00023090       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
+                0x00023098       0x14 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
  .text.nrf_flash_erase
-                0x000230a4       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
-                0x000230a4                nrf_flash_erase
+                0x000230ac       0x58 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
+                0x000230ac                nrf_flash_erase
  .text.nrf_flash_write
-                0x000230fc       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
-                0x000230fc                nrf_flash_write
+                0x00023104       0x5c mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_flash.c.obj)
+                0x00023104                nrf_flash_write
  .text.my_xor.constprop.1
-                0x00023158       0x12 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
+                0x00023160       0x12 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
  .text.utils_lshift.constprop.2
-                0x0002316a       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
- *fill*         0x00023182        0x2 
+                0x00023172       0x18 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
+ *fill*         0x0002318a        0x2 
  .text.aes_cmac_subkey_generate
-                0x00023184       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
-                0x00023184                aes_cmac_subkey_generate
+                0x0002318c       0x64 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
+                0x0002318c                aes_cmac_subkey_generate
  .text.aes_cmac
-                0x000231e8       0xc0 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
-                0x000231e8                aes_cmac
+                0x000231f0       0xc0 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
+                0x000231f0                aes_cmac
  .text._GetAvailWriteSpace
-                0x000232a8       0x12 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x000232b0       0x12 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
  .text._WriteNoCheck
-                0x000232ba       0x38 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x000232c2       0x38 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
  .text._WriteBlocking
-                0x000232f2       0x5a external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
- .text._DoInit  0x0002334c       0x64 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x000232fa       0x5a external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+ .text._DoInit  0x00023354       0x64 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
  .text.SEGGER_RTT_WriteNoLock
-                0x000233b0       0x6c external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
-                0x000233b0                SEGGER_RTT_WriteNoLock
+                0x000233b8       0x6c external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x000233b8                SEGGER_RTT_WriteNoLock
  .text.SEGGER_RTT_Write
-                0x0002341c       0x34 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
-                0x0002341c                SEGGER_RTT_Write
+                0x00023424       0x34 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x00023424                SEGGER_RTT_Write
  .text._StoreChar
-                0x00023450       0x3e external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
- *fill*         0x0002348e        0x2 
+                0x00023458       0x3e external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
+ *fill*         0x00023496        0x2 
  .text._PrintUnsigned
-                0x00023490       0xe0 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
+                0x00023498       0xe0 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
  .text.SEGGER_RTT_vprintf
-                0x00023570      0x25c external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
-                0x00023570                SEGGER_RTT_vprintf
+                0x00023578      0x25c external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
+                0x00023578                SEGGER_RTT_vprintf
  .text.SEGGER_RTT_printf
-                0x000237cc       0x18 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
-                0x000237cc                SEGGER_RTT_printf
- .text          0x000237e4       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_uqi.o)
-                0x000237e4                __gnu_thumb1_case_uqi
- .text          0x000237f8       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_shi.o)
-                0x000237f8                __gnu_thumb1_case_shi
- .text          0x0002380c       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_uhi.o)
-                0x0002380c                __gnu_thumb1_case_uhi
- .text          0x00023820      0x114 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_udivsi3.o)
-                0x00023820                __aeabi_uidiv
-                0x00023820                __udivsi3
-                0x0002392c                __aeabi_uidivmod
- .text          0x00023934      0x1d4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_divsi3.o)
-                0x00023934                __divsi3
-                0x00023934                __aeabi_idiv
-                0x00023b00                __aeabi_idivmod
- .text          0x00023b08        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_dvmd_tls.o)
-                0x00023b08                __aeabi_idiv0
-                0x00023b08                __aeabi_ldiv0
- .text          0x00023b0c       0x54 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_muldi3.o)
-                0x00023b0c                __muldi3
-                0x00023b0c                __aeabi_lmul
- .text.exit     0x00023b60       0x2c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-exit.o)
-                0x00023b60                exit
+                0x000237d4       0x18 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
+                0x000237d4                SEGGER_RTT_printf
+ .text          0x000237ec       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_uqi.o)
+                0x000237ec                __gnu_thumb1_case_uqi
+ .text          0x00023800       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_shi.o)
+                0x00023800                __gnu_thumb1_case_shi
+ .text          0x00023814       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_thumb1_case_uhi.o)
+                0x00023814                __gnu_thumb1_case_uhi
+ .text          0x00023828      0x114 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_udivsi3.o)
+                0x00023828                __aeabi_uidiv
+                0x00023828                __udivsi3
+                0x00023934                __aeabi_uidivmod
+ .text          0x0002393c      0x1d4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_divsi3.o)
+                0x0002393c                __divsi3
+                0x0002393c                __aeabi_idiv
+                0x00023b08                __aeabi_idivmod
+ .text          0x00023b10        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_dvmd_tls.o)
+                0x00023b10                __aeabi_idiv0
+                0x00023b10                __aeabi_ldiv0
+ .text          0x00023b14       0x54 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m\libgcc.a(_muldi3.o)
+                0x00023b14                __muldi3
+                0x00023b14                __aeabi_lmul
+ .text.exit     0x00023b68       0x2c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-exit.o)
+                0x00023b68                exit
  .text.__libc_init_array
-                0x00023b8c       0x48 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-init.o)
-                0x00023b8c                __libc_init_array
- .text.malloc   0x00023bd4       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-malloc.o)
-                0x00023bd4                malloc
- .text.free     0x00023be8       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-malloc.o)
-                0x00023be8                free
- .text.memcmp   0x00023bfc       0x1e c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memcmp.o)
-                0x00023bfc                memcmp
- .text.memcpy   0x00023c1a       0x12 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memcpy-stub.o)
-                0x00023c1a                memcpy
- .text.memset   0x00023c2c       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memset.o)
-                0x00023c2c                memset
- .text._free_r  0x00023c3c       0x94 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-freer.o)
-                0x00023c3c                _free_r
+                0x00023b94       0x48 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-init.o)
+                0x00023b94                __libc_init_array
+ .text.malloc   0x00023bdc       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-malloc.o)
+                0x00023bdc                malloc
+ .text.free     0x00023bf0       0x14 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-malloc.o)
+                0x00023bf0                free
+ .text.memcmp   0x00023c04       0x1e c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memcmp.o)
+                0x00023c04                memcmp
+ .text.memcpy   0x00023c22       0x12 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memcpy-stub.o)
+                0x00023c22                memcpy
+ .text.memset   0x00023c34       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memset.o)
+                0x00023c34                memset
+ .text._free_r  0x00023c44       0x94 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-freer.o)
+                0x00023c44                _free_r
  .text._malloc_r
-                0x00023cd0       0xbc c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-mallocr.o)
-                0x00023cd0                _malloc_r
- .text._sbrk_r  0x00023d8c       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-sbrkr.o)
-                0x00023d8c                _sbrk_r
- .text.sprintf  0x00023db0       0x44 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-sprintf.o)
-                0x00023db0                siprintf
-                0x00023db0                sprintf
- .text.strcpy   0x00023df4       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strcpy.o)
-                0x00023df4                strcpy
- .text.strrchr  0x00023e04       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strrchr.o)
-                0x00023e04                strrchr
+                0x00023cd8       0xbc c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-mallocr.o)
+                0x00023cd8                _malloc_r
+ .text._sbrk_r  0x00023d94       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-sbrkr.o)
+                0x00023d94                _sbrk_r
+ .text.sprintf  0x00023db8       0x44 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-sprintf.o)
+                0x00023db8                siprintf
+                0x00023db8                sprintf
+ .text.strcpy   0x00023dfc       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strcpy.o)
+                0x00023dfc                strcpy
+ .text.strrchr  0x00023e0c       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strrchr.o)
+                0x00023e0c                strrchr
  .text.__malloc_lock
-                0x00023e28        0x2 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-mlock.o)
-                0x00023e28                __malloc_lock
+                0x00023e30        0x2 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-mlock.o)
+                0x00023e30                __malloc_lock
  .text.__malloc_unlock
-                0x00023e2a        0x2 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-mlock.o)
-                0x00023e2a                __malloc_unlock
+                0x00023e32        0x2 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-mlock.o)
+                0x00023e32                __malloc_unlock
  .text.__ssputs_r
-                0x00023e2c       0xc4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
-                0x00023e2c                __ssputs_r
+                0x00023e34       0xc4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
+                0x00023e34                __ssputs_r
  .text._svfprintf_r
-                0x00023ef0      0x208 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
-                0x00023ef0                _svfiprintf_r
-                0x00023ef0                _svfprintf_r
+                0x00023ef8      0x208 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
+                0x00023ef8                _svfiprintf_r
+                0x00023ef8                _svfprintf_r
  .text._printf_common
-                0x000240f8       0xda c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x000240f8                _printf_common
- *fill*         0x000241d2        0x2 
+                0x00024100       0xda c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x00024100                _printf_common
+ *fill*         0x000241da        0x2 
  .text._printf_i
-                0x000241d4      0x234 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x000241d4                _printf_i
- .text.strchr   0x00024408       0x1c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strchr.o)
-                0x00024408                strchr
- .text.memchr   0x00024424       0x16 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memchr-stub.o)
-                0x00024424                memchr
- .text.memmove  0x0002443a       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memmove.o)
-                0x0002443a                memmove
+                0x000241dc      0x234 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x000241dc                _printf_i
+ .text.strchr   0x00024410       0x1c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-strchr.o)
+                0x00024410                strchr
+ .text.memchr   0x0002442c       0x16 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memchr-stub.o)
+                0x0002442c                memchr
+ .text.memmove  0x00024442       0x24 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-memmove.o)
+                0x00024442                memmove
  .text._realloc_r
-                0x0002445e       0x4c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-reallocr.o)
-                0x0002445e                _realloc_r
+                0x00024466       0x4c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-reallocr.o)
+                0x00024466                _realloc_r
  .text._malloc_usable_size_r
-                0x000244aa       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-msizer.o)
-                0x000244aa                _malloc_usable_size_r
- *fill*         0x000244ba        0x2 
- .text._sbrk    0x000244bc       0x1c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libnosys.a(sbrk.o)
-                0x000244bc                _sbrk
- .text._exit    0x000244d8        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libnosys.a(_exit.o)
-                0x000244d8                _exit
+                0x000244b2       0x10 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-msizer.o)
+                0x000244b2                _malloc_usable_size_r
+ *fill*         0x000244c2        0x2 
+ .text._sbrk    0x000244c4       0x1c c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libnosys.a(sbrk.o)
+                0x000244c4                _sbrk
+ .text._exit    0x000244e0        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libnosys.a(_exit.o)
+                0x000244e0                _exit
  *(.init)
- .init          0x000244dc        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crti.o
-                0x000244dc                _init
- .init          0x000244e0        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtn.o
+ .init          0x000244e4        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crti.o
+                0x000244e4                _init
+ .init          0x000244e8        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtn.o
  *(.fini)
- .fini          0x000244e8        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crti.o
-                0x000244e8                _fini
- .fini          0x000244ec        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtn.o
+ .fini          0x000244f0        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crti.o
+                0x000244f0                _fini
+ .fini          0x000244f4        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtn.o
  *crtbegin.o(.ctors)
  *crtbegin?.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
@@ -2082,129 +2082,129 @@ END GROUP
  *(.dtors)
  *(.rodata*)
  .rodata.adv_data.8404
-                0x000244f4       0x12 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
+                0x000244fc       0x12 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
  .rodata.main.str1.1
-                0x00024506       0x45 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
+                0x0002450e       0x45 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
  .rodata.rx_callback.str1.1
-                0x0002454b       0x70 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
+                0x00024553       0x70 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/src/main.c.obj
  .rodata.HardFault_Handler.str1.1
-                0x000245bb        0xe examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x000245c3        0xe examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.app_error_handler.str1.1
-                0x000245c9       0x1d examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x000245d1       0x1d examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.mesh_assert_handler.str1.1
-                0x000245e6       0x34 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x000245ee       0x34 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.mesh_core_setup.str1.1
-                0x0002461a       0x47 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x00024622       0x47 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.mesh_softdevice_enable.str1.1
-                0x00024661       0x65 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x00024669       0x65 examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.softdevice_assert_handler.str1.1
-                0x000246c6       0x1d examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
+                0x000246ce       0x1d examples/beaconing/CMakeFiles/beaconing_nrf51422_xxAC_s130_2.0.1.dir/__/nrf_mesh_sdk.c.obj
  .rodata.types_lookup.6415
-                0x000246e3        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_utils.c.obj)
+                0x000246eb        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh_utils.c.obj)
  .rodata.nrf_mesh_process.str1.1
-                0x000246e7       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
- *fill*         0x00024757        0x1 
+                0x000246ef       0x70 mesh/core/libmesh_core_nrf51422_xxAC.a(nrf_mesh.c.obj)
+ *fill*         0x0002475f        0x1 
  .rodata.CSWTCH.9
-                0x00024758       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(hal.c.obj)
+                0x00024760       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(hal.c.obj)
  .rodata.network_packet_in.str1.1
-                0x00024768       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x00024770       0x40 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
                                  0x48 (size before relaxing)
  .rodata.network_packet_send.str1.1
-                0x000247a8       0x49 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
+                0x000247b0       0x49 mesh/core/libmesh_core_nrf51422_xxAC.a(network.c.obj)
  .rodata.log_callback_rtt.str1.1
-                0x000247f1       0x15 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+                0x000247f9       0x15 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
  .rodata.str1.1
-                0x00024806       0x11 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
- *fill*         0x00024817        0x1 
+                0x0002480e       0x11 mesh/core/libmesh_core_nrf51422_xxAC.a(log.c.obj)
+ *fill*         0x0002481f        0x1 
  .rodata.INVALID_HEADER
-                0x00024818        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x00024818                INVALID_HEADER
- .rodata.PADDING_HEADER
-                0x0002481c        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x0002481c                PADDING_HEADER
- .rodata.SEAL_HEADER
                 0x00024820        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
-                0x00024820                SEAL_HEADER
+                0x00024820                INVALID_HEADER
+ .rodata.PADDING_HEADER
+                0x00024824        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x00024824                PADDING_HEADER
+ .rodata.SEAL_HEADER
+                0x00024828        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x00024828                SEAL_HEADER
  .rodata.process_action_queue.str1.1
-                0x00024824       0x21 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
+                0x0002482c       0x21 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager.c.obj)
                                  0x4f (size before relaxing)
  .rodata.beacon_packet_in.str1.1
-                0x00024845       0x51 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
+                0x0002484d       0x51 mesh/core/libmesh_core_nrf51422_xxAC.a(beacon.c.obj)
                                  0x59 (size before relaxing)
  .rodata.net_beacon_init.str1.1
-                0x00024896        0x5 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
+                0x0002489e        0x5 mesh/core/libmesh_core_nrf51422_xxAC.a(net_beacon.c.obj)
  .rodata.radio_mode_to_us_per_byte.6787
-                0x0002489b        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
+                0x000248a3        0x4 mesh/core/libmesh_core_nrf51422_xxAC.a(broadcast.c.obj)
  .rodata.channel_rf_offsets.6049
-                0x0002489f       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
- .rodata        0x000248c7        0x3 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
+                0x000248a7       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(radio_config.c.obj)
+ .rodata        0x000248cf        0x3 mesh/core/libmesh_core_nrf51422_xxAC.a(scanner.c.obj)
  .rodata.sar_ctx_cancel.str1.1
-                0x000248ca       0x35 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x000248d2       0x35 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
                                  0x63 (size before relaxing)
  .rodata.test_transport_decrypt.str1.1
-                0x000248ff       0x13 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00024907       0x13 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .rodata.transport_packet_in.str1.1
-                0x00024912       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x0002491a       0x24 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .rodata.upper_transport_access_packet_in.str1.1
-                0x00024936       0x29 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x0002493e       0x29 mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .rodata.upper_transport_packet_in.str1.1
-                0x0002495f       0x2e mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
+                0x00024967       0x2e mesh/core/libmesh_core_nrf51422_xxAC.a(transport.c.obj)
  .rodata.flash_manager_defrag.str1.1
-                0x0002498d       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x00024995       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
                                  0x56 (size before relaxing)
- *fill*         0x000249b5        0x3 
+ *fill*         0x000249bd        0x3 
  .rodata.m_procedure_steps
-                0x000249b8       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
+                0x000249c0       0x28 mesh/core/libmesh_core_nrf51422_xxAC.a(flash_manager_defrag.c.obj)
  .rodata.m_all_operations
-                0x000249e0       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
+                0x000249e8       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(mesh_flash.c.obj)
  .rodata.Rb.5039
-                0x000249f0       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
+                0x000249f8       0x10 mesh/core/libmesh_core_nrf51422_xxAC.a(aes_cmac.c.obj)
  .rodata._DoInit.str1.1
-                0x00024a00       0x14 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
+                0x00024a08       0x14 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT.c.obj)
  .rodata._aV2C.4374
-                0x00024a14       0x10 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
+                0x00024a1c       0x10 external/rtt/librtt_nrf51422_xxAC.a(SEGGER_RTT_printf.c.obj)
  .rodata._global_impure_ptr
-                0x00024a24        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-impure.o)
-                0x00024a24                _global_impure_ptr
+                0x00024a2c        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-impure.o)
+                0x00024a2c                _global_impure_ptr
  .rodata._svfprintf_r.str1.1
-                0x00024a28       0x11 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
+                0x00024a30       0x11 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-svfprintf.o)
  .rodata._printf_i.str1.1
-                0x00024a39       0x11 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x00024a41       0x11 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m\libc_nano.a(lib_a-nano-vfprintf_i.o)
                                  0x22 (size before relaxing)
  *(.eh_frame*)
- *fill*         0x00024a4a        0x2 
- .eh_frame      0x00024a4c        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
- .eh_frame      0x00024a4c        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtend.o
+ *fill*         0x00024a52        0x2 
+ .eh_frame      0x00024a54        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
+ .eh_frame      0x00024a54        0x4 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtend.o
 
-.glue_7         0x00024a50        0x0
- .glue_7        0x00024a50        0x0 linker stubs
+.glue_7         0x00024a58        0x0
+ .glue_7        0x00024a58        0x0 linker stubs
 
-.glue_7t        0x00024a50        0x0
- .glue_7t       0x00024a50        0x0 linker stubs
+.glue_7t        0x00024a58        0x0
+ .glue_7t       0x00024a58        0x0 linker stubs
 
-.vfp11_veneer   0x00024a50        0x0
- .vfp11_veneer  0x00024a50        0x0 linker stubs
+.vfp11_veneer   0x00024a58        0x0
+ .vfp11_veneer  0x00024a58        0x0 linker stubs
 
-.v4_bx          0x00024a50        0x0
- .v4_bx         0x00024a50        0x0 linker stubs
+.v4_bx          0x00024a58        0x0
+ .v4_bx         0x00024a58        0x0 linker stubs
 
-.iplt           0x00024a50        0x0
- .iplt          0x00024a50        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
+.iplt           0x00024a58        0x0
+ .iplt          0x00024a58        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x00024a50                __exidx_start = .
+                0x00024a58                __exidx_start = .
 
-.ARM.exidx      0x00024a50        0x8
+.ARM.exidx      0x00024a58        0x8
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
- .ARM.exidx     0x00024a50        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/crt0.o
-                0x00024a58                __exidx_end = .
-                0x00024a58                __etext = .
+ .ARM.exidx     0x00024a58        0x8 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/crt0.o
+                0x00024a60                __exidx_end = .
+                0x00024a60                __etext = .
 
-.rel.dyn        0x00024a58        0x0
- .rel.iplt      0x00024a58        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
+.rel.dyn        0x00024a60        0x0
+ .rel.iplt      0x00024a60        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
 
-.data           0x200022d8       0xb0 load address 0x00024a58
+.data           0x200022d8       0xb0 load address 0x00024a60
                 0x200022d8                __data_start__ = .
  *(vtable)
  *(.data*)
@@ -2253,10 +2253,10 @@ END GROUP
                 0x20002388                . = ALIGN (0x4)
                 0x20002388                __data_end__ = .
 
-.igot.plt       0x20002388        0x0 load address 0x00024b08
+.igot.plt       0x20002388        0x0 load address 0x00024b10
  .igot.plt      0x20002388        0x0 c:/a/gcc_arm/6/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v6-m/crtbegin.o
 
-.bss            0x20002388     0x2ba0 load address 0x00024b08
+.bss            0x20002388     0x2ba0 load address 0x00024b10
                 0x20002388                . = ALIGN (0x4)
                 0x20002388                __bss_start__ = .
  *(.bss*)

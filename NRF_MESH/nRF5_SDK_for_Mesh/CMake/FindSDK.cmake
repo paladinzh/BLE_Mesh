@@ -1,5 +1,6 @@
 # Finds the nRF5 SDK
-set(nRF5_SDK_VERSION "nRF5_SDK_14.0.0_3bcc1f7")
+
+set(nRF5_SDK_VERSION "nRF5_SDK_14.0.0_3bcc1f7" CACHE STRING "")
 
 find_dependency(SDK_ROOT
     "Path to nRF5 SDK root"

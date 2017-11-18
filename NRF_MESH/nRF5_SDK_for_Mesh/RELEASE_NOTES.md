@@ -1,5 +1,15 @@
 # Release Notes
 
+## BLE Mesh v0.10.1-Alpha
+
+This is a hotfix release with no new features.
+
+### Bugfixes
+
+- Segger Embedded Studio Projects have devkit BOARD defines now instead of dongles.
+- Standard BLE Access Address now used for all binary artifacts (.hex/.lib)
+
+
 ## BLE Mesh v0.10.0-Alpha
 
 This is a minor feature release for the experimental nRF5 SDK for Mesh
