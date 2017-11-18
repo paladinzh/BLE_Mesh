@@ -1,5 +1,58 @@
 # Release Notes
 
+## BLE Mesh v0.10.0-Alpha
+
+This is a minor feature release for the experimental nRF5 SDK for Mesh
+
+### New features
+
+- Health Model
+
+- Reworked build system
+    - Support for nRF52840 (but not part of the integration testing)
+    - Support for new SoftDevices S132 versions 4.0.4 and 5.0.0 and S140 version 5.0.0-3.alpha
+    - Aligned with the nRF5 SDK version 14. Note: A subset of the nRF5 SDK is included in the nRF5 SDK for Mesh with some minor changes. See `external/nRF5_SDK_14.0.0_3bcc1f7/nRF5_SDK_14.0.0_3bcc1f7.patch` for the changes made.
+
+- Refactored Bearer Layer and Core for increased bandwidth and robustness
+    - Any number of concurrent advertisers
+    - Custom radio implementations possible
+    - Improved SAR reliability and throughput
+    - TX Complete events fully supported
+    - Significant reduction in packet processing time
+    - More efficient radio code, major throughput improvements in noisy conditions
+
+- Access Layer loopback, messages sent between models on the same device will now be short-circuited through the access layer
+- RSSI and timestamp information is now available in the `access_message_rx_meta_t` and used in the Light switch example
+- New filter engine for scanner
+- Scanner filters: AD type, advertisement packet type, GAP address, RSSI
+- Support for user-defined packet filters
+- Each example project now has its own Segger Embedded Studio project file
+
+### Bugfixes
+
+- SAR receiving segments with TTL=0 should reply with SegAck TTL=0
+- Bug in validation of command line options in device_page.py
+- "family" undefined in reset_device() in bootloader_verify.py
+- Access application key bitfield needs to hold device keys also
+- DSM clears regular address when deleting virtual address
+- Reliable parameter unset in access:packet_tx()
+- Various bugfixes
+
+### Document updates
+- Revised documentation for better distinction between implementation-specific information and concepts defined by the Bluetooth Mesh Profile Specification, updated references to the latter
+- Updated DFU Quick Start guide
+- Added more detailed installation instructions
+
+### Other
+- "Light control example" has been renamed "Light switch example" to resolve similarity with the Light Control model in the Mesh Model Bluetooth Specification
+- Step-by-step howto for setting up Keil projects for Mesh now available on DevZone: https://devzone.nordicsemi.com/blogs/1180/creating-a-keil-project-for-a-bluetooth-mesh-examp/
+
+### Known limitations
+- Heartbeat feature is not supported
+
+
+
+
 ## BLE Mesh v0.9.2-Alpha
 
 This is a hotfix release, providing critical bug fixes and improvements.

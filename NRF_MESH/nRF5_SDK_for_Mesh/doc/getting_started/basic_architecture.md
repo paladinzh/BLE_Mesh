@@ -64,7 +64,7 @@ The mesh stack provides two ways to provision a device: Directly through the PB-
 
 > **Important:** The remote provisioning is a Nordic proprietary feature that cannot be used with devices from other vendors.
 
-The Remote Provisioning [Client](@ref md_examples_pb_remote_client_README) and [Server](@ref md_examples_pb_remote_server_README) examples demonstrate remote provisioning. The [light control example](@ref md_examples_light_control_README) shows the provisioner and provisionee side of PB-ADV as a first step to establishing the network.
+The Remote Provisioning [Client](@ref md_examples_pb_remote_client_README) and [Server](@ref md_examples_pb_remote_server_README) examples demonstrate remote provisioning. The [light switch example](@ref md_examples_light_switch_README) shows the provisioner and provisionee side of PB-ADV as a first step to establishing the network.
 
 For a detailed guide on how to use provisioning, see [mesh provisioning](@ref md_doc_getting_started_provisioning).
 

@@ -1141,7 +1141,7 @@ _The response has no parameters._
 
 _Opcode:_ `0x78`
 
-_Total length: 25 bytes_
+_Total length: 32 bytes_
 
 Send DFU data to the device.
 
@@ -1149,7 +1149,7 @@ _DFU Data Parameters:_
 
 Type          | Name                                    | Size | Offset | Description
 --------------|-----------------------------------------|------|--------|------------
-`nrf_mesh_dfu_packet_t` | DFU Packet                              | 24   | 0      | DFU packet data.
+`uint8_t[31]` | DFU Packet                              | 31   | 0      | DFU packet data.
 
 ### Response
 

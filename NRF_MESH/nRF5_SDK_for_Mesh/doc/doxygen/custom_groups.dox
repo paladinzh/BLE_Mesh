@@ -12,6 +12,9 @@
  * @defgroup MESH_API_GROUP_CORE   Core
  * Core mesh modules, implementing mesh message passing.
  *
+ * @defgroup MESH_API_GROUP_BEARER Bearer
+ * Bearer-layer moduler, providing advertiser support for the mesh.
+ *
  * @defgroup MESH_API_GROUP_ACCESS Access
  * Access layer module for the mesh.
  *
@@ -19,6 +22,18 @@
  * Mesh Core components, used for mesh message passing.
  * @{
  * @ingroup MESH_API_GROUP_CORE
+ * @}
+ *
+ * @defgroup MESH_BEARER           Bearer components
+ * Bearer-layer components, providing advertising and scanning support.
+ * @{
+ * @ingroup MESH_API_GROUP_BEARER
+ * @}
+ *
+ * @defgroup MESH_API_GROUP_BEARER_FILTER Packet filtering
+ * Provides filtering support for scanners.
+ * @{
+ * @ingroup MESH_API_GROUP_BEARER
  * @}
  *
  * @defgroup CONFIG_MODEL Configuration Model

@@ -24,7 +24,7 @@ has not been compiled into the library, an `NRF_ERROR_NOT_SUPPORTED` error is re
 The following diagram illustrates the provisioning procedure, with all function
 calls, messages, and events added.
 
-![Provisioning Procedure](img/provisioning.png)
+![Provisioning Procedure](img/provisioning.svg)
 
 ## Initialization
 
@@ -114,9 +114,9 @@ must take are as follows:
    by the access layer modules. At this point, the device can receive further configuration
    from the provisioner via the configuration model. The configuration happens automatically
    in the background as long as the configuration model server has been initialized (see the
-   Light Controller example for an example of how to do this).
+   Light switch example for an example of how to do this).
 
-![Provisionee flowchart](img/provisionee_app_flowchart.png)
+![Provisionee flowchart](img/provisionee_app_flowchart.svg)
 
 ## Provisioners
 
@@ -168,10 +168,10 @@ as follows:
    data by passing it to the stack through the `nrf_mesh_prov_auth_data_provide()` function.
 7. When the provisioning of the device is complete, an `NRF_MESH_EVT_PROV_COMPLETE` event
    is passed to the application. At this point, the provisioner can continue configuring
-   the device using the configuration model. See the Light Control client example application
+   the device using the configuration model. See the Light switch client example application
    for more information on how to do the configuration.
 
-![Provisioner flowchart](img/provisioner_app_flowchart.png)
+![Provisioner flowchart](img/provisioner_app_flowchart.svg)
 
 ### Serial provisioners
 
@@ -212,7 +212,7 @@ Remote provisioning (PB-Remote) allows a provisioner to provision devices outsid
 radio range. This is done by using mesh nodes to relay provisioning messages to a node
 within range of the device that is to be provisioned.
 
-![Remote provisioning topology](img/pbr_tunnel.png)
+![Remote provisioning topology](img/pbr_tunnel.svg)
 
 The PB-Remote functionality is provided by the PB-Remote client and server models.
 More information about remote provisioning and the remote provisioning models can be

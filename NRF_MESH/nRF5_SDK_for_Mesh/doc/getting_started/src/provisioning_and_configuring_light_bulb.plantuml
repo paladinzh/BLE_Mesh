@@ -1,4 +1,5 @@
 @startuml
+skinparam defaultFontName Arial
 actor Provisioner as p
 participant "Light Bulb" as lb
 

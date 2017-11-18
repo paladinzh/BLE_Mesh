@@ -1,40 +1,43 @@
-# Creating custom models
+# Creating new models
 
-In the Bluetooth mesh solution, models are used to define the functionality of nodes.
-Each model represents a set of states and behaviors and defines which messages are
-used to interact with these.
+In the Bluetooth Mesh solution, models are used to define the functionality of nodes.
+Each model represents a set of states and behaviors and defines messages that are
+used to interact with the model states.
 
-One example of a model is the configuration model, which is a required model in all
-mesh devices that represents the configuration of a node (the state) and provides
-messages to set or retrieve configuration parameters (behavior).
+One example of a model is the configuration model, which is a mandatory model in all
+mesh devices. This model represents the configuration of a node (in the form of various 
+states) and provides messages to set or retrieve configuration parameters (behavior).
 
-This guide presents the basics of how to make your own models, which will enable
-your devices to provide custom states and behaviors not covered by the already defined
-standard models.
+This guide presents the basics of how to create new models. You may implement your own 
+vendor-specific model which will enable your devices to provide custom states and behaviors not 
+covered by the already defined standard models.
 
 ## Implementing models with the mesh stack
 
-For all models, you must take the following basic steps:
+To implement a model, you must take the following basic steps:
 
-* **Define opcode handlers**: Define a table of handlers for incoming messages by creating an array of `access_opcode_handler_t`, which
-  functions as a lookup table for how to handle the opcodes of incoming messages.
-* **Allocate and bind the model to an element**: Use `access_model_add()` to allocate,
-  initialize, and bind the model to the element at the given element index. A handle is returned.
-  Use this handle when calling access layer API functions. In the Bluetooth Mesh, all models must be
-  bound to an element. An element represents an addressable unit in a device, such as a light bulb in
-  a light fixture. Therefore, each element is assigned a separate unicast address by the provisioner.
+* **Define opcode handlers**: Define a table of handlers for incoming messages by creating an array
+  of `access_opcode_handler_t`. Each element in this array functions as a lookup table entry for 
+  handling opcodes of incoming messages destined for this model.
+* **Allocate and bind the model to an element**: Use the `access_model_add()` API to allocate,
+  initialize, and bind the model to the element at the given element index. This model instance is
+  identified by a handle value assigned to the output parameter `p_model_handle`. Use this handle when 
+  calling access layer API functions. All models must be bound to an element. An element represents 
+  an addressable unit in a device, such as a light bulb in a light fixture. Therefore, each element 
+  is assigned a separate unicast address by the provisioner. 
 
-  Note that in advanced use cases, a model can consist of multiple submodels. In this
-  case, submodels can be bound to different elements, making the complete model span
-  multiple elements. This kind of model is described in the Mesh Model Specification of the @link_btsig_spec<!-- https://www.bluetooth.com/specifications/mesh-specifications -->,
-  and more information can be found there.
+  Note that a model can extend one or more other models. These parent model instances can be bound
+  to different elements, making the complete model span multiple elements.
+  These models are called extended models. Refer to the Mesh Model Specification of 
+  the @link_btsig_spec<!-- https://www.bluetooth.com/specifications/mesh-specifications -->,
+  for more information and examples.
 
 ### Publication
 
-Sending messages from models is done via publication. In Bluetooth Mesh, publication
+Sending messages from models is done via publication. Each model has a publish address. Publication 
 of messages can be periodic or one-shot, and published messages can be sent to either
-a unicast, group, or virtual address. Configuration of publication is generally controlled
-by a provisioner via the configuration model. Publication is useful for allowing, for
+a unicast, group, or virtual address. Configuration of publication related states is generally 
+controlled by a provisioner via the configuration model. Publication is useful for allowing, for
 example, sensor nodes to periodically report data readings. A message can be published
 by using the `access_model_publish()` API function, which will publish a message according
 to the publication settings (interval, destination) of the model.
@@ -48,7 +51,7 @@ the API function `access_model_publish_address_set()` is provided.
 ### Subscription
 
 Subscriptions allow models to listen for incoming messages from specific addresses.
-This can be used to listen to, for example, periodical messages published from sensor nodes.
+This can be used to listen to, for example, periodic messages published from sensor nodes.
 To allow a model to subscribe to an address, you first need to allocate a subscription
 list, using the `access_model_subscription_list_alloc()` API function.
 
@@ -56,31 +59,38 @@ Note that when using a client model, it is not required to subscribe to the addr
 are sending messages to in order to receive replies to those messages. Subscriptions are
 only used to receive unsolicited messages from nodes.
 
-## A first model: the OnOff model
+## An example: A vendor-specific Simple OnOff model
 
-This guide shows how to implement a simple OnOff model that can be used to turn something
-(such as a light bulb, heater, or washing machine) on or off. The Mesh Model
-Specification already specifies a model called the "Generic OnOff Model", which should
-be used in real applications using the mesh. However, the example model described in this guide
-is simpler and serves as a nice introductory example of a mesh model.
+The following sections of this guide show how to implement a vendor-specific Simple OnOff model 
+that can be used to turn something (such as a light bulb, heater, or washing machine) on or off. 
 
-The model consists of a server, maintaining the on/off state, and a client, used for
-manipulating the state of the server. The server sends its current state as response
-to all commands, keeping the client up-to-date on the server state.
+> **Important**: The Mesh Model Specification specifies a model called the "Generic OnOff Model", 
+> which should be used in real applications using the mesh. However, the example model described in 
+> this guide is simpler and serves as a nice introductory example for creating a custom mesh model.
 
-The following table shows which opcodes are supported by our simple OnOff model:
+A mesh application is specified using a client-server architecture, where client and server 
+models use publish/subscribe mechanism to communicate with each other. Therefore, the intended 
+functionality of this model will be realized using two parts: the server model, maintaining
+the OnOff state, and a client model, used for manipulating the OnOff state on the server.
 
-| Name    | Definition      | Opcode       | Description                   | Parameter     | Parameter size |
-| ------- | --------------- | ------------:| ----------------------------- | ------------- | --------------:|
-| Set     | `OPCODE_SET`    |         0xc1 | Sets the current on/off state | New state     |         1 byte |
-| Get     | `OPCODE_GET`    |         0xc2 | Gets the current on/off state | N/A           |   No parameter |
-| Status  | `OPCODE_STATUS` |         0xc3 | Contains the current state    | Current state |         1 byte |
+When this server model receives a GET or (reliable) SET message from a client model, it sends the 
+current value of the OnOff state as response. This keeps the client up-to-date about the server 
+state.
 
-Notice that the opcodes sent on-air are actually *three bytes*. For vendor-specific models, the
+The following table shows the opcodes that are supported by this model:
+
+| Name               | Definition                             | Opcode       | Description                   | Parameter     | Parameter size |
+| ------------------ | ---------------------------------------| ------------:| ----------------------------- | ------------- | --------------:|
+| SET                | `SIMPLE_ON_OFF_OPCODE_SET`             |         0xc1 | Sets the current on/off state | New state     |         1 byte |
+| GET                | `SIMPLE_ON_OFF_OPCODE_GET`             |         0xc2 | Gets the current on/off state | N/A           |   No parameter |
+| SET UNRELIABLE     | `SIMPLE_ON_OFF_OPCODE_SET_UNRELIABLE`  |         0xc3 | Sets the current on/off state | New state     |         1 byte |
+| Status             | `SIMPLE_ON_OFF_OPCODE_STATUS`          |         0xc4 | Contains the current state    | Current state |         1 byte |
+
+The opcodes sent on-air are *three bytes* for the vendor-specific models. The
 complete opcode is the combination of the vendor-specific opcode and the company identifier. For more
 information, see the `access_opcode_t` documentation.
 
-We will use the following model identifiers:
+We will use the following identifiers for this model:
 
 | Description        | Value     |
 | ------------------ | ---------:|
@@ -89,8 +99,7 @@ We will use the following model identifiers:
 | Client identifier  |    0x0001 |
 
 The company identifier used in this table is Nordic Semiconductor's assigned Bluetooth
-company ID. In a real application, you should of course use your own company's assigned
-ID.
+company ID. In a real application, you should use your own company's assigned ID.
 
 While following this guide, keep in mind that some important features such as error handling
 have been skipped for brevity. However, when writing your application, you should take care
@@ -98,98 +107,147 @@ to check the error codes returned from all API functions to prevent easily avoid
 from entering your application.
 
 If you want to explore a complete model implementation using the same basic layout as described
-in this guide, take a look at the @ref md_examples_models_simple_on_off_README implementation in `examples/models/simple_on_off`.
+in this guide, take a look at the @ref md_models_simple_on_off_README implementation 
+in `examples/models/simple_on_off`. 
 In addition, if you want to see it integrated into a complete application, take a look at
-the @ref md_examples_light_control_README in the `examples/light_control` directory.
+the @ref md_examples_light_switch_README in the `examples/light_switch` directory.
 
-### The OnOff server
+### The server model
 
-The OnOff server receives Set and Get messages and calls a callback function provided
-by the application with the received data. As such, we need a context structure for the
-model that contains pointers to the callback functions. This context structure gets passed
-to all message handlers. The following code example shows the context structure needed
-for the OnOff server:
+When the OnOff server receives SET and GET messages, it calls a callback function provided
+by the application and shares/requests the data through callback function parameters. For this, 
+we need to define a model context structure that contains pointers to the callback functions. 
+This context structure gets passed to all message handlers. The following code snippet shows the 
+context structure needed for the server model (`simple_on_off_server_t`):
 
 ```C
-#include <access.h>
+/** Forward declaration. */
+typedef struct __simple_on_off_server simple_on_off_server_t;
 
-// Forward declaration to use the context structure in the callback functions:
-typedef struct __onoff_server_ctx_t onoff_server_ctx_t;
+/**
+ * Get callback type.
+ * @param[in] p_self Pointer to the Simple OnOff Server context structure.
+ * @returns @c true if the state is On, @c false otherwise.
+ */
+typedef bool (*simple_on_off_get_cb_t)(const simple_on_off_server_t * p_self);
 
-// Callback function used when a new value is received:
-typedef void (*onoff_server_set_cb_t)(onoff_server_ctx_t * p_server, bool value);
+/**
+ * Set callback type.
+ * @param[in] p_self Pointer to the Simple OnOff Server context structure.
+ * @param[in] on_off Desired state
+ * @returns @c true if the set operation was successful, @c false otherwise.
+ */
+typedef bool (*simple_on_off_set_cb_t)(const simple_on_off_server_t * p_self, bool on_off);
 
-// Callback function used by the server to obtain the current value:
-typedef bool (*onoff_server_get_cb_t)(onoff_server_ctx_t * p_server);
-
-// Server context structure:
-typedef struct __onoff_server_ctx_t
+/** Simple OnOff Server state structure. */
+struct __simple_on_off_server
 {
-    onoff_server_set_cb_t set_cb;
-    onoff_server_get_cb_t get_cb;
+    /** Model handle assigned to the server. */
     access_model_handle_t model_handle;
-} on_off_server_ctx_t;
+    /** Get callback. */
+    simple_on_off_get_cb_t get_cb;
+    /** Set callback. */
+    simple_on_off_set_cb_t set_cb;
+};
 ```
 
-Now we can write some opcode handlers to process incoming messages. All opcode handlers have
-the same signature:
+Next, we need to define the opcodes and create necessary opcode handler functions to handle 
+incoming messages for the server model. 
+All opcode handlers of all the models shall use the same function prototype as defined below:
 
 ```C
-void opcode_handler(access_model_handle_t model_handle,
-    const access_message_rx_t * p_message, void * p_args);
+typedef void (*access_opcode_handler_cb_t)(access_model_handle_t handle,
+                                           const access_message_rx_t * p_message,
+                                           void * p_args);
 ```
 
-We need two opcode handlers in the server. Each of these will call the corresponding callback
-function from the context structure, which gets passed to the opcode handler via the `p_args`
-parameter. Add the opcode handlers to your server implementation (implementation of the
-`send_reply()` function is described in the next paragraph):
+
+
+We need three opcode handlers in the server to handle `SIMPLE_ON_OFF_OPCODE_GET`, 
+`SIMPLE_ON_OFF_OPCODE_SET`, and `SIMPLE_ON_OFF_OPCODE_SET_UNRELIABLE` messages. Each of 
+these opcode handlers will call the corresponding user callback function from the context 
+structure. This context structure gets passed to the opcode handlers via the `p_args` parameter. 
+
+
+Additonally, as defined in section 3.7.5.2 of the Mesh Profile Specification v1.0, an acknowledged 
+message is transmitted and acknowledged by each receiving element by responding to that message. 
+The response is typically a status message. 
+The status message usually contains the current value of the state set by the SET message. 
+Therefore, the model uses the `set_cb()` callback to fetch the current OnOff state value from the 
+user application and sends this value using the `reply_status()` function. 
+The server model also publishes its state in response to any received message, using the 
+`publish_state()` function, if its publish address is set by the provisioner.
+
+The following snippet shows the opcode handlers defined for the Simple OnOff server model:
 
 ```C
-static void handle_opcode_set(access_model_handle_t model_handle,
-    const access_message_rx_t * p_message, void * p_args)
+static void handle_set_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
 {
-    onoff_server_ctx_t * p_ctx = p_args;
-    bool state = (p_message->p_data[0] > 0);
-    p_ctx->set_cb(p_ctx, state)
-    send_reply(model_handle, p_message, state);
+    simple_on_off_server_t * p_server = p_args;
+    NRF_MESH_ASSERT(p_server->set_cb != NULL);
+
+    bool value = (((simple_on_off_msg_set_t*) p_message->p_data)->on_off) > 0;
+    value = p_server->set_cb(p_server, value);
+    reply_status(p_server, p_message, value);
+    publish_state(p_server, value);
 }
 
-static void handle_opcode_get(access_model_handle_t model_handle,
-    const access_message_rx_t * p_message, void * p_args)
+static void handle_get_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
 {
-    onoff_server_ctx_t * p_ctx = p_args;
-    bool current_state = p_ctx->get_cb(p_ctx);
-    send_reply(model_handle, p_message, current_state);
+    simple_on_off_server_t * p_server = p_args;
+    NRF_MESH_ASSERT(p_server->get_cb != NULL);
+    reply_status(p_server, p_message, p_server->get_cb(p_server));
+}
+
+static void handle_set_unreliable_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
+{
+    simple_on_off_server_t * p_server = p_args;
+    NRF_MESH_ASSERT(p_server->set_cb != NULL);
+    bool value = (((simple_on_off_msg_set_unreliable_t*) p_message->p_data)->on_off) > 0;
+    value = p_server->set_cb(p_server, value);
+    publish_state(p_server, value);
 }
 ```
 
-The above code provides the most important part of the functionality of the OnOff server, using
-the callbacks to communicate the state to and from the application. The `send_reply()` function
-sends the current state as a reply to the client using `access_model_reply()`. This function
-requires some parameters to send the message correctly, which is why it has been wrapped
+The `reply_status()` function sends the value of the current state in an `SIMPLE_ON_OFF_OPCODE_STATUS` 
+message as a reply to the client using the `access_model_reply()` API. 
+This API requires certain parameters to send the message correctly, which is why it has been wrapped
 in `send_reply()`. Implement `send_reply()` like this:
 
 ```C
-static void send_reply(access_model_handle_t model_handle,
-    const access_message_rx_t * p_message, bool current_state)
+static void reply_status(const simple_on_off_server_t * p_server,
+                         const access_message_rx_t * p_message,
+                         bool present_on_off)
 {
-    uint8_t state_byte = (uint8_t) current_state;
+    simple_on_off_msg_status_t status;
+    status.present_on_off = present_on_off ? 1 : 0;
     access_message_tx_t reply;
-    reply.opcode.opcode = OPCODE_STATUS;
-    reply.opcode.company_id = 0x0059;
-    reply.p_buffer = &state_byte;
-    reply.length = sizeof(state_byte);
+    reply.opcode.opcode = SIMPLE_ON_OFF_OPCODE_STATUS;
+    reply.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    reply.p_buffer = (const uint8_t *) &status;
+    reply.length = sizeof(status);
 
-    access_model_reply(p_server->model_handle, p_message, &reply);
+    (void) access_model_reply(p_server->model_handle, p_message, &reply);
 }
 ```
 
-Now that the opcode handlers are complete, we can create the opcode lookup table for the model:
+The `publish_state()` function is very similar to the `reply_status()` function, except it uses 
+the `access_model_publish()` API to publish the response message. 
+If the publish address of the client model is not configured by the provisioner, the 
+`access_model_publish()` will not publish the given message.
+
+To link a given opcode and company ID to its corresponding handler function, an opcode handler 
+lookup table is specified. This lookup table is given as an input parameter when registering the 
+model with the access layer. Each entry in the table is of the `access_opcode_handler_t` type and 
+consists of the opcode, vendor ID, and an opcode handler function pointer. For the server model it 
+is defined as:
 
 ```C
-static const access_opcode_handler_t opcode_handlers[] = {
-    {{ OPCODE_SET, 0x0059 }, handle_opcode_set},
-    {{ OPCODE_GET, 0x0059 }, handle_opcode_get},
+static const access_opcode_handler_t m_opcode_handlers[] =
+{
+    {ACCESS_OPCODE_VENDOR(SIMPLE_ON_OFF_OPCODE_SET,            ACCESS_COMPANY_ID_NORDIC), handle_set_cb},
+    {ACCESS_OPCODE_VENDOR(SIMPLE_ON_OFF_OPCODE_GET,            ACCESS_COMPANY_ID_NORDIC), handle_get_cb},
+    {ACCESS_OPCODE_VENDOR(SIMPLE_ON_OFF_OPCODE_SET_UNRELIABLE, ACCESS_COMPANY_ID_NORDIC), handle_set_unreliable_cb}
 };
 ```
 
@@ -197,196 +255,280 @@ We now have everything we need to put the model together in an initialization fu
 initialization function must allocate and add the model to the access layer:
 
 ```C
-void onoff_init(const onoff_server_ctx_t * p_ctx, uint16_t element_index)
+uint32_t simple_on_off_server_init(simple_on_off_server_t * p_server, uint16_t element_index)
 {
-    access_model_add_params_t add_params;
-    add_params.element_index = element_index;
-    add_params.model_id.model_id = 0x0000;
-    add_params.model_id.company_id = 0x0059;
-    add_params.p_opcode_handlers = opcode_handlers;
-    add_params.opcode_count = sizeof(opcode_handlers) / sizeof(opcode_handlers[0]);
-    add_params.p_args = p_ctx;
-    add_params.publish_timeout_cb = NULL;
+    if (p_server == NULL ||
+        p_server->get_cb == NULL ||
+        p_server->set_cb == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
 
-    access_model_add(&add_params, &p_ctx->model_handle);
+    access_model_add_params_t init_params;
+    init_params.element_index =  element_index;
+    init_params.model_id.model_id = SIMPLE_ON_OFF_SERVER_MODEL_ID;
+    init_params.model_id.company_id = ACCESS_COMPANY_ID_NORDIC;
+    init_params.p_opcode_handlers = &m_opcode_handlers[0];
+    init_params.opcode_count = sizeof(m_opcode_handlers) / sizeof(m_opcode_handlers[0]);
+    init_params.p_args = p_server;
+    init_params.publish_timeout_cb = NULL;
+    return access_model_add(&init_params, &p_server->model_handle);
 }
 ```
 
-You now have the basic skeleton of a simple OnOff server model, which can be extended
-or tweaked to produce more complex server models.
+You now have the basic skeleton of a simple OnOff server model, which can be expanded
+or tweaked to produce more complex server models. See `examples/models/simple_on_off/` for the 
+complete code of this model.
 
-### The OnOff client
+### The client model
 
-The OnOff client is used to interact with the OnOff server. It sends
-Set and Get messages and processes incoming status replies. Sending messages
-is done via publication, using a specified publication address as destination.
+The client model is used to interact with the corresponding server model. It sends
+SET and GET messages and processes incoming status replies. The client model sends messages using
+a publish mechanism. It uses assigned publication address as a destination for outgoing messages.
 
 Just as in the server implementation, the client needs a context structure to keep
 information about callbacks and its model handle. In addition, we use a boolean
 variable to keep track of whether a transaction is currently active and to
-prevent running multiple simultaneous transactions. The reason this is undesirable is
-that the order in which messages are delivered to the server is not guaranteed,
-so to obtain predictable results, the client should be restricted to running only one
-transaction at a time.
+prevent running multiple simultaneous transactions. 
 
-We use a callback function to provide information about
-the state of the server to the application and a separate callback to signal that
-an error has occurred if something goes wrong while attempting to communicate with
-the server.
+In a mesh network, messages may be delivered out of order, or may not be delivered at all. 
+Therefore, a client should perform only one transaction at a time with its corresponding server.
 
-Create the necessary context structure in a header file:
+The client model uses a callback function to provide information about the state of the server to 
+the user application. If the server does not reply within a given time frame, it will notify the 
+user application with the error code `SIMPLE_ON_OFF_STATUS_ERROR_NO_REPLY`.
 
-```C
-#include <access.h>
-#include <access_reliable.h>
-
-// Forward declaration of client context so we can use it in the callback functions:
-typedef struct __onoff_client_ctx_t onoff_client_ctx_t;
-
-// Callback function for when a status message has been received:
-typedef void (*onoff_client_status_cb_t)(onoff_client_ctx_t * p_ctx, bool state, uint16_t src_addr);
-
-// Callback function for when an error has occurred:
-typedef void (*onoff_client_error_cb_t)(onoff_client_ctx_t * p_ctx, access_reliable_status_t status);
-
-// Client context:
-typedef struct __onoff_client_ctx_t
-{
-    access_model_handle_t    model_handle;
-
-    onoff_client_status_cb_t status_cb;
-    onoff_client_error_cb_t  error_cb;
-
-    // Metadata about the currently ongoing transfer:
-    bool transfer_active;
-    uint8_t transfer_data;  // Needed to retain the data throughout a transaction
-} on_off_client_ctx_t;
-```
-
-Now we need a function that sends a message from the client to the server.
-We will use the `access_model_reliable_publish()` function for this. Reliable
-messages guarantee delivery of a message by retransmitting it until a reply
-is received from the destination node or the transaction times out. When the
-transaction finishes (or times out), a callback function is called.
-This callback only gives information about the transaction that finished - to
-handle the actual reply message, we must create an opcode handler, which
-we will get back to later. Create the callback and message sending function:
+The following code snippet shows the status codes (`simple_on_off_status_t`) and the context 
+structure (`simple_on_off_client_t`) needed for this model:
 
 ```C
-static void reliable_status_callback(access_model_handle_t model_handle,
-    void * p_args, access_reliable_status status)
+/** Simple OnOff status codes. */
+typedef enum
 {
-    onoff_client_ctx_t * p_ctx = p_args;
-    p_ctx->transfer_active = false;
-    if (status != ACCESS_RELIABLE_TRANSFER_SUCCESS)
-    {
-        p_ctx->error_cb(status);
-    }
-}
+    /** Received status ON from the server. */
+    SIMPLE_ON_OFF_STATUS_ON,
+    /** Received status OFF from the server. */
+    SIMPLE_ON_OFF_STATUS_OFF,
+    /** The server did not reply to a Simple OnOff Set/Get. */
+    SIMPLE_ON_OFF_STATUS_ERROR_NO_REPLY
+} simple_on_off_status_t;
 
-static uint32_t send_message(onoff_client_ctx_t * p_ctx, uint8_t opcode,
-    const uint8_t * p_data, uint16_t size)
+/** Forward declaration. */
+typedef struct __simple_on_off_client simple_on_off_client_t;
+
+/**
+ * Simple OnOff status callback type.
+ *
+ * @param[in] p_self Pointer to the Simple OnOff client structure that received the status.
+ * @param[in] status The received status of the remote server.
+ * @param[in] src    Element address of the remote server.
+ */
+typedef void (*simple_on_off_status_cb_t)(const simple_on_off_client_t * p_self, simple_on_off_status_t status, uint16_t src);
+
+/** Simple OnOff Client state structure. */
+struct __simple_on_off_client
 {
-    access_reliable_t reliable_message;
-    reliable_message.model_handle = p_ctx->model_handle;
-    reliable_message.message.p_buffer = p_data;
-    reliable_message.message.length = length;
-    reliable_message.message.opcode.opcode = opcode;
-    reliable_message.message.opcode.company_id = 0x0059;
-    reliable_message.reply_opcode.opcode.opcode = ON_OFF_STATUS;
-    reliable_message.reply_opcode.opcode.company_id = 0x0059;
-    reliable_message.timeout = ACCESS_RELIABLE_TIMEOUT_MIN; // Minimum allowed timeout for reliable messages (30 seconds)
-    reliable_message.status_cb = reliable_status_callback;
-
-    return access_model_reliable_publish(&reliable_message);
-}
-```
-
-Now that we can send messages, we can create functions for sending the Set and Get messages
-to the server:
-
-```C
-bool onoff_client_set(onoff_client_ctx_t * p_ctx, bool state)
-{
-    if (p_ctx->transfer_active)
+    /** Model handle assigned to the client. */
+    access_model_handle_t model_handle;
+    /** Status callback called after status received from server. */
+    simple_on_off_status_cb_t status_cb;
+    /** Internal client state. */
+    struct
     {
-        return false;
-    }
-
-    // We need to retain the data statically.
-    p_ctx->transfer_data = (uint8_t) state;
-    if (send_reliable_message(p_ctx, OPCODE_SET, &p_ctx->transfer_data, 1) == NRF_SUCCESS)
-    {
-        p_ctx->transfer_active = true;
-    }
-
-    return p_ctx->transfer_active;
-}
-
-bool onoff_client_get(onoff_client_ctx_t * p_ctx)
-{
-    if (p_ctx->transfer_active)
-    {
-        return false;
-    }
-
-    if (send_reliable_message(p_ctx, OPCODE_GET, NULL, 0) == NRF_SUCCESS)
-    {
-        p_ctx->transfer_active = true;
-    }
-
-    return p_ctx->transfer_active;
-}
-```
-
-Both of these messages expect the server to send its state as a reply. To process the reply,
-we need to add an opcode handler for the `OPCODE_STATUS` opcode. All incoming messages, even
-when they are a reply to a message that was sent from the node, need an opcode handler to be
-processed. Add an opcode handler for the status reply that forwards received status messages
-to the application:
-
-```C
-static void handle_opcode_status(access_model_handle_t model_handle,
-    const access_message_rx_t * p_message, void * p_args)
-{
-    onoff_client_ctx_t * p_ctx = p_args;
-    dsm_handle_t publish_address_handle;
-    nrf_mesh_address_t publish_address;
-
-    // Check if this message is from the same node that we are currently publishing to and
-    // call the callback function if it matches:
-    if (access_model_publish_address_get(p_ctx->model_handle, &publish_address_handle) == NRF_SUCCESS
-        && dsm_address_get(publish_handle, &publish_address) == NRF_SUCCESS
-        && publish_address.value != p_message->meta_data.src.value)
-    {
-        p_ctx->status_cb(p_ctx, p_message->p_data[0], p_message->meta_data.src.value);
-    }
-}
-
-static const access_model_opcode_handler_t opcode_handlers[] = {
-    {{ OPCODE_STATUS, 0x0059 }, handle_opcode_status }
+        bool reliable_transfer_active; /**< Variable used to determine if a transfer is currently active. */
+        simple_on_off_msg_set_t data;  /**< Variable reflecting the data stored in the server. */
+    } state;
 };
 ```
 
-The only thing remaining now is to initialize the client model. This is done in exactly the
-same way as the server:
+The client model can send two kinds of messages: a reliable (acknowledged) message and an unreliable 
+(unacknowledged) message. The client model needs to use the `access_model_reliable_publish()` API to 
+send a reliable message, and the `access_model_publish()` API is used to send an unreliable message. 
+
+The `access_model_reliable_publish()` API guarantees delivery of a message by retransmitting it 
+until a reply is received from the destination node or the transaction times out. 
+When the transaction finishes (or times out), a callback function is called to notify the client model.
+If no response from the server model is received for the acknowledged SET message, a 
+corresponding error is notified to the user application by calling the user's status callback. 
+
+The following snippet shows the `reliable_status_cb()` callback and the `send_reliable_message()`
+function for the client model:
 
 ```C
-void onoff_client_init(onoff_client_ctx_t * p_ctx)
+static void reliable_status_cb(access_model_handle_t model_handle,
+                               void * p_args,
+                               access_reliable_status_t status)
 {
-    access_model_add_params_t add_params;
-    add_params.model_id.model_id = 0x0001;
-    add_params.model_id.company_id = 0x0059;
-    add_params.element_index = element_index;
-    add_params.p_opcode_handlers = opcode_handlers;
-    add_params.opcode_count = sizeof(opcode_handlers) / sizeof(opcode_handlers[0]);
-    add_params.p_args = p_ctx;
-    add_params.publish_timeout_cb = NULL;
+    simple_on_off_client_t * p_client = p_args;
+    NRF_MESH_ASSERT(p_client->status_cb != NULL);
 
-    access_model_add(&add_params, p_ctx->model_handle);
+    p_client->state.reliable_transfer_active = false;
+    switch (status)
+    {
+        case ACCESS_RELIABLE_TRANSFER_SUCCESS:
+            /* Ignore */
+            break;
+        case ACCESS_RELIABLE_TRANSFER_TIMEOUT:
+            p_client->status_cb(p_client, SIMPLE_ON_OFF_STATUS_ERROR_NO_REPLY, NRF_MESH_ADDR_UNASSIGNED);
+            break;
+
+        default:
+            /* Should not be possible. */
+            NRF_MESH_ASSERT(false);
+            break;
+    }
+}
+
+static uint32_t send_reliable_message(const simple_on_off_client_t * p_client,
+                                      simple_on_off_opcode_t opcode,
+                                      const uint8_t * p_data,
+                                      uint16_t length)
+{
+    access_reliable_t reliable;
+    reliable.model_handle = p_client->model_handle;
+    reliable.message.p_buffer = p_data;
+    reliable.message.length = length;
+    reliable.message.opcode.opcode = opcode;
+    reliable.message.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    reliable.reply_opcode.opcode = SIMPLE_ON_OFF_OPCODE_STATUS;
+    reliable.reply_opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    reliable.timeout = ACCESS_RELIABLE_TIMEOUT_MIN;
+    reliable.status_cb = reliable_status_cb;
+
+    return access_model_reliable_publish(&reliable);
 }
 ```
 
+Now we need to create API functions for the user application to send GET and SET messages. 
+The following snippet defines these functions:
+
+```C
+uint32_t simple_on_off_client_set(simple_on_off_client_t * p_client, bool on_off)
+{
+    if (p_client == NULL || p_client->status_cb == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+    else if (p_client->state.reliable_transfer_active)
+    {
+        return NRF_ERROR_INVALID_STATE;
+    }
+
+    p_client->state.data.on_off = on_off ? 1 : 0;
+    p_client->state.data.tid = m_tid++;
+
+    uint32_t status = send_reliable_message(p_client,
+                                            SIMPLE_ON_OFF_OPCODE_SET,
+                                            (const uint8_t *)&p_client->state.data,
+                                            sizeof(simple_on_off_msg_set_t));
+    if (status == NRF_SUCCESS)
+    {
+        p_client->state.reliable_transfer_active = true;
+    }
+    return status;
+
+}
+
+uint32_t simple_on_off_client_set_unreliable(simple_on_off_client_t * p_client, bool on_off, uint8_t repeats)
+{
+    simple_on_off_msg_set_unreliable_t set_unreliable;
+    set_unreliable.on_off = on_off ? 1 : 0;
+    set_unreliable.tid = m_tid++;
+
+    access_message_tx_t message;
+    message.opcode.opcode = SIMPLE_ON_OFF_OPCODE_SET_UNRELIABLE;
+    message.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    message.p_buffer = (const uint8_t*) &set_unreliable;
+    message.length = sizeof(set_unreliable);
+
+    uint32_t status = NRF_SUCCESS;
+    for (uint8_t i = 0; i < repeats; ++i)
+    {
+        status = access_model_publish(p_client->model_handle, &message);
+        if (status != NRF_SUCCESS)
+        {
+            break;
+        }
+    }
+    return status;
+}
+
+uint32_t simple_on_off_client_get(simple_on_off_client_t * p_client)
+{
+    if (p_client == NULL || p_client->status_cb == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+    else if (p_client->state.reliable_transfer_active)
+    {
+        return NRF_ERROR_INVALID_STATE;
+    }
+
+    uint32_t status = send_reliable_message(p_client,
+                                            SIMPLE_ON_OFF_OPCODE_GET,
+                                            NULL,
+                                            0);
+    if (status == NRF_SUCCESS)
+    {
+        p_client->state.reliable_transfer_active = true;
+    }
+    return status;
+}
+```
+
+To process the reply message, we need to add an opcode handler for the `SIMPLE_ON_OFF_OPCODE_STATUS` 
+opcode. All incoming messages, even when they are a reply to a message that was sent from the node, 
+need an opcode handler to be processed. This snippet shows the opcode handler implementation and 
+defines the opcode handler lookup table for the client model:
+
+```C
+static void handle_status_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
+{
+    simple_on_off_client_t * p_client = p_args;
+    NRF_MESH_ASSERT(p_client->status_cb != NULL);
+
+    if (!is_valid_source(p_client, p_message))
+    {
+        return;
+    }
+
+    simple_on_off_msg_status_t * p_status =
+        (simple_on_off_msg_status_t *) p_message->p_data;
+    simple_on_off_status_t on_off_status = (p_status->present_on_off ?
+                                              SIMPLE_ON_OFF_STATUS_ON : SIMPLE_ON_OFF_STATUS_OFF);
+    p_client->status_cb(p_client, on_off_status, p_message->meta_data.src.value);
+}
+
+static const access_opcode_handler_t m_opcode_handlers[] =
+{
+    {{SIMPLE_ON_OFF_OPCODE_STATUS, ACCESS_COMPANY_ID_NORDIC}, rx_status_cb}
+};
+```
+
+The client model initialization is done in exactly the
+same way as the server model:
+
+```C
+uint32_t simple_on_off_client_init(simple_on_off_client_t * p_client, uint16_t element_index)
+{
+    if (p_client == NULL ||
+        p_client->status_cb == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+
+    access_model_add_params_t init_params;
+    init_params.model_id.model_id = SIMPLE_ON_OFF_CLIENT_MODEL_ID;
+    init_params.model_id.company_id = ACCESS_COMPANY_ID_NORDIC;
+    init_params.element_index = element_index;
+    init_params.p_opcode_handlers = &m_opcode_handlers[0];
+    init_params.opcode_count = sizeof(m_opcode_handlers) / sizeof(m_opcode_handlers[0]);
+    init_params.p_args = p_client;
+    init_params.publish_timeout_cb = NULL;
+    return access_model_add(&init_params, &p_client->model_handle);
+}
+```
 The client is now complete, and you should be able to use it to turn something
-on or off by communicating with the server node!
+on or off by communicating with the server node! For the complete implementation, 
+see @ref SIMPLE_ON_OFF_MODEL.
 

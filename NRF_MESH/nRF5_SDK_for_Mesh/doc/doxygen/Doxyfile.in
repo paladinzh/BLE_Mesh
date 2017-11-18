@@ -238,6 +238,7 @@ link_nRF8001="<a href=\"http://www.nordicsemi.com/eng/Products/Bluetooth-low-ene
 link_SLIP="<a href=\"https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol\" target=\"_blank\">SLIP</a>" \
 link_BluetoothSIG="<a href=\"http://www.bluetooth.org/\" target=\"_blank\">Bluetooth SIG</a>" \
 link_nrfutil_github="<a href=\"https://github.com/NordicSemiconductor/pc-nrfutil/tree/mesh_dfu\" target=\"_blank\">https://github.com/NordicSemiconductor/pc-nrfutil/tree/mesh_dfu</a>" \
+link_nrfutil_github_name="<a href=\"https://github.com/NordicSemiconductor/pc-nrfutil/tree/mesh_dfu\" target=\"_blank\">nrfutil</a>" \
 link_companyID="<a href=\"https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers\" target=\"_blank\">Bluetooth SIG assigned Company ID</a>" \
 link_nordicsemi="<a href=\"http://www.nordicsemi.com/\" target=\"_blank\">nordicsemi.com</a>" \
 link_pyserial="<a href=\"https://pypi.python.org/pypi/pyserial\" target=\"_blank\">pyserial package</a>" \
@@ -259,7 +260,15 @@ link_ninja_download="<a href=\"https://github.com/ninja-build/ninja/releases\" t
 link_mingw="<a href=\"https://sourceforge.net/projects/mingw/files/\" target=\"_blank\">MinGW</a>" \
 link_btsig_intro="<a href=\"https://blog.bluetooth.com/introducing-bluetooth-mesh-networking\" target=\"_blank\">Bluetooth SIG's introduction to Bluetooth Mesh</a>" \
 link_btsig_spec="<a href=\"https://www.bluetooth.com/specifications/mesh-specifications?_ga=2.18257471.723078495.1501226603-93769939.1480503530\" target=\"_blank\">Bluetooth Mesh Networking Specifications</a>" \
-
+link_doxygen="<a href=\"https://www.stack.nl/~dimitri/doxygen/\" target=\"_blank\">Doxygen</a>" \
+link_git="<a href=\"https://git-scm.com\" target=\"_blank\">Git</a>" \
+link_graphviz="<a href=\"http://www.graphviz.org\" target=\"_blank\">Graphviz</a>" \
+link_mscgen="<a href=\"http://www.mcternan.me.uk/mscgen\" target=\"_blank\">Mscgen</a>" \
+link_python3="<a href=\"https://www.python.org/downloads/\" target=\"_blank\">Python 3</a>" \
+link_python27="<a href=\"https://www.python.org/downloads/\" target=\"_blank\">Python 2.7</a>" \
+link_infocenter="<a href=\"http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk/dita/sdk/mesh_sdk.html\" target=\"_blank\">Infocenter</a>" \
+link_nrf5x_cmd_line_tools_w32="<a href=\"http://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Win32/33444\" target=\"_blank\">nRFx Command Line Tools for Windows</a>" \
+link_nrf5x_cmd_line_tools_linux="<a href=\"https://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Linux64/51386\" target=\"_blank\">nRFx Command Line Tools for Linux (64-bit)</a>"
 # rufu: Links to the Infocenter must use a prefix because they differ for 
 # offline and online documentation.
 ALIASES               += \
@@ -801,42 +810,50 @@ WARN_LOGFILE           =
 #          order of the output
 #########
 
-INPUT                  = @PROJECT_SOURCE_DIR@/mesh/src \
-                         @PROJECT_SOURCE_DIR@/mesh/include/core \
-                         @PROJECT_SOURCE_DIR@/mesh/include/dfu \
-                         @PROJECT_SOURCE_DIR@/mesh/include/host \
-                         @PROJECT_SOURCE_DIR@/mesh/include/prov \
-                         @PROJECT_SOURCE_DIR@/mesh/include/serial \
-                         @PROJECT_SOURCE_DIR@/mesh/api \
-                         @PROJECT_SOURCE_DIR@/mesh/app \
-                         @PROJECT_SOURCE_DIR@/mesh/models/pb_remote/include \
-                         @PROJECT_SOURCE_DIR@/mesh/models/config/include \
-                         @PROJECT_SOURCE_DIR@/examples/models/simple_on_off/include \
-                         @PROJECT_SOURCE_DIR@/RELEASE_NOTES.md \
-                         @PROJECT_SOURCE_DIR@/COPYING.md \
-                         @PROJECT_SOURCE_DIR@/README.md \
-                         @PROJECT_SOURCE_DIR@/doc/getting_started/getting_started.md \
-                         @PROJECT_SOURCE_DIR@/mesh/doc \
-                         @PROJECT_SOURCE_DIR@/doc \
-                         @PROJECT_SOURCE_DIR@/doc/doxygen \
-                         @PROJECT_SOURCE_DIR@/doc/getting_started \
-                         @PROJECT_SOURCE_DIR@/doc/libraries \
-                         @PROJECT_SOURCE_DIR@/scripts/interactive_pyaci/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/models/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/models/simple_on_off/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/server/src/main.c \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/client/src/main.c \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/client/src/provisioner.c \
-                         @PROJECT_SOURCE_DIR@/examples/pb_remote_client/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/pb_remote_server/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/models/simple_on_off/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/hal/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/dfu/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/serial/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/beaconing/README.md \
-                         @PROJECT_SOURCE_DIR@/examples/README.md
+INPUT                  = \
+@PROJECT_SOURCE_DIR@/mesh/access/include \
+@PROJECT_SOURCE_DIR@/mesh/bearer/include \
+@PROJECT_SOURCE_DIR@/mesh/core/include \
+@PROJECT_SOURCE_DIR@/mesh/dfu/include \
+@PROJECT_SOURCE_DIR@/mesh/prov/include \
+@PROJECT_SOURCE_DIR@/mesh/serial/include \
+@PROJECT_SOURCE_DIR@/mesh/core/api \
+@PROJECT_SOURCE_DIR@/mesh/access/api \
+@PROJECT_SOURCE_DIR@/mesh/bearer/api \
+@PROJECT_SOURCE_DIR@/mesh/core/api \
+@PROJECT_SOURCE_DIR@/mesh/serial/api \
+@PROJECT_SOURCE_DIR@/mesh/prov/api \
+@PROJECT_SOURCE_DIR@/mesh/dfu/api \
+@PROJECT_SOURCE_DIR@/mesh/app \
+@PROJECT_SOURCE_DIR@/models/pb_remote/include \
+@PROJECT_SOURCE_DIR@/models/config/include \
+@PROJECT_SOURCE_DIR@/models/health/include \
+@PROJECT_SOURCE_DIR@/models/simple_on_off/include \
+@PROJECT_SOURCE_DIR@/RELEASE_NOTES.md \
+@PROJECT_SOURCE_DIR@/COPYING.md \
+@PROJECT_SOURCE_DIR@/README.md \
+@PROJECT_SOURCE_DIR@/doc/getting_started/getting_started.md \
+@PROJECT_SOURCE_DIR@/mesh/doc \
+@PROJECT_SOURCE_DIR@/doc \
+@PROJECT_SOURCE_DIR@/doc/doxygen \
+@PROJECT_SOURCE_DIR@/doc/getting_started \
+@PROJECT_SOURCE_DIR@/doc/libraries \
+@PROJECT_SOURCE_DIR@/scripts/interactive_pyaci/README.md \
+@PROJECT_SOURCE_DIR@/models/README.md \
+@PROJECT_SOURCE_DIR@/models/simple_on_off/README.md \
+@PROJECT_SOURCE_DIR@/examples/light_switch/README.md \
+@PROJECT_SOURCE_DIR@/examples/light_switch/server/src/main.c \
+@PROJECT_SOURCE_DIR@/examples/light_switch/client/src/main.c \
+@PROJECT_SOURCE_DIR@/examples/light_switch/client/src/provisioner.c \
+@PROJECT_SOURCE_DIR@/examples/pb_remote/client/README.md \
+@PROJECT_SOURCE_DIR@/examples/pb_remote/server/README.md \
+@PROJECT_SOURCE_DIR@/models/simple_on_off/README.md \
+@PROJECT_SOURCE_DIR@/examples/light_switch/README.md \
+@PROJECT_SOURCE_DIR@/examples/hal/README.md \
+@PROJECT_SOURCE_DIR@/examples/dfu/README.md \
+@PROJECT_SOURCE_DIR@/examples/serial/README.md \
+@PROJECT_SOURCE_DIR@/examples/beaconing/README.md \
+@PROJECT_SOURCE_DIR@/examples/README.md
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -871,7 +888,7 @@ RECURSIVE              = NO
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @PROJECT_SOURCE_DIR@/mesh/include/btle.h
+EXCLUDE                =
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -925,9 +942,9 @@ EXAMPLE_RECURSIVE      = NO
 # \image command).
 
 IMAGE_PATH             = @PROJECT_SOURCE_DIR@/mesh/doc \
-                         @PROJECT_SOURCE_DIR@/mesh/models/pb_remote/doc \
-                         @PROJECT_SOURCE_DIR@/examples/light_control/img \
-                         @PROJECT_SOURCE_DIR@/examples/models/simple_on_off/img \
+                         @PROJECT_SOURCE_DIR@/models/pb_remote/doc \
+                         @PROJECT_SOURCE_DIR@/examples/light_switch/img \
+                         @PROJECT_SOURCE_DIR@/models/simple_on_off/img \
                          @PROJECT_SOURCE_DIR@/doc/getting_started/img
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
@@ -2044,7 +2061,7 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           = @PROJECT_SOURCE_DIR@/mesh/include
+INCLUDE_PATH           = 
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the
@@ -2177,7 +2194,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # set to NO
 # The default value is: YES.
 
-HAVE_DOT               = YES
+HAVE_DOT               = @HAVE_DOT@
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is allowed
 # to run in parallel. When set to 0 doxygen will base this on the number of
@@ -2360,7 +2377,7 @@ DOT_PATH               =
 
 DOTFILE_DIRS           = @PROJECT_SOURCE_DIR@/mesh/doc \
                          @PROJECT_SOURCE_DIR@/mesh/doc/access \
-                         @PROJECT_SOURCE_DIR@/mesh/models/pb_remote/doc
+                         @PROJECT_SOURCE_DIR@/models/pb_remote/doc
 
 # The MSCFILE_DIRS tag can be used to specify one or more directories that
 # contain msc files that are included in the documentation (see the \mscfile
@@ -2368,7 +2385,7 @@ DOTFILE_DIRS           = @PROJECT_SOURCE_DIR@/mesh/doc \
 
 MSCFILE_DIRS           = @PROJECT_SOURCE_DIR@/mesh/doc \
                          @PROJECT_SOURCE_DIR@/mesh/doc/access \
-                         @PROJECT_SOURCE_DIR@/mesh/models/pb_remote/doc
+                         @PROJECT_SOURCE_DIR@/models/pb_remote/doc
 
 # The DIAFILE_DIRS tag can be used to specify one or more directories that
 # contain dia files that are included in the documentation (see the \diafile

@@ -1,8 +1,8 @@
 # Getting started
 
-To get started, take a look at the @ref md_examples_light_control_README. It shows how a simple
+To get started, take a look at the @ref md_examples_light_switch_README. It shows how a simple
 application can use the mesh stack and serves as an introduction to the Bluetooth Mesh concepts
-and nRF5 SDK for Bluetooth Mesh features and APIs.
+and nRF5 SDK for Mesh features and APIs.
 
 Bluetooth Mesh introduces a whole new network topology and concepts to Bluetooth. An introduction is
 given in the @ref md_doc_getting_started_basic_concepts guide. More useful information may be found in

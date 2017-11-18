@@ -1,7 +1,7 @@
 # How to build a network
 
 The following guide describes how to set up a simple Bluetooth Mesh network, using
-the [light control example](@ref md_examples_light_control_README) as a reference. It will give a
+the [light switch example](@ref md_examples_light_switch_README) as a reference. It will give a
 brief conceptual overview of the provisioning and configuration and how the API for it is used in
 the example.
 
@@ -40,30 +40,30 @@ publication state of the OnOff Server is set, and finally a subscription to the 
 added. This message exchange is illustrated in the following figure (note that acknowledgments are excluded in the
 figure):
 
-![Figure 1: Provisioning and configuring the light bulb](img/provisioning_and_configuring_light_bulb.png "Figure 1: Provisioning and configuring the light bulb")
+![Figure 1: Provisioning and configuring the light bulb](img/provisioning_and_configuring_light_bulb.svg "Figure 1: Provisioning and configuring the light bulb")
 
 This process is repeated for each light bulb that joins the network.
 
 ### Practical example
 
-The light control example is meant to showcase the API for the provisioner and provisionee roles
+The light switch example is meant to showcase the API for the provisioner and provisionee roles
 and how a simple Bluetooth Mesh network may be configured. The network consists of one combined
 provisioner and Simple OnOff *client* (the light switch) and three provisionees with the Simple
 OnOff *server* (the light bulbs).
 
 
-#### Provisionee: Light control server
+#### Provisionee: light switch server
 
-The light control server interfaces mainly with two APIs:
+The light switch server interfaces mainly with two APIs:
 
 1. [Configuration module](@ref NRF_MESH_NODE_CONFIG)
-2. [Simple OnOff server model](@ref md_examples_models_simple_on_off_README)
+2. [Simple OnOff server model](@ref md_models_simple_on_off_README)
 
 The configuration module implements the behavior of a simple provisionee device. It handles the
 interface with the provisioning stack, setting up the configuration server, and restoring the device
 state from flash.
 
-As seen in `examples/light_control/server/src/main.c`, the amount of code needed for the
+As seen in `examples/light_switch/server/src/main.c`, the amount of code needed for the
 application is minimal. It implements the following functionality:
 
 1.  Setting basic configuration parameters, supported Out-Of-Bound (OOB) methods, clock configuration, callbacks,
@@ -73,22 +73,22 @@ application is minimal. It implements the following functionality:
 When the `configuration_complete()` callback is called, the device is provisioned and ready to be
 configured by the provisioner. The following figure illustrates the setup with the relevant API calls:
 
-![Figure 2: Light control server setup](img/light_control_server_interface.png "Figure 2: Light control server setup")
+![Figure 2: Light switch server setup](img/light_switch_server_interface.svg "Figure 2: Light switch server setup")
 
 
-#### Provisioner: Light control client
+#### Provisioner: Light switch client
 
-The light control client interfaces with the following APIs:
+The light switch client interfaces with the following APIs:
 
 1.  [Core mesh stack](@ref MESH_API_GROUP_CORE)
 2.  [Provisioning](@ref MESH_API_GROUP_PROV)
 3.  [Configuration client](@ref CONFIG_CLIENT)
-4.  [Simple OnOff client](@ref md_examples_models_simple_on_off_README)
+4.  [Simple OnOff client](@ref md_models_simple_on_off_README)
 
 In general, the provisioner role is an order of magnitude more complex than the provisionee role, both in
 resource requirements and application complexity. Therefore, there is no simple "press play and it
 works"-API for the provisioner. However, for a specific use case, it can be reduced into a set of
-simple steps, as implemented in the light control client example:
+simple steps, as implemented in the light switch client example:
 
 1.  Initialize:
     1.  Core mesh stack
@@ -100,13 +100,13 @@ simple steps, as implemented in the light control client example:
 4.  Configure device.
 5.  If more devices should join the network, go back to step 2.
 
-In the example, the behavior is split between `examples/light_control/client/src/main.c` and
-`examples/light_control/client/src/provisioner.c`, where the former deals with initialization and
+In the example, the behavior is split between `examples/light_switch/client/src/main.c` and
+`examples/light_switch/client/src/provisioner.c`, where the former deals with initialization and
 setup, user interfaces, etc. and the latter with the provisioning and configuration states.
 The following figure shows the details of how provisioning and configuration are implemented with the provided APIs. Note that the
 figure may simplify some API calls to provide a clearer understanding. See the relevant source
 files for details.
 
-![Figure 3: Provisioning and configuring devices](img/light_control_client_interface.png "Figure 3: Provisioning and configuring devices")
+![Figure 3: Provisioning and configuring devices](img/light_switch_client_interface.svg "Figure 3: Provisioning and configuring devices")
 
 
