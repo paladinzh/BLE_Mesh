@@ -1,0 +1,5 @@
+colorama
+traitlets
+DateTime
+ipython
+pyserial
