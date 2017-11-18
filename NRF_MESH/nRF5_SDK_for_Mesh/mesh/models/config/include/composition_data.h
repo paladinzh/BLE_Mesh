@@ -58,6 +58,8 @@
                                      sizeof(config_composition_element_header_t) + \
                                      CONFIG_SIG_MODEL_ID_SIZE)
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Composition data header. */
 typedef struct __attribute((packed))
 {
@@ -83,6 +85,8 @@ typedef struct __attribute((packed))
     /** Number of vendor specific models. */
     uint8_t vendor_model_count;
 } config_composition_element_header_t;
+
+/*lint -align_max(pop) */
 
 /** The (maximum) size of the composition data block. */
 #define CONFIG_COMPOSITION_DATA_SIZE                                    \

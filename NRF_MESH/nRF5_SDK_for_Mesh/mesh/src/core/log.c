@@ -35,6 +35,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <nrf_error.h>
 #include "log.h"
@@ -56,56 +57,38 @@ log_callback_t m_log_callback = LOG_CALLBACK_DEFAULT;
 /* For some reason, this function, while not static, is not included in the RTT header files. */
 int SEGGER_RTT_vprintf(unsigned, const char *, va_list *);
 
-uint32_t log_callback_rtt(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_rtt(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments)
 {
     SEGGER_RTT_printf(0, "<t: %10u>, %s, %4d, ",timestamp, p_filename, line);
     SEGGER_RTT_vprintf(0, format, &arguments);
-
-    return NRF_SUCCESS;
 }
 
-uint32_t log_callback_logview(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_logview(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments)
 {
     SEGGER_RTT_printf(0, "%u;%u;%s;%u;", dbg_level, timestamp, p_filename, line);
     SEGGER_RTT_vprintf(0, format, &arguments);
     SEGGER_RTT_Write(0, "$", 1);
-    return NRF_SUCCESS;
-
-}
-#elif NRF51
-uint32_t log_callback_rtt(uint32_t dbg_level, const char * p_filename, uint16_t line,
-    uint32_t timestamp, const char * format, va_list arguments)
-{
-    return NRF_ERROR_NOT_SUPPORTED;
-}
-
-uint32_t log_callback_logview(uint32_t dbg_level, const char * p_filename, uint16_t line,
-    uint32_t timestamp, const char * format, va_list arguments)
-{
-    return NRF_ERROR_NOT_SUPPORTED;
 }
 
 #endif
 
 #if HOST /* For unit tests and host builds */
-uint32_t log_callback_stdout(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_stdout(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments)
 {
     printf("<t: %10u>, %s, %4d, ",timestamp, p_filename, line);
-    vprintf(format, arguments);
-    return NRF_SUCCESS;
+    (void) vprintf(format, arguments);
 }
 #endif
 
-uint32_t log_init(uint32_t mask, uint32_t level, log_callback_t callback)
+void log_init(uint32_t mask, uint32_t level, log_callback_t callback)
 {
     g_log_debug_msk = mask;
     g_log_debug_level = level;
 
     m_log_callback = callback;
-    return NRF_SUCCESS;
 }
 
 void log_set_callback(log_callback_t callback)
@@ -113,26 +96,22 @@ void log_set_callback(log_callback_t callback)
     m_log_callback = callback;
 }
 
-uint32_t log_printf(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_printf(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, ...)
 {
-    va_list arguments;
+    va_list arguments; /*lint -save -esym(530,arguments) Symbol arguments not initialized. */
     va_start(arguments, format);
-    uint32_t status = log_vprintf(dbg_level, p_filename, line, timestamp, format, arguments);
-    va_end(arguments);
-    return status;
+    log_vprintf(dbg_level, p_filename, line, timestamp, format, arguments);
+    va_end(arguments); /*lint -restore */
 }
 
-uint32_t log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments)
 {
-    uint32_t status = NRF_SUCCESS;
-    if(m_log_callback != NULL)
+    if (m_log_callback != NULL)
     {
-        status = m_log_callback(dbg_level, p_filename, line, timestamp, format, arguments);
+        m_log_callback(dbg_level, p_filename, line, timestamp, format, arguments);
     }
-
-    return status;
 }
 
 #endif

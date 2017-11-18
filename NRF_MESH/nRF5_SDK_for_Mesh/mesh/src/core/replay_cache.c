@@ -37,15 +37,13 @@
 #include <string.h>
 #include <nrf_error.h>
 
+#include "nrf_mesh_defines.h"
 #include "nrf_mesh_config_core.h"
 #include "replay_cache.h"
 
-/**
- * @todo Not use magic numbers.
- */
-typedef struct __attribute((packed))
+typedef struct
 {
-    uint32_t seqno : 24;
+    uint32_t seqno : NETWORK_SEQNUM_BITS;
     uint16_t src;
 } replay_cache_entry_t;
 

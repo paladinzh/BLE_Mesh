@@ -49,15 +49,22 @@
 #include "utils.h"
 #include "log.h"
 
+
 uint32_t nrf_mesh_prov_init(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_public_key, const uint8_t * p_private_key,
         const nrf_mesh_prov_oob_caps_t * p_caps)
 {
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
-    p_common_ctx->p_public_key = p_public_key;
-    p_common_ctx->p_private_key = p_private_key;
-    memcpy(&p_common_ctx->capabilities, p_caps, sizeof(nrf_mesh_prov_oob_caps_t));
-
-    return NRF_SUCCESS;
+    if (p_common_ctx->state != NRF_MESH_PROV_STATE_IDLE)
+    {
+        return NRF_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        p_common_ctx->p_public_key = p_public_key;
+        p_common_ctx->p_private_key = p_private_key;
+        memcpy(&p_common_ctx->capabilities, p_caps, sizeof(nrf_mesh_prov_oob_caps_t));
+        return NRF_SUCCESS;
+    }
 }
 
 uint32_t nrf_mesh_prov_generate_keys(uint8_t * p_public, uint8_t * p_private)
@@ -73,7 +80,7 @@ uint32_t nrf_mesh_prov_listen(nrf_mesh_prov_ctx_t * p_ctx,
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
     const prov_bearer_interface_t * p_bearer;
 
-    switch(bearer_type)
+    switch (bearer_type)
     {
         case NRF_MESH_PROV_BEARER_ADV:
             p_bearer = prov_bearer_adv_interface_get();
@@ -96,10 +103,14 @@ uint32_t nrf_mesh_prov_listen(nrf_mesh_prov_ctx_t * p_ctx,
 uint32_t nrf_mesh_prov_provision(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_target_uuid,
         const nrf_mesh_prov_provisioning_data_t * p_data, nrf_mesh_prov_bearer_type_t bearer_type)
 {
+    if (p_ctx == NULL || p_target_uuid == NULL || p_data == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
     const prov_bearer_interface_t * p_bearer;
 
-    switch(bearer_type)
+    switch (bearer_type)
     {
         case NRF_MESH_PROV_BEARER_ADV:
             p_bearer = prov_bearer_adv_interface_get();
@@ -113,6 +124,10 @@ uint32_t nrf_mesh_prov_provision(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_
     {
         return NRF_ERROR_NOT_SUPPORTED;
     }
+    else if (!prov_data_is_valid(p_data))
+    {
+        return NRF_ERROR_INVALID_DATA;
+    }
     else
     {
         return prov_provisioner_provision(p_common_ctx, p_bearer, p_target_uuid, p_data);
@@ -122,7 +137,7 @@ uint32_t nrf_mesh_prov_provision(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_
 uint32_t nrf_mesh_prov_oob_use(nrf_mesh_prov_ctx_t * p_ctx, nrf_mesh_prov_oob_method_t method, uint8_t size)
 {
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
-    if(p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
+    if (p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
     {
         return prov_provisioner_oob_use(p_common_ctx, method, size);
     }
@@ -135,7 +150,7 @@ uint32_t nrf_mesh_prov_oob_use(nrf_mesh_prov_ctx_t * p_ctx, nrf_mesh_prov_oob_me
 uint32_t nrf_mesh_prov_auth_data_provide(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_data, uint8_t size)
 {
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
-    if(p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
+    if (p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
     {
         return prov_provisioner_auth_data(p_common_ctx, p_data, size);
     }
@@ -148,7 +163,7 @@ uint32_t nrf_mesh_prov_auth_data_provide(nrf_mesh_prov_ctx_t * p_ctx, const uint
 uint32_t nrf_mesh_prov_shared_secret_provide(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_shared)
 {
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
-    if(p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
+    if (p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
     {
         return prov_provisioner_shared_secret(p_common_ctx, p_shared);
     }
@@ -161,7 +176,7 @@ uint32_t nrf_mesh_prov_shared_secret_provide(nrf_mesh_prov_ctx_t * p_ctx, const 
 uint32_t nrf_mesh_prov_pubkey_provide(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_key)
 {
     prov_common_ctx_t * p_common_ctx = (prov_common_ctx_t *) p_ctx;
-    if(p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONEE)
+    if (p_common_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONEE)
     {
         return NRF_ERROR_INVALID_STATE;
     }

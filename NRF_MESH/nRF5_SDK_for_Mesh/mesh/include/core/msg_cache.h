@@ -53,10 +53,8 @@
 
 /**
  * Initialize the message cache module.
- *
- * @retval NRF_SUCCESS The msg_cache module was successfully initialized.
  */
-uint32_t msg_cache_init(void);
+void msg_cache_init(void);
 
 /**
  * Check whether the given packet already exists in message cache.

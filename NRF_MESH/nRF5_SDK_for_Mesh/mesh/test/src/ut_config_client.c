@@ -35,6 +35,8 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*lint -e64 Lint incorrectly flags type mismatches in struct initializers. */
+
 #include "config_client.h"
 
 #include <stdio.h>
@@ -174,10 +176,10 @@ static uint32_t pacman_alloc_cb(packet_generic_t ** pp_packet, uint16_t length, 
     return m_retval;
 }
 
-static void pacman_decref_cb(packet_generic_t * p_packet, int num_calls)
+static void pacman_free_cb(packet_generic_t * p_packet, int num_calls)
 {
-    TEST_ASSERT(m_pacman_refcount > 0);
-    m_pacman_refcount--;
+    TEST_ASSERT(m_pacman_refcount == 1);
+    m_pacman_refcount = 0;
 }
 
 static void event_cb(config_client_event_type_t event_type, const config_client_event_t * p_evt, uint16_t length)
@@ -218,9 +220,10 @@ static void event_cb(config_client_event_type_t event_type, const config_client_
 static void __setup(void)
 {
     access_model_add_StubWithCallback(alloc_cb);
-    config_client_init(event_cb);
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, config_client_init(event_cb));
 }
 
+/*lint -ecall(569, send_ack) Loss of precision when converting size_t (from sizeof()) to uint16_t for the length field. */
 static void send_ack(config_opcode_t opcode, const uint8_t * p_data, uint16_t length)
 {
     access_opcode_handler_cb_t p_cb = NULL;
@@ -248,17 +251,17 @@ static void send_ack(config_opcode_t opcode, const uint8_t * p_data, uint16_t le
 
 void setUp(void)
 {
-    CMOCK_SETUP(access);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(access_reliable);
-    CMOCK_SETUP(packet_mgr);
+    access_mock_Init();
+    access_config_mock_Init();
+    access_reliable_mock_Init();
+    packet_mgr_mock_Init();
     memset(&m_buffer, 0, sizeof(m_buffer));
     m_buffer.free = true;
     m_handle = 0;
     m_retval = NRF_SUCCESS;
     memset(&m_model_params, 0, sizeof(m_model_params));
     packet_mgr_alloc_StubWithCallback(pacman_alloc_cb);
-    packet_mgr_decref_StubWithCallback(pacman_decref_cb);
+    packet_mgr_free_StubWithCallback(pacman_free_cb);
     m_expect_timeout = false;
     m_expect_ack = false;
     m_pacman_refcount = 0;
@@ -272,7 +275,14 @@ void tearDown(void)
     TEST_ASSERT_MESSAGE(m_buffer.free, "Buffer not freed (did we lose a TX?)");
     TEST_ASSERT_EQUAL(0, m_pacman_refcount);
     config_client_reset();
-    CMOCK_TEARDOWN();
+    access_mock_Verify();
+    access_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    access_reliable_mock_Verify();
+    access_reliable_mock_Destroy();
+    packet_mgr_mock_Verify();
+    packet_mgr_mock_Destroy();
 }
 
 /*****************************************************************************
@@ -286,8 +296,9 @@ void test_invalid_state(void)
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_composition_data_get());
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_appkey_add(0, 0, NULL));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_model_publication_set(NULL));
-    access_model_id_t model_id;
-    nrf_mesh_address_t address;
+
+    access_model_id_t model_id = {};
+    nrf_mesh_address_t address = {};
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_model_subscription_add(0, address, model_id));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_model_subscription_delete(0, address, model_id));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, config_client_model_subscription_overwrite(0, address, model_id));
@@ -533,7 +544,7 @@ void test_netkey_get(void)
     uint8_t packed_list[packed_index_list_size(4)];
 
     packed_index_list_create(index_list, packed_list, 4);
-    EXPECT_ACK(CONFIG_OPCODE_NETKEY_LIST, &packed_list[0], sizeof(packed_list));
+    EXPECT_ACK(CONFIG_OPCODE_NETKEY_LIST, packed_list, sizeof(packed_list)); /*lint !e419 Apparent data overrun - safe in this case*/
     send_ack(CONFIG_OPCODE_NETKEY_LIST, packed_list, sizeof(packed_list));
 
     m_reliable_cb(m_handle, NULL, ACCESS_RELIABLE_TRANSFER_SUCCESS);
@@ -1143,8 +1154,9 @@ void test_busy_state(void)
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_composition_data_get());
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_appkey_add(0, 0, NULL));
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_model_publication_set(NULL));
-    access_model_id_t model_id;
-    nrf_mesh_address_t address;
+
+    access_model_id_t model_id = {};
+    nrf_mesh_address_t address = {};
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_model_subscription_add(0, address, model_id));
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_model_subscription_delete(0, address, model_id));
     TEST_ASSERT_EQUAL(NRF_ERROR_BUSY, config_client_model_subscription_overwrite(0, address, model_id));

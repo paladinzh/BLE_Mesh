@@ -49,14 +49,14 @@
 #include "timeslot.h"
 #include "toolchain.h"
 
-typedef struct __attribute((packed))
+typedef struct
 {
     uint8_t key[16];
     uint8_t clear_text[16];
     uint8_t cipher_text[16];
 } aes_data_t;
 
-#if NRF51 || !defined(SOFTDEVICE_PRESENT)
+#if defined(NRF51) || !defined(SOFTDEVICE_PRESENT)
 static void aes_encrypt_hw(aes_data_t * p_aes_data)
 {
     uint32_t was_masked;
@@ -82,17 +82,17 @@ void aes_encrypt(const uint8_t * const key, const uint8_t * const clear_text, ui
     memcpy(aes_data.key, key, NRF_MESH_KEY_SIZE);
     memcpy(aes_data.clear_text, clear_text, NRF_MESH_KEY_SIZE);
 
-#if NRF51 && SOFTDEVICE_PRESENT
+#if defined(NRF51) && SOFTDEVICE_PRESENT
     if (timeslot_remaining_time_get() < ECB_ENCRYPT_TIME_WORST_CASE_US)
     {
-        sd_ecb_block_encrypt((nrf_ecb_hal_data_t *) &aes_data);
+        (void) sd_ecb_block_encrypt((nrf_ecb_hal_data_t *) &aes_data);
     }
     else
     {
         aes_encrypt_hw(&aes_data);
     }
-#elif NRF52 && SOFTDEVICE_PRESENT
-    sd_ecb_block_encrypt((nrf_ecb_hal_data_t *) &aes_data);
+#elif defined(NRF52) && SOFTDEVICE_PRESENT
+    (void) sd_ecb_block_encrypt((nrf_ecb_hal_data_t *) &aes_data);
 #else
     aes_encrypt_hw(&aes_data);
 #endif

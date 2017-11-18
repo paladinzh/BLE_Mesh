@@ -37,10 +37,11 @@
 
 #include <string.h>
 #include <stdbool.h>
+
 #include "unity.h"
 #include "bearer.h"
 #include "bearer_adv.h"
-
+#include "packet_mgr.h"
 
 static packet_t test_packet = {.header = {2, 0, 1, 0, 37, 0},
                                .addr   = {1, 2, 3, 4, 5, 6},
@@ -79,6 +80,11 @@ void tearDown(void)
 }
 
 /********* temporary mocks ***********/
+
+/* TODO: Use CMock for mocking instead to prevent Lint warnings about missing side-effects in the functions below. */
+/*lint -esym(522, bearer_event_critical_section_begin, bearer_event_critical_section_end) */
+/*lint -esym(522, bearer_adv_scan_start, bearer_adv_scan_stop) */
+
 uint32_t bearer_adv_init(bearer_scan_config_t * p_config)
 {
     m_rx_cb = p_config->rx_cb;
@@ -109,7 +115,7 @@ void bearer_adv_scan_start(void){}
 
 void bearer_adv_scan_stop(void){}
 
-uint32_t bearer_adv_advertiser_init(advertiser_t* p_adv) { return NRF_SUCCESS; }
+void bearer_adv_advertiser_init(advertiser_t* p_adv){}
 
 uint32_t bearer_adv_reconfig(bearer_scan_config_t * config)
 {
@@ -119,11 +125,7 @@ uint32_t bearer_adv_reconfig(bearer_scan_config_t * config)
 void radio_mode_set(uint8_t radio_mode) {}
 void radio_access_addr_set(uint32_t access_address) {}
 
-
-uint32_t packet_mgr_decref(packet_t* p_packet)
-{
-    return NRF_SUCCESS;
-}
+void packet_mgr_free(packet_generic_t* p_packet) {}
 
 void bearer_event_critical_section_begin(void) {}
 void bearer_event_critical_section_end(void) {}
@@ -173,7 +175,7 @@ void test_bearer_propagate_return_codes(void)
 
 static void m_add_all_ad_types(void)
 {
-    for(uint16_t ad_type=0; ad_type <= UINT8_MAX; ad_type++)
+    for (uint16_t ad_type=0; ad_type <= UINT8_MAX; ad_type++)
     {
         bearer_adtype_add(ad_type);
     }
@@ -181,7 +183,7 @@ static void m_add_all_ad_types(void)
 
 static void m_remove_all_ad_types(void)
 {
-    for(uint16_t ad_type=0; ad_type <= UINT8_MAX; ad_type++)
+    for (uint16_t ad_type=0; ad_type <= UINT8_MAX; ad_type++)
     {
         bearer_adtype_remove(ad_type);
     }
@@ -469,7 +471,7 @@ void test_bearer_addr_filtering(void)
     CHECK_STATS();
 
     /* Test clear */
-    ble_gap_addr_t alt_filter;
+    ble_gap_addr_t alt_filter = {};
     TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_filter_gap_addr_whitelist_set(&alt_filter, 3));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_filter_gap_addr_whitelist_set(filter_list, 3));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, bearer_filter_gap_addr_blacklist_set(filter_list, 3));

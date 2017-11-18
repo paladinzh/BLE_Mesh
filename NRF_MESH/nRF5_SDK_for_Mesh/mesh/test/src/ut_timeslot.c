@@ -35,28 +35,25 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "unity.h"
-#include "timeslot.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <inttypes.h>
-#include "nrf_soc.h"
-#include "nrf_error.h"
+
+#include <unity.h>
+
+#include <nrf_soc.h>
+#include <nrf_error.h>
+
+#include "mesh_flash.h"
 #include "nrf_mesh.h"
+#include "radio.h"
+#include "timeslot.h"
 
 NRF_RTC_Type*                       NRF_RTC0;
 static NRF_RTC_Type                 m_rtc;
 static uint32_t                     m_radio_event_handler_calls;
 static uint32_t                     m_timer_event_handler_calls;
-static uint32_t                     m_timer_abort_calls;
-static uint32_t                     m_timer_order_calls;
-static uint32_t                     m_timer_on_ts_begin_calls;
-static uint32_t                     m_timer_on_ts_end_calls;
-static uint32_t                     m_radio_on_ts_begin_calls;
-static uint32_t                     m_radio_on_ts_end_calls;
 static uint32_t                     m_sd_radio_session_open_calls;
-static uint32_t                     m_sd_radio_session_close_calls;
 static uint32_t                     m_sd_radio_request_calls;
 static nrf_radio_signal_callback_t  m_signal_cb;
 static nrf_radio_request_t*         mp_radio_req;
@@ -73,18 +70,11 @@ void setUp(void)
     NRF_RTC0 = &m_rtc;
     m_radio_event_handler_calls     = 0;
     m_timer_event_handler_calls     = 0;
-    m_timer_abort_calls             = 0;
-    m_timer_order_calls             = 0;
-    m_timer_on_ts_begin_calls       = 0;
-    m_timer_on_ts_end_calls         = 0;
-    m_radio_on_ts_begin_calls       = 0;
-    m_radio_on_ts_end_calls         = 0;
     m_sd_radio_session_open_calls   = 0;
     m_sd_radio_request_calls        = 0;
     mp_radio_req                    = 0;
     m_ts_len                        = 0;
-    m_sd_radio_session_close_calls  = 0;
-    setRTC(0);
+    (void) setRTC(0);
 }
 
 void tearDown(void)
@@ -93,12 +83,16 @@ void tearDown(void)
 }
 
 /******************************************/
+
+/* TODO: Use CMock functions for mocking. */
+/*lint -e522 Function lacks side effects */
+
 uint32_t setRTC(uint64_t time_us)
 {
     uint64_t time = ((time_us << 15) / 1000000);
-#ifdef __linux__
+#if defined(__linux__)
     printf("time: %llu\n", time);
-#elif _WIN32
+#elif defined(_WIN32)
     printf("time: %I64u\n", time);
 #endif
     memcpy((void*) &m_rtc.COUNTER, &time, 4);
@@ -128,41 +122,15 @@ timestamp_t timer_now(void)
 
 uint32_t timer_abort(uint8_t index)
 {
-    m_timer_abort_calls++;
     return NRF_SUCCESS;
 }
 
 uint32_t timer_order_cb(uint8_t index, timestamp_t timestamp, timer_callback_t cb, timer_attr_t attrs)
 {
-    m_timer_order_calls++;
     m_timer_cb = cb;
     m_timeout = timestamp;
     TEST_ASSERT_EQUAL((TIMER_ATTR_TIMESLOT_LOCAL | TIMER_ATTR_SYNCHRONOUS), attrs);
     return NRF_SUCCESS;
-}
-
-void timer_on_ts_begin(timestamp_t ts_end_time)
-{
-    m_timer_on_ts_begin_calls++;
-
-}
-
-void timer_on_ts_end(timestamp_t ts_end_time)
-{
-    m_timer_on_ts_end_calls++;
-
-}
-
-void radio_on_ts_end(timestamp_t ts_end_time)
-{
-    m_radio_on_ts_end_calls++;
-
-}
-
-void radio_on_ts_begin(timestamp_t ts_end_time)
-{
-    m_radio_on_ts_begin_calls++;
-
 }
 
 uint32_t sd_radio_session_open(nrf_radio_signal_callback_t p_cb)
@@ -174,7 +142,6 @@ uint32_t sd_radio_session_open(nrf_radio_signal_callback_t p_cb)
 
 uint32_t sd_radio_session_close(void)
 {
-    m_sd_radio_session_close_calls++;
     return NRF_SUCCESS;
 }
 
@@ -190,10 +157,26 @@ uint32_t sd_nvic_EnableIRQ(IRQn_Type IRQn)
     return NRF_SUCCESS;
 }
 
-void mesh_flash_op_execute(void)
+void timer_on_ts_begin(timestamp_t ts_end_time)
 {
-
 }
+
+void timer_on_ts_end(timestamp_t ts_end_time)
+{
+}
+
+void radio_on_ts_end(void)
+{
+}
+
+void radio_on_ts_begin(void)
+{
+}
+
+void mesh_flash_op_execute(timestamp_t available_time)
+{
+}
+
 /******************************************/
 void test_timeslot_start(void)
 {
@@ -224,7 +207,7 @@ void test_timeslot_start(void)
 
     if (p_retparam->callback_action == NRF_RADIO_SIGNAL_CALLBACK_ACTION_EXTEND)
     {
-        p_retparam = m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_EXTEND_FAILED);
+        (void) m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_EXTEND_FAILED);
     }
 
     TEST_ASSERT_TRUE(m_timeout < m_ts_len );
@@ -233,9 +216,9 @@ void test_timeslot_start(void)
 
 void test_timeslot_signal_propagation(void)
 {
-    m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_RADIO);
+    (void) m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_RADIO);
     TEST_ASSERT_EQUAL(1, m_radio_event_handler_calls);
-    m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_TIMER0);
+    (void) m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_TIMER0);
     TEST_ASSERT_EQUAL(1, m_timer_event_handler_calls);
 }
 
@@ -262,7 +245,7 @@ void test_timeslot_rtc_carryover(void)
 
     if (p_retparam->callback_action == NRF_RADIO_SIGNAL_CALLBACK_ACTION_EXTEND)
     {
-        p_retparam = m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_EXTEND_FAILED);
+        (void) m_signal_cb(NRF_RADIO_CALLBACK_SIGNAL_TYPE_EXTEND_FAILED);
     }
 
     TEST_ASSERT_EQUAL(actual_starttime, timeslot_start_time_get());

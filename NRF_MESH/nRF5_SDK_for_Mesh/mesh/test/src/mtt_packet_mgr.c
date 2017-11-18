@@ -69,9 +69,9 @@ bool testloop_fixed_size(uint32_t thread_id, uint32_t invocation, void * p_conte
 {
     packet_t * p_packet = NULL;
     uint32_t status = packet_mgr_alloc((packet_generic_t **) &p_packet, sizeof(packet_t));
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
-        if(status == NRF_ERROR_NO_MEM)
+        if (status == NRF_ERROR_NO_MEM)
         {
             /* To be out of memory isn't really a problem, log it and return: */
             pthread_mutex_lock(&m_nomem_counter_mutex);
@@ -89,12 +89,12 @@ bool testloop_fixed_size(uint32_t thread_id, uint32_t invocation, void * p_conte
     }
 
     /* Fill the packet with random data: */
-    for(unsigned int i = 0; i < sizeof(packet_t); ++i)
+    for (unsigned int i = 0; i < sizeof(packet_t); ++i)
     {
         ((uint8_t *) p_packet)[i] = mttest_random(thread_id) & 0xff;
     }
 
-    packet_mgr_decref(p_packet);
+    packet_mgr_free(p_packet);
 
     return true;
 }
@@ -105,9 +105,9 @@ bool testloop_rand_size(uint32_t thread_id, uint32_t invocation, void * p_contex
     uint16_t bufsize = (mttest_random(thread_id) % (TEST_RANDSIZE_MAX - 1) + 1);
 
     uint32_t status = packet_mgr_alloc((packet_generic_t **) &p_buffer, bufsize);
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
-        if(status == NRF_ERROR_NO_MEM)
+        if (status == NRF_ERROR_NO_MEM)
         {
             pthread_mutex_lock(&m_nomem_counter_mutex);
             ++m_nomem_counter;
@@ -124,12 +124,12 @@ bool testloop_rand_size(uint32_t thread_id, uint32_t invocation, void * p_contex
     }
 
     /* Fill the packet with random data: */
-    for(unsigned int i = 0; i < bufsize; ++i)
+    for (unsigned int i = 0; i < bufsize; ++i)
     {
         ((uint8_t *) p_buffer)[i] = mttest_random(thread_id) & 0xff;
     }
 
-    packet_mgr_decref(p_buffer);
+    packet_mgr_free(p_buffer);
 
     return true;
 }
@@ -137,12 +137,12 @@ bool testloop_rand_size(uint32_t thread_id, uint32_t invocation, void * p_contex
 bool testloop_simalloc_fixed(uint32_t thread_id, uint32_t invocation, void * p_context)
 {
     packet_t * p_buffers[TEST_NUM_SIMALLOC] = {};
-    for(uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
+    for (uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
     {
         uint32_t status = packet_mgr_alloc((packet_generic_t **) &p_buffers[i], sizeof(packet_t));
-        if(status != NRF_SUCCESS)
+        if (status != NRF_SUCCESS)
         {
-            if(status == NRF_ERROR_NO_MEM)
+            if (status == NRF_ERROR_NO_MEM)
             {
                 pthread_mutex_lock(&m_nomem_counter_mutex);
                 ++m_nomem_counter;
@@ -160,19 +160,19 @@ bool testloop_simalloc_fixed(uint32_t thread_id, uint32_t invocation, void * p_c
     }
 
     /* Fill the packets with random data: */
-    for(uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
+    for (uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
     {
-        for(unsigned int j = 0; p_buffers[i] != NULL && j < sizeof(packet_t); ++j)
+        for (unsigned int j = 0; p_buffers[i] != NULL && j < sizeof(packet_t); ++j)
         {
             ((uint8_t *) (p_buffers[i]))[j] = mttest_random(thread_id) & 0xff;
         }
     }
 
-    for(uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
+    for (uint32_t i = 0; i < TEST_NUM_SIMALLOC; ++i)
     {
-        if(p_buffers[i] != NULL)
+        if (p_buffers[i] != NULL)
         {
-            packet_mgr_decref(p_buffers[i]);
+            packet_mgr_free(p_buffers[i]);
         }
     }
 
@@ -195,12 +195,7 @@ int main(void)
 
     /* Initialize the packet manager: */
     nrf_mesh_init_params_t init_params = {};
-    uint32_t status = packet_mgr_init(&init_params);
-    if(status != NRF_SUCCESS)
-    {
-        __LOG(LOG_SRC_TEST, LOG_LEVEL_ERROR, "Test failed, packet_mgr_init() failed with error code %d\n", status);
-        return status;
-    }
+    packet_mgr_init(&init_params);
 
     /* Initialize the test framework: */
     mttest_init();
@@ -215,7 +210,7 @@ int main(void)
             "Packet allocation test with %d threads with %d iterations of fixed size allocations (size = %d) %s with %.02f %% nomem errors.\n",
             TEST_NUM_THREADS, TEST_NUM_ITERATIONS, sizeof(packet_t), result ? "passed" : "failed",
             ((double) m_nomem_counter / (double) (TEST_NUM_THREADS * TEST_NUM_ITERATIONS)) * 100.0);
-    if(!result)
+    if (!result)
     {
         retval++;
     }
@@ -226,7 +221,7 @@ int main(void)
             "Packet allocation test with %d threads with %d iterations of random sized allocations (size =< %d) %s with %.02f %% nomem errors.\n",
             TEST_NUM_THREADS, TEST_NUM_ITERATIONS, TEST_RANDSIZE_MAX, result ? "passed" : "failed",
             ((double) m_nomem_counter / (double) (TEST_NUM_THREADS * TEST_NUM_ITERATIONS)) * 100.0);
-    if(!result)
+    if (!result)
     {
         retval++;
     }
@@ -237,7 +232,7 @@ int main(void)
             "Packet allocation test with %d threads with %d iterations of %d fixed size allocations (size = %d) %s with %.02f %% nomem errors.\n",
             TEST_NUM_THREADS, TEST_NUM_ITERATIONS, TEST_NUM_SIMALLOC, sizeof(packet_t), result ? "passed" : "failed",
             ((double) m_nomem_counter / (double) (TEST_NUM_THREADS * TEST_NUM_ITERATIONS * TEST_NUM_SIMALLOC)) * 100.0);
-    if(!result)
+    if (!result)
     {
         retval++;
     }

@@ -97,9 +97,9 @@ static packet_buffer_t m_action_queue;
 static uint8_t         m_action_queue_buffer[ACTION_QUEUE_BUFFER_LENGTH] __attribute__((aligned(WORD_SIZE)));
 
 /* Short, common flash entries: */
-const fm_header_t INVALID_HEADER = {0xFFFF, FLASH_MANAGER_HANDLE_INVALID};
-const fm_header_t PADDING_HEADER = {0xFFFF, HANDLE_PADDING};
-const fm_header_t SEAL_HEADER    = {0xFFFF, HANDLE_SEAL};
+const fm_header_t INVALID_HEADER __attribute__((aligned(WORD_SIZE))) = {0xFFFF, FLASH_MANAGER_HANDLE_INVALID};
+const fm_header_t PADDING_HEADER __attribute__((aligned(WORD_SIZE))) = {0xFFFF, HANDLE_PADDING};
+const fm_header_t SEAL_HEADER    __attribute__((aligned(WORD_SIZE))) = {0xFFFF, HANDLE_SEAL};
 
 static bearer_event_flag_t   m_processing_flag;
 static fm_state_t            m_state;
@@ -223,7 +223,7 @@ static bool flash_area_is_valid(const flash_manager_t * p_manager)
         {
             /* Check that the existing metadata aligns with ours */
             NRF_MESH_ASSERT(p_manager->config.p_area[i].metadata.page_index == i);
-            NRF_MESH_ASSERT(p_manager->config.p_area[i].metadata.pages_in_area == p_manager->config.page_count)
+            NRF_MESH_ASSERT(p_manager->config.p_area[i].metadata.pages_in_area == p_manager->config.page_count);
         }
         else
         {

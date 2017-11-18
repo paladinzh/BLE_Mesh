@@ -238,12 +238,12 @@ void test_cmd_dfu(void)
     cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_dfu_bank_info_get_t);
     cmd.payload.cmd.dfu.relay.dfu_type = NRF_MESH_DFU_TYPE_SOFTDEVICE;
     TEST_PACKET_EQUAL(cmd,
-            0x02, 0xD4, 0x02);
+            0x02, 0xD4, 0x01);
     cmd.opcode = SERIAL_OPCODE_CMD_DFU_BANK_FLASH;
     cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_dfu_bank_flash_t);
     cmd.payload.cmd.dfu.relay.dfu_type = NRF_MESH_DFU_TYPE_BOOTLOADER;
     TEST_PACKET_EQUAL(cmd,
-            0x02, 0xD5, 0x01);
+            0x02, 0xD5, 0x02);
 }
 
 void test_evt_cmd_rsp(void)
@@ -390,14 +390,14 @@ void test_evt_dfu(void)
     evt.payload.evt.dfu.req_relay.fwid.bootloader.bl_version = 0xCD;
     evt.payload.evt.dfu.req_relay.authority = 0xAB;
     TEST_PACKET_EQUAL(evt,
-            0x0d, 0xA0, 0x01, 0xAB, 0xCD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAB);
+            0x0d, 0xA0, 0x02, 0xAB, 0xCD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAB);
 
     memset(&evt, 0x00, sizeof(serial_packet_t));
     evt.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_evt_dfu_req_source_t);
     evt.opcode = SERIAL_OPCODE_EVT_DFU_REQ_SOURCE;
     evt.payload.evt.dfu.req_source.dfu_type = NRF_MESH_DFU_TYPE_SOFTDEVICE;
     TEST_PACKET_EQUAL(evt,
-            0x02, 0xA1, 0x02);
+            0x02, 0xA1, 0x01);
 
     memset(&evt, 0x00, sizeof(serial_packet_t));
     evt.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_evt_dfu_start_t);

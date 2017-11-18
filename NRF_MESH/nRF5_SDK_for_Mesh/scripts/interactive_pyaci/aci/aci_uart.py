@@ -34,9 +34,9 @@ import collections
 from serial import Serial
 from aci.aci_cmd import CommandPacket
 from aci.aci_evt import event_deserialize
+import queue
 
-
-EVT_Q_BUF = 16
+EVT_Q_BUF = 128
 
 
 class Device(object):
@@ -47,8 +47,18 @@ class Device(object):
         self._cmd_recipients = []
         self.lock = threading.Event()
         self.events = list()
+        self.__write_queue = queue.Queue()
+        self.writer_alive = True
+        threading.Thread(target=self.__writer).start()
 
-    def __wait(self, timeout=1):
+    def __del__(self):
+        self.kill_writer()
+
+    def kill_writer(self):
+        self.writer_alive = False
+        self.__write_queue.put(None)
+
+    def __wait(self, timeout=2):
         if len(self.events) == 0:
             self.lock.wait(timeout)
         self.lock.clear()
@@ -88,13 +98,20 @@ class Device(object):
                 self.logger.error('Exception in pkt handler %r', fun)
                 self.logger.error('traceback: %s', traceback.format_exc())
 
-    def write_aci_cmd(self, cmd):
-        if isinstance(cmd, CommandPacket):
+    def __writer(self):
+        while self.writer_alive:
+            cmd = self.__write_queue.get()
+            if cmd is None:
+                return
             cmd.logger = self.logger
             self.write_data(cmd.serialize())
             retval = self.__wait()
             if retval == None:
                 self.logger.info('cmd %s, timeout waiting for event' % (cmd.__class__.__name__))
+
+    def write_aci_cmd(self, cmd):
+        if isinstance(cmd, CommandPacket):
+            self.__write_queue.put(cmd)
         else:
             self.logger.error('The command provided is not valid: %s\nIt must be an instance of the CommandPacket class (or one of its subclasses)', str(cmd))
 
@@ -122,6 +139,7 @@ class Uart(threading.Thread, Device):
 
     def stop(self):
         self.keep_running = False
+        self.kill_writer()
 
     def get_packet_from_uart(self):
         tmp = bytearray([])

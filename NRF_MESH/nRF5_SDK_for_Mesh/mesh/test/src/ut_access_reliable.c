@@ -236,11 +236,11 @@ static void verify_callbacks(void)
 
 void setUp(void)
 {
-    CMOCK_SETUP(access);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(timer);
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(bearer_event);
+    access_mock_Init();
+    access_config_mock_Init();
+    timer_mock_Init();
+    timer_scheduler_mock_Init();
+    bearer_event_mock_Init();
     memset(&m_timer, 0, sizeof(m_timer));
     memset(&m_status_cb, 0, sizeof(m_status_cb));
     access_reliable_init();
@@ -251,7 +251,16 @@ void setUp(void)
 void tearDown(void)
 {
     verify_callbacks();
-    CMOCK_TEARDOWN();
+    access_mock_Verify();
+    access_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    timer_mock_Verify();
+    timer_mock_Destroy();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
 }
 
 /* ******************* Test functions ******************* */
@@ -303,7 +312,7 @@ void test_reliable_publish(void)
     printf("---> Let the first, last and middle transfer succeed.\n");
     time = ACCESS_RELIABLE_TIMEOUT_MIN;
     /* . */
-    uint32_t remove_bitfield = (1 << 0) | (1 << (ACCESS_RELIABLE_TRANSFER_COUNT-1)) | (1 << ACCESS_RELIABLE_TRANSFER_COUNT/2);
+    uint32_t remove_bitfield = (1 << 0) | (1 << (ACCESS_RELIABLE_TRANSFER_COUNT-1)) | (1 << (ACCESS_RELIABLE_TRANSFER_COUNT / 2));
     access_message_rx_t rx_message = {0};
     for (uint32_t i = 0; i < ACCESS_RELIABLE_TRANSFER_COUNT; ++i)
     {
@@ -315,7 +324,7 @@ void test_reliable_publish(void)
         access_reliable_t * p_ctx = &m_reliables[i];
         rx_message.opcode.opcode = p_ctx->reply_opcode.opcode;
         rx_message.opcode.company_id = p_ctx->reply_opcode.company_id;
-        void * p_args = TEST_ARGS_PTR + i;
+        void * p_args = (uint8_t *) TEST_ARGS_PTR + i;
         if (i == 0)
         {
             /* Expect a reschedule when clearing HEAD */
@@ -350,7 +359,7 @@ void test_reliable_publish(void)
                                                  ACCESS_RELIABLE_TIMEOUT_MIN + TIME_SPACING*(i + 2));
             }
 
-            p_args = TEST_ARGS_PTR + i;
+            p_args = (uint8_t *) TEST_ARGS_PTR + i;
             printf("p_args: %p\n", p_args);
             access_model_p_args_get_ExpectAndReturn(m_reliables[i].model_handle, NULL, NRF_SUCCESS);
             access_model_p_args_get_IgnoreArg_pp_args();
@@ -378,7 +387,7 @@ void test_multiple_cancels(void)
         }
         bearer_event_critical_section_begin_Expect();
         bearer_event_critical_section_end_Expect();
-        access_model_reliable_cancel(m_reliables[i].model_handle);
+        (void) access_model_reliable_cancel(m_reliables[i].model_handle);
     }
 
     initialize_contexts();
@@ -392,7 +401,7 @@ void test_multiple_cancels(void)
         }
         bearer_event_critical_section_begin_Expect();
         bearer_event_critical_section_end_Expect();
-        access_model_reliable_cancel(m_reliables[i].model_handle);
+        (void) access_model_reliable_cancel(m_reliables[i].model_handle);
     }
 
     bearer_event_critical_section_begin_Expect();
@@ -571,7 +580,7 @@ void test_rx_wrong_opcode(void)
     for (uint32_t i = 0; i < ACCESS_RELIABLE_TRANSFER_COUNT; ++i)
     {
         access_reliable_t * p_ctx = &m_reliables[i];
-        void * p_args = TEST_ARGS_PTR + i;
+        void * p_args = (uint8_t *) TEST_ARGS_PTR + i;
 
         rx_message.opcode.opcode = WRONG_OPCODE;
         rx_message.opcode.company_id = ACCESS_COMPANY_ID_NONE;

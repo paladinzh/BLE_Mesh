@@ -49,6 +49,8 @@
  * @{
  */
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Simple OnOff opcodes. */
 typedef enum
 {
@@ -77,6 +79,8 @@ typedef struct __attribute((packed))
 {
     uint8_t present_on_off; /**< Current state. */
 } simple_on_off_msg_status_t;
+
+/*lint -align_max(pop) */
 
 /** @} end of SIMPLE_ON_OFF_COMMON */
 /** @} end of SIMPLE_ON_OFF_MODEL */

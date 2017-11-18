@@ -39,7 +39,7 @@
 
 uint8_t * packet_type_packet_get(packet_t * p_packet, uint8_t ad_type)
 {
-    if(p_packet->header.length <= BLE_ADV_PACKET_MIN_LENGTH)
+    if (p_packet->header.length <= BLE_ADV_PACKET_MIN_LENGTH)
     {
         return NULL;
     }
@@ -47,16 +47,16 @@ uint8_t * packet_type_packet_get(packet_t * p_packet, uint8_t ad_type)
     uint8_t payload_size = packet_payload_size_get(p_packet);
     ble_ad_data_t * p_ad_data = (ble_ad_data_t *) &p_packet->payload[0];
 
-    for(uint8_t current = 0; current < payload_size; current += p_ad_data->length + 1)
+    for (uint8_t current = 0; current < payload_size; current += p_ad_data->length + 1)
     {
         p_ad_data = (ble_ad_data_t *) &p_packet->payload[current];
 
-        if(p_ad_data->length + 1 > payload_size - current)
+        if (p_ad_data->length + 1 > payload_size - current)
         {
             return NULL;
         }
 
-        if(p_ad_data->length > 0 && p_ad_data->type == ad_type)
+        if (p_ad_data->length > 0 && p_ad_data->type == ad_type)
         {
             return (uint8_t *) p_ad_data;
         }

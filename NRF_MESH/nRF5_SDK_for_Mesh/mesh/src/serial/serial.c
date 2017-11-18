@@ -44,7 +44,7 @@
 
 #include <nrf_error.h>
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh.h"
 #include "nrf_mesh_assert.h"
 #include "nrf_mesh_serial.h"
@@ -57,12 +57,16 @@
 #include "serial_evt.h"
 #include "serial_cmd.h"
 #include "serial_status.h"
-#include "serial_handler.h"
+
+#include "serial_handler_app.h"
+#include "serial_handler_config.h"
+#include "serial_handler_dfu.h"
 #include "serial_handler_prov.h"
 #include "serial_handler_mesh.h"
 #include "serial_handler_device.h"
 #include "serial_handler_access.h"
 #include "serial_handler_models.h"
+#include "serial_handler_openmesh.h"
 
 
 /* The serial_device_operating_mode_t must fit inside a single byte, to make sure it can go into the packet. */
@@ -178,12 +182,7 @@ uint32_t serial_start(void)
         p_start_packet->payload.evt.device.started.operating_mode = SERIAL_DEVICE_OPERATING_MODE_APPLICATION;
         p_start_packet->payload.evt.device.started.hw_error = NRF_POWER->RESETREAS & RESET_REASONS_HW_ERROR;
         p_start_packet->payload.evt.device.started.data_credit_available = sizeof(serial_packet_t);
-        err_code = serial_tx(p_start_packet);
-        if (err_code != NRF_SUCCESS)
-        {
-            /* Reset state, as start failed. */
-            m_state = NRF_MESH_SERIAL_STATE_INITIALIZED;
-        }
+        serial_tx(p_start_packet);
     }
     return err_code;
 }
@@ -200,14 +199,10 @@ uint32_t serial_packet_buffer_get(uint16_t packet_len, serial_packet_t ** pp_pac
     }
 }
 
-uint32_t serial_tx(const serial_packet_t * p_packet)
+void serial_tx(const serial_packet_t * p_packet)
 {
-    if (m_state != NRF_MESH_SERIAL_STATE_RUNNING)
-    {
-        return NRF_ERROR_INVALID_STATE;
-    }
+    NRF_MESH_ASSERT(m_state == NRF_MESH_SERIAL_STATE_RUNNING);
     serial_bearer_tx(p_packet);
-    return NRF_SUCCESS;
 }
 
 void serial_process(void)
@@ -227,7 +222,7 @@ void serial_process(void)
 
 uint8_t serial_translate_error(uint32_t error)
 {
-    switch(error)
+    switch (error)
     {
         case NRF_SUCCESS:
             return SERIAL_STATUS_SUCCESS;
@@ -277,15 +272,12 @@ nrf_mesh_serial_state_t serial_state_get(void)
     return m_state;
 }
 
-uint32_t serial_cmd_rsp_send(uint8_t opcode, uint8_t status, const uint8_t * p_data, uint16_t length)
+void serial_cmd_rsp_send(uint8_t opcode, uint8_t status, const uint8_t * p_data, uint16_t length)
 {
-    if ((p_data != NULL && length == 0) || (p_data == NULL && length != 0))
+    NRF_MESH_ASSERT((p_data != NULL && length != 0) || (p_data == NULL && length == 0))
+    if (m_state != NRF_MESH_SERIAL_STATE_RUNNING)
     {
-        return NRF_ERROR_INVALID_LENGTH;
-    }
-    else if (m_state != NRF_MESH_SERIAL_STATE_RUNNING)
-    {
-        return NRF_ERROR_INVALID_STATE;
+        return;
     }
 
     serial_packet_t * p_rsp;
@@ -301,7 +293,6 @@ uint32_t serial_cmd_rsp_send(uint8_t opcode, uint8_t status, const uint8_t * p_d
             memcpy(&p_rsp->payload.evt.cmd_rsp.data, p_data, length);
         }
 
-        err_code = serial_tx(p_rsp);
+        (void) serial_tx(p_rsp);
     }
-    return err_code;
 }

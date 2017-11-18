@@ -36,17 +36,9 @@
 #define MDK_MINOR_VERSION   9
 #define MDK_MICRO_VERSION   0
 
-#if defined(_WIN32)
-    #include "nrf51.h"
-    #include "nrf51_bitfields.h"
-    #include "nrf51_deprecated.h"
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__unix)
-    /* Do not include nrf51 specific files when building for PC host */
-#elif defined(__APPLE__)
-    /* Do not include nrf51 specific files when building for PC host */
+#if HOST
+    /* Do not include nRF specific files when building for PC host */
 #else
-
     /* Family selection for family includes. */
     #if defined (NRF51)
         #include "nrf51.h"

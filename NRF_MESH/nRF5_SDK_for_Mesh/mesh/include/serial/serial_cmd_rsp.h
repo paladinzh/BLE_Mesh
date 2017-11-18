@@ -61,6 +61,8 @@
 /** Max length of the command response data field. */
 #define SERIAL_EVT_CMD_RSP_DATA_MAXLEN      (NRF_MESH_SERIAL_PAYLOAD_MAXLEN  - SERIAL_EVT_CMD_RSP_OVERHEAD)
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Subnetwork access response data */
 typedef struct __attribute((packed))
 {
@@ -318,7 +320,7 @@ typedef struct __attribute((packed))
     } data; /**< Optional command response data. */
 } serial_evt_cmd_rsp_t;
 
-
+/*lint -align_max(pop) */
 
 /** @} */
 

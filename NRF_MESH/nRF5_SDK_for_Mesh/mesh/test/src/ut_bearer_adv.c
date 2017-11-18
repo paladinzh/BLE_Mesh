@@ -37,8 +37,11 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+
 #include "unity.h"
+
 #include "bearer_adv.h"
+#include "event.h"
 #include "rand.h"
 #include "radio.h"
 #include "timer.h"
@@ -59,7 +62,6 @@ static timestamp_t              m_expected_timeout;
 static bool                     m_timer_order_expected;
 static packet_t                 m_packet;
 static packet_t*                mp_packet_expected;
-static uint32_t                 m_packet_refs;
 static uint32_t                 m_timer_orders;
 static uint32_t                 m_radio_tx_orders;
 static uint32_t                 m_radio_rx_orders;
@@ -67,18 +69,16 @@ static uint32_t                 m_radio_rx_calls;
 static bool                     m_radio_init_called;
 static uint8_t                  m_expected_scan_ch;
 static uint8_t                  m_expected_tx_ch;
-static uint32_t                 m_expected_count;
 static timer_sch_callback_t     m_timer_callback;
 static void*                    mp_timer_context;
 static advertiser_t             m_advertiser;
 nrf_mesh_assertion_handler_t    m_assertion_handler;
 
-void rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t* p_meta);
+static void rx_cb(packet_t * p_packet, bearer_t bearer, const packet_meta_t * p_meta);
 void nrf_mesh_assertion_handler(uint32_t pc);
 
 void setUp(void)
 {
-    m_expected_count = 0;
     m_assertion_handler = nrf_mesh_assertion_handler;
     memset(&m_advertiser, 0, sizeof(advertiser_t));
     m_advertiser.adv_int_min_ms = 100;
@@ -87,7 +87,6 @@ void setUp(void)
     m_advertiser.adv_channel_map = 0x07;
     m_time_now = 0;
     m_rand = 0;
-    m_packet_refs = 0;
     m_timer_orders = 0;
     m_timer_order_expected = true;
     m_radio_tx_orders = 0;
@@ -109,7 +108,7 @@ void setUp(void)
     scan_config.rx_cb = rx_cb;
     TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_adv_init(&scan_config));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_adv_advertiser_init(&m_advertiser));
+    bearer_adv_advertiser_init(&m_advertiser);
 }
 
 void tearDown(void)
@@ -119,6 +118,10 @@ void tearDown(void)
 
 
 /********************/
+
+/* TODO: Use CMock generated mock functions in this unit test. */
+/*lint -e522 Mock functions lack side-effects. */
+
 uint32_t rand_prng_get(prng_t* p_prng)
 {
     return m_rand;
@@ -159,9 +162,8 @@ void radio_tx_power_set(radio_tx_power_t tx_power)
 {
 }
 
-uint32_t event_handle(nrf_mesh_evt_t * p_event)
+void event_handle(nrf_mesh_evt_t * p_evt)
 {
-    return NRF_SUCCESS;
 }
 
 uint32_t radio_order(radio_event_t* p_evts, uint32_t* p_count)
@@ -251,14 +253,12 @@ timestamp_t timer_now(void)
 
 uint32_t packet_mgr_alloc(packet_generic_t** pp_packet, uint16_t size)
 {
-    m_packet_refs++;
     *pp_packet = &m_packet;
     return NRF_SUCCESS;
 }
 
-void packet_mgr_decref(packet_generic_t* p_packet)
+void packet_mgr_free(packet_generic_t* p_packet)
 {
-    m_packet_refs--;
 }
 
 uint32_t sd_ble_gap_address_get(ble_gap_addr_t* p_addr)
@@ -279,7 +279,7 @@ void app_error_handler(uint32_t error, uint32_t line, const uint8_t* file)
     TEST_FAIL();
 }
 
-void rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t* p_meta)
+static void rx_cb(packet_t * p_packet, bearer_t bearer, const packet_meta_t * p_meta)
 {
     TEST_ASSERT_EQUAL(&m_packet, p_packet);
     TEST_ASSERT_EQUAL(BEARER_ADV_RADIO, bearer);
@@ -446,10 +446,9 @@ void test_address_set(void)
     /* Invalid address type. */
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_ADDR, bearer_adv_addr_default_set(&addr));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_adv_gap_type_set(&addr));
+    bearer_adv_gap_type_set(&addr);
     TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_adv_addr_default_set(&addr));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, bearer_adv_advertiser_init(&m_advertiser));
-
+    bearer_adv_advertiser_init(&m_advertiser);
     TEST_ASSERT_EQUAL_MEMORY(&addr, &m_advertiser.internal.ble_adv_addr, sizeof(ble_gap_addr_t));
 }

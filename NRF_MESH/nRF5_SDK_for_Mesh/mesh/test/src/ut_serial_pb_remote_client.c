@@ -101,10 +101,10 @@ static uint32_t m_pbr_client_init_cb(pb_remote_client_t *p_client, uint16_t elem
 
 void setUp(void)
 {
-    CMOCK_SETUP(serial);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(pb_remote_client);
-    CMOCK_SETUP(serial_handler_models);
+    serial_mock_Init();
+    access_config_mock_Init();
+    pb_remote_client_mock_Init();
+    serial_handler_models_mock_Init();
     m_serial_register_cb_count = 0;
     m_pbr_client_init_return_val = NRF_SUCCESS;
     serial_handler_models_register_StubWithCallback(m_serial_model_register_cb);
@@ -119,7 +119,14 @@ void tearDown(void)
     pb_remote_client_mock_Verify();
     serial_handler_models_mock_Verify();
     serial_pb_remote_client_reset();
-    CMOCK_TEARDOWN();
+    serial_mock_Verify();
+    serial_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    pb_remote_client_mock_Verify();
+    pb_remote_client_mock_Destroy();
+    serial_handler_models_mock_Verify();
+    serial_handler_models_mock_Destroy();
 }
 
 
@@ -215,7 +222,7 @@ void test_serial_pbr_client_events(void)
     serial_packet_buffer_get_ExpectAndReturn(serial_packet_len, NULL, NRF_SUCCESS);
     serial_packet_buffer_get_IgnoreArg_pp_packet();
     serial_packet_buffer_get_ReturnThruPtr_pp_packet(&p_s_packet);
-    serial_tx_ExpectAndReturn(p_s_packet, NRF_SUCCESS);
+    serial_tx_Expect(p_s_packet);
     m_last_init_call.event_cb(&pbr_event);
     TEST_ASSERT_EQUAL(SERIAL_OPCODE_EVT_MODEL_SPECIFIC, s_packet.opcode);
     TEST_ASSERT_EQUAL(ACCESS_COMPANY_ID_NONE, s_packet.payload.evt.model.model_evt_info.model_id.company_id);
@@ -230,7 +237,7 @@ void test_serial_pbr_client_events(void)
     serial_packet_buffer_get_ExpectAndReturn(serial_packet_len, NULL, NRF_SUCCESS);
     serial_packet_buffer_get_IgnoreArg_pp_packet();
     serial_packet_buffer_get_ReturnThruPtr_pp_packet(&p_s_packet);
-    serial_tx_ExpectAndReturn(p_s_packet, NRF_SUCCESS);
+    serial_tx_Expect(p_s_packet);
     m_last_init_call.event_cb(&pbr_event);
     TEST_ASSERT_EQUAL(SERIAL_OPCODE_EVT_MODEL_SPECIFIC, s_packet.opcode);
     TEST_ASSERT_EQUAL(ACCESS_COMPANY_ID_NONE, s_packet.payload.evt.model.model_evt_info.model_id.company_id);

@@ -1,50 +1,48 @@
 # How to build a network
 
-This document describes how to setup a simple Bluetooth Mesh network, using
+The following guide describes how to set up a simple Bluetooth Mesh network, using
 the [light control example](@ref md_examples_light_control_README) as a reference. It will give a
 brief conceptual overview of the provisioning and configuration and how the API for it is used in
 the example.
 
-Please refer to [Basic Bluetooth Mesh Concepts](@ref md_doc_getting_started_basic_concepts) for a more detailed
+See [Basic Bluetooth Mesh concepts](@ref md_doc_getting_started_basic_concepts) for a more detailed
 overview of the Bluetooth Mesh concepts.
 
 ## Provisioning and configuration
 
-Before a device can join a Mesh network, it needs to be [provisioned](@ref md_doc_getting_started_provisioning).
+Before a device can join a Mesh network, it must be [provisioned](@ref md_doc_getting_started_provisioning).
 This process involves authenticating the new device and providing it with basic network information,
-a network key, a unique device key and a reserved unicast address space for its elements.
+a network key, a unique device key, and a reserved unicast address space for its elements.
 
-Next is the configuration step. The *Configuration Server* model is mandatory for all Bluetooth Mesh
+After provisioning, the device must be configured. The *Configuration Server* model is mandatory for all Bluetooth Mesh
 nodes and handles the communication with and instructions from a *Configuration Client* model -- in
-practice controlled by the provisioner. It is always allocated at the node's root element and
-communication with it is encrypted with the device's device key. The typical steps of configuration
-is:
+practice controlled by the provisioner. It is always allocated at the node's root element, and
+communication with it is encrypted with the device's device key. The typical configuration steps are:
 
-1.  Reading the composition data of the device. This tells the provisioner meta-data about the
+1.  Read the composition data of the device. This gives the provisioner information about the metadata of the
     device and which models are bound to what element in the device.
-2.  Add application and/or network key(s).
-3.  Bind key(s) to the different models
-4.  Set publication state of the models, *i.e.*, which address to publish state events to, with what
-    key, using what TTL value, etc.
+2.  Add the application and/or network key(s).
+3.  Bind the key(s) to the different models.
+4.  Set the publication state of the models (which address to publish state events to, with what
+    key, using what TTL value, etc.).
 5.  Manage subscriptions.
 
 
 ## Use case: Simple home lighting
 
 Imagine a use case with one light switch and several light bulbs. The provisionee
-(light bulb) will start beaconing its unprovisioned beacon signalling to the provisioner that it is
+(light bulb) will start beaconing its unprovisioned beacon, signaling to the provisioner that it is
 looking for a network to join. The provisioner validates the light bulb's beacon and invites it to
-join the network. If the authentication succeeds, the device will be given the necessary keys and
-addresses to be a part of the network and ready to be configured. Next, the light bulb is given the
+join the network. If the authentication succeeds, the device is given the necessary keys and
+addresses to be a part of the network and be ready to be configured. Next, the light bulb is given the
 "home automation" application key, it is bound to the OnOff Server that controls the light, the
-publication state of the OnOff Server is set and finally a subscription to the "light group" is
-added. This message exchange is illustrated in the figure below (note: acknowledgments are excluded in the
-figure).
+publication state of the OnOff Server is set, and finally a subscription to the "light group" is
+added. This message exchange is illustrated in the following figure (note that acknowledgments are excluded in the
+figure):
 
 ![Figure 1: Provisioning and configuring the light bulb](img/provisioning_and_configuring_light_bulb.png "Figure 1: Provisioning and configuring the light bulb")
 
-
-This process is repeated for each light bulb that is to join the network.
+This process is repeated for each light bulb that joins the network.
 
 ### Practical example
 
@@ -56,58 +54,59 @@ OnOff *server* (the light bulbs).
 
 #### Provisionee: Light control server
 
-The light control server interfaces mainly two APIs
+The light control server interfaces mainly with two APIs:
 
 1. [Configuration module](@ref NRF_MESH_NODE_CONFIG)
 2. [Simple OnOff server model](@ref md_examples_models_simple_on_off_README)
 
 The configuration module implements the behavior of a simple provisionee device. It handles the
-interface with the provisioning stack, setting up the configuration server and restoring the device
+interface with the provisioning stack, setting up the configuration server, and restoring the device
 state from flash.
 
-As seen from `examples/light_control/server/src/main.c`, the amount of code needed for the
-application is minimal, and involves
+As seen in `examples/light_control/server/src/main.c`, the amount of code needed for the
+application is minimal. It implements the following functionality:
 
-1.  Setting basic configuration parameters, Out-Of-Bound (OOB) methods supported, clock configuration, callbacks,
+1.  Setting basic configuration parameters, supported Out-Of-Bound (OOB) methods, clock configuration, callbacks,
     etc.
-2.  Adding models and their event callbacks
+2.  Adding models and their event callbacks.
 
 When the `configuration_complete()` callback is called, the device is provisioned and ready to be
-configured by the provisioner. In the figure below, the setup is illustrated with the relevant API calls.
+configured by the provisioner. The following figure illustrates the setup with the relevant API calls:
 
 ![Figure 2: Light control server setup](img/light_control_server_interface.png "Figure 2: Light control server setup")
 
 
 #### Provisioner: Light control client
 
-The light control client interfaces
+The light control client interfaces with the following APIs:
 
 1.  [Core mesh stack](@ref MESH_API_GROUP_CORE)
 2.  [Provisioning](@ref MESH_API_GROUP_PROV)
 3.  [Configuration client](@ref CONFIG_CLIENT)
 4.  [Simple OnOff client](@ref md_examples_models_simple_on_off_README)
 
-In general, the provisioner role is an order of magnitude more complex than the provisionee, both in
-resource requirements and application complexity. Therefore there is no simple "press play and it
+In general, the provisioner role is an order of magnitude more complex than the provisionee role, both in
+resource requirements and application complexity. Therefore, there is no simple "press play and it
 works"-API for the provisioner. However, for a specific use case, it can be reduced into a set of
-simple steps. These are implemented in the light control client example, and are:
+simple steps, as implemented in the light control client example:
 
-1.  Initialization
+1.  Initialize:
     1.  Core mesh stack
     2.  Device state manager
     3.  Access layer
-    4.  (Optional) load flash configuration
-2.  Listen for unprovisioned beacons
-3.  Provision device
-4.  Configure device
-5.  If more devices should join the network, go to step 2
+    4.  (Optional) Load flash configuration.
+2.  Listen for unprovisioned beacons.
+3.  Provision device.
+4.  Configure device.
+5.  If more devices should join the network, go back to step 2.
 
-In the example, the behavior is split between the `examples/light_control/client/src/main.c` and
+In the example, the behavior is split between `examples/light_control/client/src/main.c` and
 `examples/light_control/client/src/provisioner.c`, where the former deals with initialization and
-setup, user interfaces, etc., and the latter the provisioning and configuration states.
-The following figure provides the details of how this is done with the provided APIs. Note that the
-figure may simplify some API calls to provide a clearer understanding. Consult the relevant source
+setup, user interfaces, etc. and the latter with the provisioning and configuration states.
+The following figure shows the details of how provisioning and configuration are implemented with the provided APIs. Note that the
+figure may simplify some API calls to provide a clearer understanding. See the relevant source
 files for details.
+
 ![Figure 3: Provisioning and configuring devices](img/light_control_client_interface.png "Figure 3: Provisioning and configuring devices")
 
 

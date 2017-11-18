@@ -75,16 +75,14 @@ static void ccm_soft_authenticate_blocks(const uint8_t * p_key,
     }
 }
 
-static void ccm_soft_authenticate(ccm_soft_data_t * p_data, uint8_t T[])
+static void ccm_soft_authenticate(const ccm_soft_data_t * p_data, uint8_t T[])
 {
 
     uint8_t B[16];
     uint8_t X[16];
 
     B[0] = (
-#if CCM_USE_ADDITIONAL_DATA
-        ((p_data->a_len > 0 ? 1 : 0) << 6)    |
-#endif
+        ((p_data->a_len > 0 ? 1 : 0) << 6)        |
         ((((p_data->mic_len - 2)/2) & 0x07) << 3) |
         ((L_LEN - 1) & 0x07));
 
@@ -93,44 +91,18 @@ static void ccm_soft_authenticate(ccm_soft_data_t * p_data, uint8_t T[])
 
     aes_encrypt(p_data->p_key, B, X);
 
-#if CCM_USE_ADDITIONAL_DATA
     if (p_data->a_len > 0)
     {
-        uint8_t offset_B = 0;
-
-#if CCM_SUPPORT_FULL_ADDITIONAL_DATA
-        if (p_data->a_len < ((2ULL << 16ULL) - (2ULL << 8ULL)))
-        {
-            utils_reverse_memcpy(&B[0], (uint8_t*) &p_data->a_len, 2);
-            offset_B = 2;
-        }
-        else if (p_data->a_len < (2ULL << 32ULL))
-        {
-            B[0] = 0xFF;
-            B[1] = 0xFE;
-            utils_reverse_memcpy(&B[2], (uint8_t*) &p_data->a_len, 4);
-            offset_B = 4;
-        }
-        else {
-            B[0] = 0xFF;
-            B[1] = 0xFF;
-            utils_reverse_memcpy(&B[2], (uint8_t*) &p_data->a_len, 8);
-            offset_B = 8;
-        }
-#else
         utils_reverse_memcpy(&B[0], (uint8_t*) &p_data->a_len, 2);
-        offset_B = 2;
-#endif  /* CCM_SUPPORT_FULL_ADDITIONAL_DATA */
-        ccm_soft_authenticate_blocks(p_data->p_key, p_data->p_a, p_data->a_len, B, offset_B, X);
+        ccm_soft_authenticate_blocks(p_data->p_key, p_data->p_a, p_data->a_len, B, 2, X);
     }
-#endif
 
     ccm_soft_authenticate_blocks(p_data->p_key, p_data->p_m, p_data->m_len, B, 0, X);
 
     memcpy(T, X, p_data->mic_len);
 }
 
-static void ccm_soft_crypt(ccm_soft_data_t * p_data, uint8_t * A, uint8_t * S, uint16_t i)
+static void ccm_soft_crypt(const ccm_soft_data_t * p_data, uint8_t * A, uint8_t * S, uint16_t i)
 {
     uint16_t octets_m = p_data->m_len;
 
@@ -217,10 +189,8 @@ void ccm_soft_decrypt(ccm_soft_data_t * p_data, bool * p_mic_passed)
     auth_data.p_nonce = p_data->p_nonce;
     auth_data.p_m     = p_data->p_out;
     auth_data.m_len   = p_data->m_len;
-#if CCM_USE_ADDITIONAL_DATA
     auth_data.p_a     = p_data->p_a;
     auth_data.a_len   = p_data->a_len;
-#endif
     auth_data.p_mic   = mic;
     auth_data.p_out   = NULL;
     auth_data.mic_len = p_data->mic_len;

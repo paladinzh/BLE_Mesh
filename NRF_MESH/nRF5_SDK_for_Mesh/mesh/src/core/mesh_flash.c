@@ -37,7 +37,7 @@
 #include <string.h>
 
 #include "mesh_flash.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 #include "bearer_event.h"
 #include "fifo.h"
@@ -125,11 +125,11 @@ static bearer_event_flag_t m_event_flag;
 static const flash_operation_t m_all_operations =
 {
     .type = FLASH_OP_TYPE_ALL
-};
+}; /*lint !e785 Too few initializers for flash_operation_t. */
 /*****************************************************************************
 * Static functions
 *****************************************************************************/
-static bool write_as_much_as_possible(flash_operation_t* p_write_op, timestamp_t available_time, uint32_t* p_bytes_written)
+static bool write_as_much_as_possible(const flash_operation_t* p_write_op, timestamp_t available_time, uint32_t* p_bytes_written)
 {
     uint32_t offset = *p_bytes_written;
     NRF_MESH_ASSERT(p_write_op->type == FLASH_OP_TYPE_WRITE);
@@ -153,7 +153,7 @@ static bool write_as_much_as_possible(flash_operation_t* p_write_op, timestamp_t
     return true;
 }
 
-static bool erase_as_much_as_possible(flash_operation_t * p_erase_op, timestamp_t available_time, uint32_t* p_bytes_erased)
+static bool erase_as_much_as_possible(const flash_operation_t * p_erase_op, timestamp_t available_time, uint32_t* p_bytes_erased)
 {
     uint32_t offset = *p_bytes_erased;
     NRF_MESH_ASSERT(p_erase_op->type == FLASH_OP_TYPE_ERASE);

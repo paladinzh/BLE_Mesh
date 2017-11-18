@@ -48,7 +48,7 @@
 #include "log.h"
 #include "nrf_error.h"
 
-#if (BEARER_TYPES & (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO))
+#if (BEARER_TYPES & BEARER_ADV_RADIO)
 #include "radio.h"
 #endif
 
@@ -91,9 +91,6 @@ typedef struct
 #if (BEARER_TYPES & BEARER_ADV_RADIO)
 static advertiser_t m_regular_advertiser;
 #endif
-#if (BEARER_TYPES & BEARER_ADV_DFU_RADIO)
-static advertiser_t m_dfu_advertiser;
-#endif
 
 static fifo_t m_rx_fifo;
 
@@ -118,7 +115,7 @@ static uint8_t m_rssi_filter_val = 0;
 static inline bool m_adtype_valid(uint8_t type)
 {
     bool adtype_valid = false;
-    if(m_adtype_filtering)
+    if (m_adtype_filtering)
     {
         uint8_t filter_index = ADTYPE_FILTER_INDEX(type);
         uint32_t filter_value = ADTYPE_FILTER_VALUE(type);
@@ -218,7 +215,7 @@ static uint32_t gap_addr_filter_set(const ble_gap_addr_t* const p_addrs,
     return NRF_SUCCESS;
 }
 
-static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_meta)
+static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, const packet_meta_t * p_meta)
 {
 #ifdef NRF_MESH_TEST_BUILD
     if (m_rssi_filter_val > 0)
@@ -226,7 +223,7 @@ static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_
         if (p_meta->rssi > m_rssi_filter_val)
         {
             packets_dropped_invalid_rssi++;
-            packet_mgr_decref(p_packet);
+            packet_mgr_free(p_packet);
             return;
         }
     }
@@ -235,7 +232,7 @@ static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_
     if (!gap_addr_filter_accept(&m_addr_filter, p_packet))
     {
         packets_dropped_invalid_addr++;
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         return;
     }
 
@@ -250,26 +247,26 @@ static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_
     {
         __INTERNAL_EVENT_PUSH(INTERNAL_EVENT_PACKET_DROPPED, PACKET_DROPPED_INVALID_PACKET_LEN, sizeof(ble_packet_hdr_t), &p_packet->header );
         ++packets_dropped_invalid_length;
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         return;
     }
 #endif
 
     bool adtype_valid = false;
-    for(int i = 0; i < packet_payload_size_get(p_packet);)
+    for (int i = 0; i < packet_payload_size_get(p_packet);)
     {
         uint8_t length = p_packet->payload[i];
         uint8_t type = p_packet->payload[i + 1];
 
         adtype_valid = m_adtype_valid(type);
-        if(adtype_valid)
+        if (adtype_valid)
         {
-            if(length >= packet_payload_size_get(p_packet) - i)
+            if (length >= packet_payload_size_get(p_packet) - i)
             {
                 ++packets_dropped_invalid_length;
                 // Commenting out as this happens a lot
                 //__INTERNAL_EVENT_PUSH(INTERNAL_EVENT_PACKET_DROPPED, PACKET_DROPPED_INVALID_PACKET_LEN, 1, &length);
-                packet_mgr_decref(p_packet);
+                packet_mgr_free(p_packet);
                 return;
             }
             break;
@@ -278,11 +275,11 @@ static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_
         i += length + 1;
     }
 
-    if(!adtype_valid)
+    if (!adtype_valid)
     {
         __INTERNAL_EVENT_PUSH(INTERNAL_EVENT_PACKET_DROPPED, PACKET_DROPPED_INVALID_ADTYPE, 0, 0);
         ++packets_dropped_invalid_adtype;
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         return;
     }
 
@@ -294,7 +291,7 @@ static void bearer_rx_cb(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_
     if (fifo_push(&m_rx_fifo, &rx_packet) != NRF_SUCCESS)
     {
         __INTERNAL_EVENT_PUSH(INTERNAL_EVENT_PACKET_DROPPED, PACKET_DROPPED_NO_MEM, 0, 0);
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
     else
     {
@@ -311,7 +308,7 @@ uint32_t bearer_init(const nrf_mesh_init_params_t * p_init_params)
     m_rx_fifo.array_len = BEARER_RX_QUEUE_LENGTH;
     fifo_init(&m_rx_fifo);
 
-#if ((BEARER_TYPES & (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO)))
+#if BEARER_TYPES & BEARER_ADV_RADIO
 
     bearer_scan_config_t config = {
         .scan_channel_map = NRF_MESH_ADV_CHAN_DEFAULT,
@@ -334,15 +331,6 @@ uint32_t bearer_init(const nrf_mesh_init_params_t * p_init_params)
     m_regular_advertiser.adv_packet_type = BLE_PACKET_TYPE_ADV_NONCONN_IND;
     m_regular_advertiser.queue_empty_cb = NULL;
     bearer_adv_advertiser_init(&m_regular_advertiser);
-#endif
-
-#if (BEARER_TYPES & BEARER_ADV_DFU_RADIO)
-    m_dfu_advertiser.adv_channel_map = NRF_MESH_ADV_CHAN_DEFAULT;
-    m_dfu_advertiser.adv_int_max_ms = BEARER_ADV_INT_MAX_MS_DEFAULT;
-    m_dfu_advertiser.adv_int_min_ms = BEARER_ADV_INT_MIN_MS_DEFAULT;
-    m_dfu_advertiser.adv_packet_type = BLE_PACKET_TYPE_ADV_NONCONN_IND;
-    m_dfu_advertiser.queue_empty_cb = NULL;
-    bearer_adv_advertiser_init(&m_dfu_advertiser);
 #endif
 
     return NRF_SUCCESS;
@@ -408,7 +396,7 @@ uint32_t bearer_filter_gap_addr_clear(void)
 
 uint32_t bearer_enable(void)
 {
-#if (BEARER_TYPES & (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO))
+#if (BEARER_TYPES & BEARER_ADV_RADIO)
     bearer_adv_scan_start();
 #endif
 
@@ -417,14 +405,9 @@ uint32_t bearer_enable(void)
 
 uint32_t bearer_disable(void)
 {
-#if (BEARER_TYPES & (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO))
-    bearer_adv_scan_stop();
-#endif
 #if (BEARER_TYPES & BEARER_ADV_RADIO)
-    bearer_adv_adv_stop(&m_regular_advertiser);
-#endif
-#if (BEARER_TYPES & BEARER_ADV_DFU_RADIO)
-    bearer_adv_adv_stop(&m_dfu_advertiser);
+    bearer_adv_scan_stop();
+    (void) bearer_adv_adv_stop(&m_regular_advertiser);
 #endif
     return NRF_SUCCESS;
 }

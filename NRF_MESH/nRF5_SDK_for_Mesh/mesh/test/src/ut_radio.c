@@ -41,7 +41,7 @@
 #include "unity.h"
 #include "radio.h"
 #include "nrf_error.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh.h"
 
 #define TXPTR   (mp_packet_buf)
@@ -130,7 +130,6 @@ static uint8_t mp_packet_buf_rx[40];
 static uint32_t m_rx_cb_count;
 static uint32_t m_tx_cb_count;
 static uint32_t m_idle_cb_count;
-static uint32_t m_free_packets;
 void assertion_handler(uint32_t pc);
 void rx_cb(uint8_t* p_data, bool succes, uint32_t crc, int8_t rssi);
 void tx_cb(uint8_t* p_data, bool free_on_end);
@@ -141,7 +140,7 @@ void setUp(void)
 {
     NRF_RADIO = (NRF_RADIO_Type*) &m_dummy_radio;
     radio_init_params_t params = {
-        .radio_mode = 3,
+        .radio_mode = RADIO_MODE_BLE_1MBIT,
         .access_address = 0xAABBCCDD,
         .rx_cb = rx_cb,
         .tx_cb = tx_cb,
@@ -152,7 +151,6 @@ void setUp(void)
     m_rx_cb_count = 0;
     m_tx_cb_count = 0;
     m_idle_cb_count = 0;
-    m_free_packets = 0;
     m_assertion_handler = assertion_handler;
 }
 
@@ -182,10 +180,6 @@ void tx_cb(uint8_t* p_data, bool free_packet)
 {
     TEST_ASSERT_EQUAL_PTR(TXPTR, p_data);
     m_tx_cb_count++;
-    if (free_packet)
-    {
-        m_free_packets++;
-    }
 }
 
 void idle_cb(void)
@@ -234,20 +228,20 @@ void test_radio_error_propagation(void)
 
     evt.event_type = RADIO_EVENT_TYPE_RX;
     evt.p_packet = (uint8_t*) RXPTR;
-    evt.channel = 40; /* invalid */
+    evt.channel = 40; /* Invalid value */
     uint32_t count = 1;
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, radio_order(&evt, &count));
     TEST_ASSERT_EQUAL(0, count);
 
     count = 1;
     evt.event_type = RADIO_EVENT_TYPE_RX;
-    evt.p_packet = (uint8_t*) NULL; /* invalid */
+    evt.p_packet = (uint8_t*) NULL; /* Invalid value */
     evt.channel = 30;
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, radio_order(&evt, &count));
     TEST_ASSERT_EQUAL(0, count);
 
     count = 1;
-    evt.event_type = 0x33; /* invalid */
+    evt.event_type = 0x33; /*lint !e64 Invalid value */
     evt.p_packet = (uint8_t*) NULL;
     evt.channel = 30;
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, radio_order(&evt, &count));
@@ -259,7 +253,7 @@ void test_radio_order(void)
     uint32_t count = 1;
     TEST_ASSERT_EQUAL(0, m_idle_cb_count);
     radio_on_ts_begin();
-    radio_event_t evt = {0};
+    radio_event_t evt = {};
     TEST_ASSERT_EQUAL(1, m_idle_cb_count);
 
     evt.event_type = RADIO_EVENT_TYPE_TX;
@@ -808,7 +802,7 @@ void test_radio_preempt(void)
     m_dummy_radio.EVENTS_END = 0;
     radio_on_ts_begin();
     m_dummy_radio.RXCRC = 0xABCDEF;
-    radio_event_t evt = {0};
+    radio_event_t evt = {};
     TEST_ASSERT_EQUAL(1, m_idle_cb_count);
 
     evt.event_type = RADIO_EVENT_TYPE_RX_PREEMPTABLE;
@@ -872,7 +866,8 @@ void test_radio_ts_end_begin(void)
 {
     TEST_ASSERT_EQUAL(0, m_idle_cb_count);
     radio_on_ts_begin();
-    radio_event_t evt = {0};
+
+    radio_event_t evt = {};
     TEST_ASSERT_EQUAL(1, m_idle_cb_count);
 
     evt.event_type = RADIO_EVENT_TYPE_TX;

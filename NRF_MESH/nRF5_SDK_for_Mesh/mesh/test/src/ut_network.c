@@ -141,23 +141,22 @@ typedef struct
 } test_vector_t;
 
 /* Specifies all available test vectors; corresponds to sample data in the spec, see below: */
-#define TEST_VECTORS_AVAILABLE       { 1, 2, 3, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24}
+#define TEST_VECTORS_ALL                   { 1, 2, 3, 6, 7, 8, 9, 16, 17, 18, 19, 20, 21, 22, 23, 24}
 
 /* Specifies which sets of test vectors to use for specific tests: */
-#define NETWORK_PKT_IN_TEST_VECTORS        TEST_VECTORS_AVAILABLE
-#define SELF_RECEIVE_TEST_VECTORS          TEST_VECTORS_AVAILABLE
-#define NETWORK_PKT_OUT_TEST_VECTORS       { 1, 2, 3, 6, 7, 8, 9, 16, 16, 18, 19 /* Skip cases with other IV indices */ }
-#define INVALID_NETKEY_TEST_VECTORS        TEST_VECTORS_AVAILABLE
-#define NETWORK_PKT_RELAY_TEST_VECTORS     TEST_VECTORS_AVAILABLE
+#define NETWORK_PKT_IN_TEST_VECTORS        TEST_VECTORS_ALL
+#define SELF_RECEIVE_TEST_VECTORS          TEST_VECTORS_ALL
+#define NETWORK_PKT_OUT_TEST_VECTORS       { 1, 2, 3, 6, 7, 8, 9, 16, 17, 18, 19 /* Skip cases with other IV indices */ }
+#define INVALID_NETKEY_TEST_VECTORS        TEST_VECTORS_ALL
+#define NETWORK_PKT_RELAY_TEST_VECTORS     TEST_VECTORS_ALL
 
 /*
- * Retrieves a test vector. These are indexed by the number used in the specification,
- * currently version Mesh_d09r12-rh-ba-ss-pw.docx. Some test vectors are skipped, as they use
- * friendship credentials, which we don't support.
+ * Retrieves a test vector. These are indexed by the number used in the specification. Some test vectors are skipped,
+ * as they use friendship credentials or other unsupported features.
  */
 static void get_test_vector(unsigned int vector, test_vector_t * p_vector)
 {
-    switch(vector)
+    switch (vector)
     {
         case 1:
         {
@@ -189,9 +188,9 @@ static void get_test_vector(unsigned int vector, test_vector_t * p_vector)
         case 6:
         {
             /* Test message #6 contains two messages, only the first one is included here. */
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xca, 0xb5, 0xc5, 0x34, 0x8a, 0x23, 0x0a, 0xfb, 0xa8, 0xc6, 0x3d,
-                    0x4e, 0x68, 0x16, 0x31, 0xc0, 0x9d, 0xea, 0xf4, 0xfd, 0x40, 0x96, 0x11, 0x45, 0x9a, 0x3d, 0x6c, 0x3e);
-            TEST_PACKET_TRANSPORT(p_vector, 0x80, 0x26, 0xac, 0x01, 0xee, 0xe8, 0x88, 0xaa, 0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf);
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xca, 0xb5, 0xc5, 0x34, 0x8a, 0x23, 0x0a, 0xfb, 0xa8, 0xc6, 0x3d, 0x4e,
+                    0x68, 0x63, 0x64, 0x97, 0x9d, 0xea, 0xf4, 0xfd, 0x40, 0x96, 0x11, 0x45, 0x93, 0x9c, 0xda, 0x0e);
+            TEST_PACKET_TRANSPORT(p_vector, 0x80, 0x26, 0xac, 0x01, 0xee, 0x9d, 0xdd, 0xfd, 0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x04, 0x31, 0x29, 0xab, 0x00, 0x03, 0x12, 0x01);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x3129ab, 0x0003, 0x1201, 4, 0, 4);
             break;
@@ -207,9 +206,9 @@ static void get_test_vector(unsigned int vector, test_vector_t * p_vector)
         }
         case 8:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xcd, 0x99, 0x59, 0xf2, 0x8d, 0xa7, 0x0e, 0x2f, 0x91, 0xad, 0xd6, 0xf0,
-                    0x6c, 0x13, 0x55, 0x3f, 0x44, 0xce, 0xc9, 0x7f, 0x97, 0x31, 0x05, 0xae, 0xbb, 0xc5, 0x82, 0x04);
-            TEST_PACKET_TRANSPORT(p_vector, 0x80, 0x26, 0xac, 0x01, 0xec, 0xe8, 0x88, 0xaa, 0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf);
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0x4d, 0xaa, 0x62, 0x67, 0xc2, 0xcf, 0x0e, 0x2f, 0x91, 0xad, 0xd6, 0xf0,
+                    0x6e, 0x66, 0x00, 0x68, 0x44, 0xce, 0xc9, 0x7f, 0x97, 0x31, 0x05, 0xae, 0x25, 0x34, 0xf9, 0x58);
+            TEST_PACKET_TRANSPORT(p_vector, 0x80, 0x26, 0xac, 0x01, 0xee, 0x9d, 0xdd, 0xfd, 0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x04, 0x31, 0x29, 0xad, 0x00, 0x03, 0x12, 0x01);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x3129ad, 0x0003, 0x1201, 0x4, 0, 4);
             break;
@@ -225,80 +224,82 @@ static void get_test_vector(unsigned int vector, test_vector_t * p_vector)
         }
         case 16:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xd6, 0x03, 0x06, 0xde, 0x09, 0xe1, 0x6b, 0x9b, 0xe7, 0xe5, 0xf6, 0x42,
-                    0x87, 0xac, 0xd1, 0x85, 0xad, 0x31, 0x5e, 0x1c, 0x7a, 0xc3, 0x82);
-            TEST_PACKET_TRANSPORT(p_vector, 0x00, 0x99, 0x01, 0x1b, 0x84, 0x84, 0xff, 0x19, 0x5a, 0xf1, 0x8b);
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xe8, 0x0e, 0x5d, 0xa5, 0xaf, 0x0e, 0x6b, 0x9b, 0xe7, 0xf5, 0xa6, 0x42,
+                    0xf2, 0xf9, 0x86, 0x80, 0xe6, 0x1c, 0x3a, 0x8b, 0x47, 0xf2, 0x28);
+            TEST_PACKET_TRANSPORT(p_vector, 0x00, 0x89, 0x51, 0x1b, 0xf1, 0xd1, 0xa8, 0x1c, 0x11, 0xdc, 0xef);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x0b, 0x00, 0x00, 0x06, 0x12, 0x01, 0x00, 0x03);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x000006, 0x1201, 0x0003, 0x0b, 0, 4);
             break;
         }
         case 17:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0x64, 0x88, 0x42, 0xa9, 0xd6, 0x7f, 0x2a, 0x80, 0xd3, 0x91, 0xe9, 0x1f,
-                    0xf7, 0x18, 0x83, 0xf5, 0xe8, 0xe0, 0x30, 0xf4, 0xc6, 0x66, 0x0b);
-            TEST_PACKET_TRANSPORT(p_vector, 0x00, 0x99, 0x01, 0x1b, 0x84, 0x84, 0xff, 0x19, 0x5a, 0xf1, 0x8b);
+            /* Values from errata 9693 */
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xb2, 0xbd, 0x2c, 0x1e, 0x1b, 0x6f, 0x2a, 0x80, 0xd3, 0x81, 0xb9, 0x1f,
+                    0x82, 0x4d, 0xd4, 0xf0, 0xa3, 0xcd, 0x54, 0xce, 0xa2, 0x3b, 0x7a);
+            TEST_PACKET_TRANSPORT(p_vector, 0x00, 0x89, 0x51, 0x1b, 0xf1, 0xd1, 0xa8, 0x1c, 0x11, 0xdc, 0xef);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x0a, 0x00, 0x00, 0x06, 0x12, 0x01, 0x00, 0x03);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x000006, 0x1201, 0x0003, 0x0a, 0, 4);
             break;
         }
         case 18:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0xb8, 0x6c, 0xea, 0xf4, 0xee, 0xf3, 0x56, 0x73, 0x20, 0x8a, 0x70, 0x7e,
-                    0xba, 0x3c, 0x4b, 0xae, 0xc7, 0x78, 0x00, 0x9b, 0xeb, 0xf9, 0x7b, 0xf5, 0xcb);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0x5a, 0x99, 0xdf, 0x6e, 0x95, 0x1e, 0x11, 0xc8, 0x10, 0xea, 0x77, 0x15);
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0x48, 0xcb, 0xa4, 0x37, 0x86, 0x0e, 0x56, 0x73, 0x72, 0x8a, 0x62, 0x7f,
+                    0xb9, 0x38, 0x53, 0x55, 0x08, 0xe2, 0x1a, 0x6b, 0xaf, 0x57);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0x5a, 0x8b, 0xde, 0x6d, 0x91, 0x06, 0xea, 0x07, 0x8a);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x03, 0x00, 0x00, 0x07, 0x12, 0x01, 0xff, 0xff);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x000007, 0x1201, 0xffff, 0x03, 0, 4);
             break;
         }
         case 19:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0x34, 0x57, 0xbc, 0x49, 0x94, 0x69, 0x30, 0x10, 0xf2, 0x5e, 0x09, 0x22,
-                    0xaa, 0x23, 0x05, 0x3e, 0xd0, 0x77, 0xa3, 0xe2, 0x2b, 0x53, 0x4d, 0x08, 0x34, 0x5a, 0xda);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0xca, 0x7e, 0xd9, 0x8d, 0x6c, 0x8a, 0x11, 0x12, 0xde, 0xb9, 0x9d, 0x44, 0xec, 0x14);
+            TEST_PACKET_ENCRYPTED(p_vector, 0x68, 0x11, 0x0e, 0xde, 0xec, 0xd8, 0x3c, 0x30, 0x10, 0xa0, 0x5e, 0x1b, 0x23,
+                    0xa9, 0x26, 0x02, 0x3d, 0xa7, 0x5d, 0x25, 0xba, 0x91, 0x79, 0x37, 0x36);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0xca, 0x6c, 0xd8, 0x8e, 0x69, 0x8d, 0x12, 0x65, 0xf4, 0x3f, 0xc5);
             TEST_PACKET_HEADER(p_vector, 0x68, 0x03, 0x00, 0x00, 0x09, 0x12, 0x01, 0xff, 0xff);
             TEST_PACKET_PARAMS(p_vector, 0x12345678, 0x000009, 0x1201, 0xffff, 0x03, 0, 4);
             break;
         }
         case 20:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x11, 0x92, 0xd0, 0x3c, 0xee, 0x53, 0x9a, 0x2c, 0xc3, 0x3a, 0x0d, 0xbe, 0x32, 0xfb, 0xb1, 0xb2, 0x36, 0x99);
-            TEST_PACKET_TRANSPORT(p_vector, 0xb4, 0x20, 0x24, 0x21, 0xd8, 0x1a);
-            TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x0a, 0x12, 0x34, 0xff, 0xff);
-            TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x07080a, 0x1234, 0xffff, 0x03, 0, 4); //(p_vector, iv, sequence, src, dst, ttl_, ctl_, miclen_)
+            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x5c, 0xca, 0x51, 0xe2, 0xe8, 0x99, 0x8c, 0x3d, 0xc8, 0x73, 0x44, 0xa1,
+                    0x6c, 0x78, 0x7f, 0x6b, 0x08, 0xcc, 0x89, 0x7c, 0x94, 0x1a, 0x53, 0x68);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0x9c, 0x98, 0x03, 0xe1, 0x10, 0xfe, 0xa9, 0x29, 0xe9, 0x54, 0x2d);
+            TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x09, 0x12, 0x34, 0xff, 0xff);
+            TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x070809, 0x1234, 0xffff, 0x03, 0, 4);
             break;
         }
         case 21:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0xa5, 0x90, 0x0d, 0x85, 0xf9, 0x62, 0xe4, 0xd6, 0x43, 0x35, 0x8e, 0xaf,
-                    0x17, 0x79, 0x6a, 0x6c, 0x98, 0x97, 0x7f, 0x69, 0xe5, 0x03, 0xf3, 0x95, 0x7f);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0x2f, 0xa7, 0x30, 0xfd, 0x98, 0xf6, 0xe4, 0xbd, 0x12, 0x0e, 0xa9, 0xd6);
+            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0xb1, 0x05, 0x1f, 0x5e, 0x94, 0x5a, 0xe4, 0xd6, 0x11, 0x35, 0x8e, 0xaf,
+                    0x17, 0x79, 0x6a, 0x6c, 0x98, 0x97, 0x7f, 0x69, 0xe5, 0x87, 0x2c, 0x46, 0x20);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0x2f, 0xa7, 0x30, 0xfd, 0x98, 0xf6, 0xe4, 0xbd, 0x12, 0x0e, 0xa9, 0xd6);
             TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x0a, 0x12, 0x34, 0x81, 0x05);
             TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x07080a, 0x1234, 0x8105, 0x03, 0, 4);
             break;
         }
         case 22:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x9b, 0x77, 0x27, 0xa0, 0x66, 0xdb, 0xed, 0x31, 0xa1, 0xfd, 0xcf, 0x88,
-                    0xa4, 0x11, 0x13, 0x5f, 0xea, 0x55, 0xdf, 0x73, 0x0b, 0x33, 0x27, 0xdf, 0xae);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0x38, 0x71, 0xb9, 0x04, 0xd4, 0x31, 0x52, 0x63, 0x16, 0xca, 0x48, 0xa0);
+            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0xd8, 0x5c, 0xae, 0xce, 0xf1, 0xe3, 0xed, 0x31, 0xf3, 0xfd, 0xcf, 0x88,
+                    0xa4, 0x11, 0x13, 0x5f, 0xea, 0x55, 0xdf, 0x73, 0x0b, 0x6b, 0x28, 0xe2, 0x55);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0x38, 0x71, 0xb9, 0x04, 0xd4, 0x31, 0x52, 0x63, 0x16, 0xca, 0x48, 0xa0);
             TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x0b, 0x12, 0x34, 0xb5, 0x29);
             TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x07080b, 0x1234, 0xb529, 0x03, 0, 4);
             break;
         }
         case 23:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x28, 0x38, 0x23, 0xc0, 0xfb, 0xb5, 0x7a, 0x9d, 0x3b, 0x6d, 0x3d, 0xd1,
-                    0x6a, 0x75, 0x48, 0x96, 0x96, 0xf0, 0xb7, 0x0c, 0x71, 0x45, 0xa3, 0x91, 0x0d);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0x24, 0x56, 0xdb, 0x5e, 0x31, 0x00, 0xee, 0xf6, 0x5d, 0xaa, 0x7a, 0x38);
+            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x77, 0xa4, 0x8d, 0xd5, 0xfe, 0x2d, 0x7a, 0x9d, 0x69, 0x6d, 0x3d, 0xd1,
+                    0x6a, 0x75, 0x48, 0x96, 0x96, 0xf0, 0xb7, 0x0c, 0x71, 0x1b, 0x88, 0x13, 0x85);
+            TEST_PACKET_TRANSPORT(p_vector, 0x66, 0x24, 0x56, 0xdb, 0x5e, 0x31, 0x00, 0xee, 0xf6, 0x5d, 0xaa, 0x7a, 0x38);
             TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x0c, 0x12, 0x34, 0x97, 0x36);
             TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x07080c, 0x1234, 0x9736, 0x03, 0, 4);
             break;
         }
         case 24:
         {
-            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0xfa, 0xea, 0xac, 0x4c, 0x39, 0x2e, 0x94, 0xe9, 0x4a, 0xca, 0x29, 0x59,
-                    0x3d, 0x70, 0x17, 0x2e, 0xdb, 0xda, 0xd5, 0x70, 0x6b, 0x6d, 0x9d, 0x66, 0x81);
-            TEST_PACKET_TRANSPORT(p_vector, 0x34, 0xde, 0x15, 0x47, 0xb9, 0x16, 0x58, 0xf1, 0x61, 0x62, 0x74, 0xfe, 0x58);
+            TEST_PACKET_ENCRYPTED(p_vector, 0xe8, 0x34, 0x58, 0x6b, 0xab, 0xde, 0xf3, 0x94, 0xe9, 0x98, 0xb4, 0x08, 0x1f,
+                    0x5a, 0x73, 0x08, 0xce, 0x3e, 0xdb, 0xb3, 0xb0, 0x6c, 0xde, 0xcd, 0x02, 0x8e, 0x30, 0x7f, 0x1c);
+            TEST_PACKET_TRANSPORT(p_vector, 0xe6, 0xa0, 0x34, 0x01, 0xde, 0x15, 0x47, 0x11, 0x84, 0x63, 0x12, 0x3e, 0x5f, 0x6a, 0x17, 0xb9);
             TEST_PACKET_HEADER(p_vector, 0xe8, 0x03, 0x07, 0x08, 0x0d, 0x12, 0x34, 0x97, 0x36);
             TEST_PACKET_PARAMS(p_vector, 0x12345677, 0x07080d, 0x1234, 0x9736, 0x03, 0, 4);
             break;
@@ -341,14 +342,15 @@ timestamp_t timer_now(void)
 
 static packet_net_t * p_transport_pkt_in_previous;
 
-uint32_t transport_pkt_in_mock_cb(packet_net_t * p_packet, packet_meta_t * p_packet_meta, const nrf_mesh_network_secmat_t * const p_network, uint32_t iv_index, int cmock_num_calls)
+uint32_t transport_pkt_in_mock_cb(packet_net_t * p_packet, const packet_meta_t * p_packet_meta, const nrf_mesh_network_secmat_t * const p_network, uint32_t iv_index, int cmock_num_calls)
 {
-    if(p_transport_pkt_in_previous != NULL)
+    if (p_transport_pkt_in_previous != NULL)
     {
         free(p_transport_pkt_in_previous);
     }
 
     p_transport_pkt_in_previous = malloc(p_packet->length + 1 /* Add one to the length to account for the length field itself */);
+    TEST_ASSERT_NOT_NULL(p_transport_pkt_in_previous);
     memcpy(p_transport_pkt_in_previous, p_packet, p_packet->length + 1);
 
     return NRF_SUCCESS;
@@ -356,7 +358,7 @@ uint32_t transport_pkt_in_mock_cb(packet_net_t * p_packet, packet_meta_t * p_pac
 
 static void transport_pkt_in_mock_reset(void)
 {
-    if(p_transport_pkt_in_previous != NULL)
+    if (p_transport_pkt_in_previous != NULL)
     {
         free(p_transport_pkt_in_previous);
         p_transport_pkt_in_previous = NULL;
@@ -367,12 +369,13 @@ static packet_t * p_bearer_tx_previous;
 
 uint32_t bearer_tx_mock_cb(packet_t * p_packet, bearer_t bearers, uint8_t retransmit_count, int cmock_num_calls)
 {
-    if(p_bearer_tx_previous != NULL)
+    if (p_bearer_tx_previous != NULL)
     {
         free(p_bearer_tx_previous);
     }
 
     p_bearer_tx_previous = malloc(sizeof(packet_t));
+    TEST_ASSERT_NOT_NULL(p_bearer_tx_previous);
     memcpy(p_bearer_tx_previous, p_packet, packet_buffer_size_get(p_packet));
 
     return m_bearer_tx_return;
@@ -380,7 +383,7 @@ uint32_t bearer_tx_mock_cb(packet_t * p_packet, bearer_t bearers, uint8_t retran
 
 static void bearer_tx_mock_reset(void)
 {
-    if(p_bearer_tx_previous != NULL)
+    if (p_bearer_tx_previous != NULL)
     {
         free(p_bearer_tx_previous);
         p_bearer_tx_previous = NULL;
@@ -493,12 +496,12 @@ static bool relay_cb(uint16_t src, uint16_t dst, uint8_t ttl)
 
 void setUp(void)
 {
-    CMOCK_SETUP(bearer);
-    CMOCK_SETUP(msg_cache);
-    CMOCK_SETUP(transport);
-    CMOCK_SETUP(event);
-    CMOCK_SETUP(net_state);
-    CMOCK_SETUP(net_beacon);
+    bearer_mock_Init();
+    msg_cache_mock_Init();
+    transport_mock_Init();
+    event_mock_Init();
+    net_state_mock_Init();
+    net_beacon_mock_Init();
 
     m_net_secmat_get_calls_expect = 0;
     mp_net_secmats = NULL;
@@ -526,7 +529,18 @@ void tearDown(void)
     transport_pkt_in_mock_reset();
     bearer_tx_mock_reset();
 
-    CMOCK_TEARDOWN();
+    bearer_mock_Verify();
+    bearer_mock_Destroy();
+    msg_cache_mock_Verify();
+    msg_cache_mock_Destroy();
+    transport_mock_Verify();
+    transport_mock_Destroy();
+    event_mock_Verify();
+    event_mock_Destroy();
+    net_state_mock_Verify();
+    net_state_mock_Destroy();
+    net_beacon_mock_Verify();
+    net_beacon_mock_Destroy();
 }
 
 /*************** Test Cases ***************/
@@ -542,7 +556,7 @@ void test_packet_in(void)
     m_net_secmat_count = 1;
 
     /* Processes all the test vectors as incoming packets. */
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -568,7 +582,7 @@ void test_packet_in(void)
         TEST_ASSERT_EQUAL_MEMORY(test_vector.p_header_data,     &p_transport_pkt_in_previous->header, test_vector.lengths.header);
         TEST_ASSERT_EQUAL_MEMORY(test_vector.p_transport_packet, p_transport_pkt_in_previous->payload, test_vector.lengths.transport);
 
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
 
     /* Add more networks, make sure we hit the right one for all test vectors. */
@@ -580,7 +594,7 @@ void test_packet_in(void)
     mp_net_secmats = secmats;
     m_net_secmat_count = 4;
 
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -606,7 +620,7 @@ void test_packet_in(void)
         TEST_ASSERT_EQUAL_MEMORY(test_vector.p_header_data,     &p_transport_pkt_in_previous->header, test_vector.lengths.header);
         TEST_ASSERT_EQUAL_MEMORY(test_vector.p_transport_packet, p_transport_pkt_in_previous->payload, test_vector.lengths.transport);
 
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
 }
 
@@ -618,7 +632,7 @@ void test_self_receive(void)
     mp_net_secmats = &test_network;
     m_net_secmat_count = 1;
 
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -636,7 +650,7 @@ void test_self_receive(void)
 
         TEST_ASSERT_EQUAL(0, m_net_secmat_get_calls_expect);
 
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
 }
 
@@ -648,14 +662,14 @@ void test_packet_out(void)
     bearer_tx_StubWithCallback(bearer_tx_mock_cb);
 
     /* Processes all the test vectors as outbound packets. */
-    for(unsigned int i = 0; i < sizeof(run_testvectors[i]); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
         __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Running test vector %d\n", run_testvectors[i]);
 
         packet_t * p_packet = NULL;
-        construct_out_packet(&p_packet, test_vector.p_transport_packet, test_vector.lengths.transport, &test_vector.params);
+        (void) construct_out_packet(&p_packet, test_vector.p_transport_packet, test_vector.lengths.transport, &test_vector.params);
 
         bearer_tx_mock_reset();
 
@@ -665,19 +679,20 @@ void test_packet_out(void)
         TEST_ASSERT_NOT_NULL(p_bearer_tx_previous);
 
         packet_net_t * p_transport_pkt = packet_net_packet_get(p_bearer_tx_previous);
+
         TEST_ASSERT_EQUAL_MEMORY(test_vector.p_encrypted_packet, &p_transport_pkt->header, test_vector.lengths.encrypted);
     }
 
     /* Fail sending */
     m_bearer_tx_return = 0x12345678;
-    for(unsigned int i = 0; i < sizeof(run_testvectors[i]); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
         __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Running test vector %d\n", run_testvectors[i]);
 
         packet_t * p_packet = NULL;
-        construct_out_packet(&p_packet, test_vector.p_transport_packet, test_vector.lengths.transport, &test_vector.params);
+        (void) construct_out_packet(&p_packet, test_vector.p_transport_packet, test_vector.lengths.transport, &test_vector.params);
 
         bearer_tx_mock_reset();
 
@@ -703,7 +718,7 @@ void test_invalid_net_key_in(void)
     m_net_secmat_count = 1;
 
     /* Processes all the test vectors as incoming packets. */
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -721,7 +736,7 @@ void test_invalid_net_key_in(void)
 
         TEST_ASSERT_EQUAL(0, m_net_secmat_get_calls_expect);
 
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
 }
 
@@ -734,7 +749,7 @@ void test_relay(void)
     bearer_tx_StubWithCallback(bearer_tx_mock_cb);
 
     /* Processes all the test vectors as outbound packets. */
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -744,7 +759,7 @@ void test_relay(void)
         test_vector.params.ttl++; // to get match on encrypted packet
         packet_net_t * p_net_packet = construct_out_packet(&p_packet, test_vector.p_transport_packet, test_vector.lengths.transport, &test_vector.params);
 
-        if(test_vector.params.ttl >= 2)
+        if (test_vector.params.ttl >= 2)
         {
             net_state_rx_iv_index_get_ExpectAndReturn(test_vector.params.iv_index & 0x01, test_vector.params.iv_index);
         }
@@ -753,7 +768,7 @@ void test_relay(void)
 
         TEST_ASSERT_EQUAL(NRF_SUCCESS, network_pkt_relay(p_net_packet, &test_network));
 
-        if(test_vector.params.ttl >= 2)
+        if (test_vector.params.ttl >= 2)
         {
             /* Check that packets with TTL >= 2 is relayed. */
             TEST_ASSERT_NOT_NULL(p_bearer_tx_previous);
@@ -767,7 +782,7 @@ void test_relay(void)
     }
     /* Now fail TX */
     m_bearer_tx_return = 0x12345678;
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -779,7 +794,7 @@ void test_relay(void)
 
         bearer_tx_mock_reset();
 
-        if(test_vector.params.ttl >= 2)
+        if (test_vector.params.ttl >= 2)
         {
             net_state_rx_iv_index_get_ExpectAndReturn(test_vector.params.iv_index & 0x01, test_vector.params.iv_index);
             TEST_ASSERT_EQUAL(m_bearer_tx_return, network_pkt_relay(p_net_packet, &test_network));
@@ -813,7 +828,7 @@ void test_app_cb_relay(void)
     bearer_tx_StubWithCallback(bearer_tx_mock_cb);
 
     /* Processes all the test vectors as outbound packets. */
-    for(unsigned int i = 0; i < sizeof(run_testvectors); ++i)
+    for (unsigned int i = 0; i < sizeof(run_testvectors); ++i)
     {
         test_vector_t test_vector;
         get_test_vector(run_testvectors[i], &test_vector);
@@ -845,7 +860,7 @@ void test_app_cb_relay(void)
 
         TEST_ASSERT_EQUAL(0, m_relay_expected);
 
-        if(test_vector.params.ttl >= 2 && m_relay_return)
+        if (test_vector.params.ttl >= 2 && m_relay_return)
         {
             /* Check that packets with TTL >= 2 is relayed. */
             TEST_ASSERT_NOT_NULL(p_bearer_tx_previous);

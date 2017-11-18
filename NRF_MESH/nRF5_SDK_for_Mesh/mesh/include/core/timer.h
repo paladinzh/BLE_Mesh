@@ -61,7 +61,8 @@
 #define TIMER_INDEX_TIMESTAMP   (3)
 
 /** Get timestamp - ref, including rollover. */
-#define TIMER_DIFF(timestamp, reference) ((uint32_t)(timestamp-reference) > UINT32_MAX / 2 ? (uint32_t)(reference-timestamp) : (uint32_t)(timestamp-reference))
+#define TIMER_DIFF(timestamp, reference) ((uint32_t) ((timestamp) - (reference)) > UINT32_MAX / 2 ? \
+        (uint32_t) ((reference) - (timestamp)) : (uint32_t) ((timestamp) - (reference)))
 
 /**
  * Checks whether the given time is older than the reference (occurs before in time).

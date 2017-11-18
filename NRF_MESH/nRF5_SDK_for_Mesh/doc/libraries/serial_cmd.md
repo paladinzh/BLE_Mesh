@@ -1,40 +1,40 @@
 
-# Serial Commands
+# Serial commands
 
-# Serial Command Overview {#serial-commands}
+# Serial command overview {#serial-commands}
 @ingroup LIBRARIES
-Serial commands are messages sent from the host controller to the nRF5x. Most
+Serial commands are messages sent from the host controller to the nRF5. Most
 serial commands result in a _CMD RSP_ event, indicating whether the command was
-successful, and returning any relevant data depending on the command type.
+successful and returning any relevant data depending on the command type.
 
 The serial commands are broken into groups:
 
 - **Device:** HW commands for device operation
 
-- **Application:** A single opcode made available to the application.
+- **Application:** Single opcode made available to the application
 
-- **Segmentation And Reassembly:** Segmentation and Reassembly of serial packets, to allow packets larger than the largest serial packet size.
+- **Segmentation And Reassembly:** Segmentation and reassembly of serial packets, to allow packets larger than the largest serial packet size
 
-- **Configuration:** Configuration of various device parameter, like addresses and radio properties.
+- **Configuration:** Configuration of various device parameter, like addresses and radio properties
 
-- **Provisioning:** Provisioning specific commands and operations
+- **Provisioning:** Provisioning-specific commands and operations
 
-- **nRF Open Mesh:** The set of commands used by the nRF Open Mesh.
+- **nRF Open Mesh:** Set of commands used by the nRF Open Mesh
 
-- **Bluetooth Mesh:** Bluetooth Mesh commands for controlling a device's behavior on the mesh.
+- **Bluetooth Mesh:** Bluetooth Mesh commands for controlling a device's behavior on the mesh
 
-- **Direct Firmware Upgrade:** Commands controlling the behavior of the Device Firmware Upgrade part of the mesh stack.
+- **Direct Firmware Upgrade:** Commands controlling the behavior of the Device Firmware Update part of the mesh stack
 
-- **Access Layer:** Commands to interface the access layer on mesh.
+- **Access Layer:** Commands to interface the access layer on mesh
 
-- **Model Specific:** Commands for initializing and commanding specific models.
+- **Model Specific:** Commands for initializing and commanding specific models
 
 
 
 See the tables below for a list of serial commands available for each command
-group in the nRF5x Mesh serial interface, and their opcodes. Each entry links
+group in the nRF5 mesh serial interface and their opcodes. Each entry links
 to their respective "Details" section, where the parameters and effect of each
-command will be described.
+command are described.
 
 
 ## Device Commands {#device-commands}
@@ -85,7 +85,6 @@ Command                                 | Opcode
 
 Command                                 | Opcode
 ----------------------------------------|-------
-[Init Context](#provisioning-init-context)               | `0x60`
 [Scan Start](#provisioning-scan-start)                 | `0x61`
 [Scan Stop](#provisioning-scan-stop)                  | `0x62`
 [Provision](#provisioning-provision)                  | `0x63`
@@ -706,32 +705,6 @@ Type          | Name                                    | Size | Offset | Descri
 `uint8_t[16]` | Device UUID                             | 16   | 0      | Device UUID.
 
 
-### Provisioning Init Context {#provisioning-init-context}
-
-_Opcode:_ `0x60`
-
-_Total length: 2 bytes_
-
-Reset a provisioning context so it can be used for provisioning a device.
-
-_Init Context Parameters:_
-
-Type          | Name                                    | Size | Offset | Description
---------------|-----------------------------------------|------|--------|------------
-`uint8_t`     | Context ID                              | 1    | 0      | Context ID to use for the provisioning.
-
-### Response
-
-Potential status codes:
-
-- `SUCCESS`
-
-- `ERROR_INVALID_PARAMETER`
-
-- `INVALID_LENGTH`
-
-_The response has no parameters._
-
 ### Provisioning Scan Start {#provisioning-scan-start}
 
 _Opcode:_ `0x61`
@@ -806,6 +779,8 @@ Potential status codes:
 - `ERROR_INVALID_STATE`
 
 - `ERROR_REJECTED`
+
+- `ERROR_INVALID_DATA`
 
 - `INVALID_LENGTH`
 
@@ -984,7 +959,7 @@ _Capabilities Set Parameters:_
 
 Type          | Name                                    | Size | Offset | Description
 --------------|-----------------------------------------|------|--------|------------
-`uint8_t`     | Num Components                          | 1    | 0      | The number of components in the device
+`uint8_t`     | Num Elements                            | 1    | 0      | The number of elements in the device
 `uint8_t`     | Public Key Type                         | 1    | 1      | The type of public key used in the device.
 `uint8_t`     | Static OOB Types                        | 1    | 2      | The types of static OOB authentication methods.
 `uint8_t`     | Output OOB Size                         | 1    | 3      | Maximum size of the OOB authentication output.

@@ -56,8 +56,8 @@ static void timer_sch_schedule_cb(timer_event_t * p_timer, int num_calls)
 
 void setUp(void)
 {
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(timer);
+    timer_scheduler_mock_Init();
+    timer_mock_Init();
     mp_timer = NULL;
 
     timer_sch_schedule_StubWithCallback(timer_sch_schedule_cb);
@@ -67,7 +67,10 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    timer_mock_Verify();
+    timer_mock_Destroy();
 }
 
 void test_ticker_get(void)

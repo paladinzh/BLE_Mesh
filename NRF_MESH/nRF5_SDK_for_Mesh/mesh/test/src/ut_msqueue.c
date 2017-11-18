@@ -117,7 +117,7 @@ void test_simple(void)
     msq_t queue;
     INIT_MSQ(queue, 8, 3, uint32_t);
 
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 0, msq_get(&queue, 0));
+    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array, msq_get(&queue, 0));
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 1));
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 2));
     TEST_ASSERT_EQUAL(8, msq_available(&queue, 0));
@@ -130,8 +130,8 @@ void test_simple(void)
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 1));
 
     msq_move(&queue, 0);
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 4, msq_get(&queue, 0));
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 0, msq_get(&queue, 1));
+    TEST_ASSERT_EQUAL_PTR((uint8_t *) queue.p_elem_array + 4, msq_get(&queue, 0));
+    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array, msq_get(&queue, 1));
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 2));
     TEST_ASSERT_EQUAL(7, msq_available(&queue, 0));
     TEST_ASSERT_EQUAL(1, msq_available(&queue, 1));
@@ -141,9 +141,9 @@ void test_simple(void)
     *((uint32_t *) msq_get(&queue, 0)) = 96;
     msq_move(&queue, 0);
     msq_move(&queue, 1);
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 8, msq_get(&queue, 0));
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 4, msq_get(&queue, 1));
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 0, msq_get(&queue, 2));
+    TEST_ASSERT_EQUAL_PTR((uint8_t *) queue.p_elem_array + 8, msq_get(&queue, 0));
+    TEST_ASSERT_EQUAL_PTR((uint8_t *) queue.p_elem_array + 4, msq_get(&queue, 1));
+    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array, msq_get(&queue, 2));
     TEST_ASSERT_EQUAL(6, msq_available(&queue, 0));
     TEST_ASSERT_EQUAL(1, msq_available(&queue, 1));
     TEST_ASSERT_EQUAL(1, msq_available(&queue, 2));
@@ -152,7 +152,7 @@ void test_simple(void)
     msq_move(&queue, 1);
     msq_move(&queue, 2);
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 1));
-    TEST_ASSERT_EQUAL_PTR(queue.p_elem_array + 4, msq_get(&queue, 2));
+    TEST_ASSERT_EQUAL_PTR((uint8_t *) queue.p_elem_array + 4, msq_get(&queue, 2));
     msq_move(&queue, 2);
     TEST_ASSERT_EQUAL_PTR(NULL, msq_get(&queue, 2));
 }

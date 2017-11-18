@@ -79,7 +79,7 @@ nrf_mesh_address_type_t nrf_mesh_address_type_get(uint16_t address);
  * @return One of see BLE_GAP_ADDR_TYPES in ble_gap.h, if the given address has a valid type,
  * otherwise @ref BLE_GAP_ADDR_TYPE_RANDOM_INVALID.
  */
-uint8_t nrf_mesh_gap_address_type_get(uint8_t * p_address, uint8_t txadd_bit);
+uint8_t nrf_mesh_gap_address_type_get(const uint8_t * p_address, uint8_t txadd_bit);
 /** @} */
 
 #endif /* NRF_MESH_UTILS_H__*/

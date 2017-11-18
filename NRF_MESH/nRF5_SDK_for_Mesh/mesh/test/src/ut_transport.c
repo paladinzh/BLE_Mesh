@@ -35,6 +35,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cmock.h>
 #include <unity.h>
 
 #include <stdio.h>
@@ -52,6 +53,9 @@
 #include "log.h"
 #include "packet_mesh.h"
 
+#include "bearer_event_mock.h"
+#include "net_state_mock.h"
+
 #define UNUSED_ADDR    0x0000
 #define UNICAST_ADDR   0x1201
 #define UNICAST_DST    0x0607
@@ -61,28 +65,33 @@
 #define NETWORK_KEY     {0x7d, 0xd7, 0x36, 0x4c, 0xd8, 0x42, 0xad, 0x18, 0xc1, 0x7c, 0x2b, 0x82, 0x0c, 0x84, 0xc3, 0xd6}
 #define APPLICATION_KEY {0x63, 0x96, 0x47, 0x71, 0x73, 0x4f, 0xbd, 0x76, 0xe3, 0xb4, 0x05, 0x19, 0xd1, 0xd9, 0x4a, 0x48}
 #define DEVICE_KEY      {0x63, 0x96, 0x47, 0x71, 0x73, 0x4f, 0xbd, 0x76, 0xe3, 0xb4, 0x05, 0x19, 0xd1, 0xd9, 0x4a, 0x48}
-#define APPLICATION_ID  0x14
+#define APPLICATION_ID  0x26
 
 #define IV_INDEX 0x12345678
 #define MSG_SEQ_NO 0x000007
 
-#define PACKET_TV0_UNENCRYPTED {0x1B, AD_TYPE_MESH, 0x68, 0x03, 0x00, 0x00, 0x07, 0x12, 0x01, 0xff, 0xff, 0x34, 0x04, 0x12, 0x01, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#define PACKET_TV0_TRANSPORT   {0x1B, AD_TYPE_MESH, 0x68, 0x03, 0x00, 0x00, 0x07, 0x12, 0x01, 0xff, 0xff, 0x34, 0x5a, 0x99, 0xdf, 0x6e, 0x95, 0x1e, 0x11, 0xc8, 0x10, 0xea, 0x77, 0x15, 0x00, 0x00, 0x00, 0x00}
+/* Test message #18 from the specification: */
+#define PACKET_TV0_UNENCRYPTED {0x18, AD_TYPE_MESH, 0x68, 0x03, 0x00, 0x00, 0x07, 0x12, 0x01, 0xff, 0xff, 0x66, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#define PACKET_TV0_TRANSPORT   {0x18, AD_TYPE_MESH, 0x68, 0x03, 0x00, 0x00, 0x07, 0x12, 0x01, 0xff, 0xff, 0x66, 0x5a, 0x8b, 0xde, 0x6d, 0x91, 0x06, 0xea, 0x07, 0x8a, 0x00, 0x00, 0x00, 0x00}
 
 #define NUM_PACKETS 1
 
 nrf_mesh_assertion_handler_t m_assertion_handler;
 
-static uint8_t m_net_key[NRF_MESH_KEY_SIZE] = NETWORK_KEY;
-static uint8_t m_app_key[NRF_MESH_KEY_SIZE] = APPLICATION_KEY;
-static uint8_t m_dev_key[NRF_MESH_KEY_SIZE] = DEVICE_KEY;
+static const uint8_t m_net_key[NRF_MESH_KEY_SIZE] = NETWORK_KEY;
+static const uint8_t m_app_key[NRF_MESH_KEY_SIZE] = APPLICATION_KEY;
+static const uint8_t m_dev_key[NRF_MESH_KEY_SIZE] = DEVICE_KEY;
 
-static uint8_t m_unenc_pkts[NUM_PACKETS][28] = {PACKET_TV0_UNENCRYPTED};
+static const uint8_t m_unenc_pkts[NUM_PACKETS][28] = {PACKET_TV0_UNENCRYPTED};
+static const uint8_t m_enc_pkts[NUM_PACKETS][28] = {PACKET_TV0_TRANSPORT};
 
-static uint8_t m_enc_pkts[NUM_PACKETS][28] = {PACKET_TV0_TRANSPORT};
-
-static uint8_t m_sar_rx_pkts[2][31] = {{0x1e, AD_TYPE_MESH, 0x68, 0x04, 0x31, 0x29, 0xab, 0x00, 0x03, 0x12, 0x01, 0x80, 0x26, 0xac, 0x01, 0xec, 0xe8, 0x88, 0xaa, 0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf, 0x00, 0x00, 0x00, 0x00},
-                                       {0x1e, AD_TYPE_MESH, 0x68, 0x04, 0x31, 0x29, 0xac, 0x00, 0x03, 0x12, 0x01, 0x80, 0x26, 0xac, 0x21, 0xcf, 0xdc, 0x18, 0xc5, 0x2f, 0xde, 0xf7, 0x72, 0x69, 0xff, 0x44, 0x33, 0x00, 0x00, 0x00, 0x00}};
+static const uint8_t m_sar_rx_pkts[2][31] =
+{
+    {0x1e, AD_TYPE_MESH, 0x68, 0x04, 0x31, 0x29, 0xab, 0x00, 0x03, 0x12, 0x01, 0x80, 0x26, 0xac, 0x01, 0xec, 0xe8, 0x88, 0xaa,
+        0x21, 0x69, 0x32, 0x6d, 0x23, 0xf3, 0xaf, 0xdf, 0x00, 0x00, 0x00, 0x00},
+    {0x1e, AD_TYPE_MESH, 0x68, 0x04, 0x31, 0x29, 0xac, 0x00, 0x03, 0x12, 0x01, 0x80, 0x26, 0xac, 0x21, 0xcf, 0xdc, 0x18, 0xc5,
+        0x2f, 0xde, 0xf7, 0x72, 0x69, 0xff, 0x44, 0x33, 0x00, 0x00, 0x00, 0x00}
+};
 
 
 static packet_net_t * mp_net_pkt_out;
@@ -100,13 +109,7 @@ static nrf_mesh_address_t m_addr;
 static uint32_t m_seqnum;
 static uint32_t m_iv_index;
 
-
 static unsigned m_event_push_count;
-static unsigned m_network_iv_index_set_count = 0;
-static unsigned m_beacon_net_iv_update_count = 0;
-static unsigned m_relay_count = 0;
-static bool is_provisioned = false;
-
 
 static unsigned m_timers_added;
 static timestamp_t m_time_now;
@@ -126,60 +129,9 @@ typedef struct
 
 static transport_timer_t m_timer_event_buffer[4];
 
-/************************/
-/* Test setup functions */
-/************************/
-
-
-void setUp(void)
-{
-
-    __LOG_INIT((LOG_SRC_ENC | LOG_SRC_TRANSPORT | LOG_SRC_CCM |LOG_SRC_TEST), 4, LOG_CALLBACK_DEFAULT);
-
-    packet_mgr_init(mp_mesh_init_params);
-    packet_mgr_alloc((packet_generic_t **) &mp_packet, sizeof(packet_t));
-
-    transport_init(NULL);
-
-    m_network_iv_index_set_count = 0;
-    m_event_push_count = 0;
-    m_beacon_net_iv_update_count = 0;
-    m_relay_count = 0;
-    m_network_pkt_out_return = NRF_SUCCESS;
-
-    is_provisioned = false;
-
-    memset(m_timer_event_buffer, 0, sizeof(m_timer_event_buffer));
-    m_timers_added = 0;
-    m_time_now = 0;
-}
-
-void tearDown(void)
-{
-    replay_cache_clear();
-    packet_mgr_decref(mp_packet);
-}
-
-void setup_test_packet(const uint8_t * network_packet)
-{
-    uint32_t size = (network_packet[0] + 1) + sizeof(ble_packet_hdr_t) + BLE_GAP_ADDR_LEN;
-    printf("Size: %u %u\n", size, network_packet[0]);
-    TEST_ASSERT(size <= BLE_ADV_PACKET_MAX_LENGTH);
-
-    /* Allocate and construct an incoming packet: */
-    packet_mgr_alloc((packet_generic_t **) &mp_packet, size);
-    memset(mp_packet, 0, size);
-
-    packet_payload_size_set(mp_packet, network_packet[0] + 1);
-    memcpy(mp_packet->payload, network_packet, network_packet[0] + 1);
-}
-
 /********************/
 /* Mockup functions */
 /********************/
-
-void bearer_event_critical_section_begin(void) {}
-void bearer_event_critical_section_end(void) {}
 
 timestamp_t timer_now()
 {
@@ -232,55 +184,28 @@ void timer_sch_abort(timer_event_t * p_timer)
     }
 }
 
-uint32_t beacon_net_iv_update(const nrf_mesh_network_secmat_t * p_net_secmat)
-{
-    m_beacon_net_iv_update_count++;
-    return NRF_SUCCESS;
-}
-
 uint32_t network_make_derived_keys(nrf_mesh_network_secmat_t * p_net_secmat)
 {
     return NRF_SUCCESS;
 }
 
-uint32_t net_state_seqnum_alloc(uint32_t * p_seqnum)
-{
-    *p_seqnum = m_seqnum++;
-    return NRF_SUCCESS;
-}
-
-uint32_t network_iv_index_set(nrf_mesh_network_secmat_t * p_net_secmat, uint32_t iv_index)
-{
-    m_network_iv_index_set_count++;
-    return NRF_SUCCESS;
-}
-
-static void network_pkt_out_mock_reset(void)
-{
-    if(mp_net_pkt_out != NULL)
-    {
-        free(mp_net_pkt_out);
-        mp_net_pkt_out = NULL;
-    }
-}
-
-uint32_t network_pkt_out(packet_t * p_packet, uint16_t key_index)
+uint32_t network_pkt_out(packet_t * p_packet, const nrf_mesh_network_secmat_t * const p_net_secmat, bool local_packet)
 {
     /* __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, ) */
-    if(mp_net_pkt_out != NULL)
+    if (mp_net_pkt_out != NULL)
     {
         free(mp_net_pkt_out);
     }
 
     mp_net_pkt_out = malloc(p_packet->payload[0] + 1);
+    TEST_ASSERT_NOT_NULL(mp_net_pkt_out);
     memcpy(mp_net_pkt_out, p_packet->payload, p_packet->payload[0] + 1);
     __LOG_XB(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, "network_pkt_out: ", (const uint8_t *) mp_net_pkt_out, p_packet->payload[0] + 1);
     return m_network_pkt_out_return;
 }
 
-uint32_t network_pkt_relay(packet_net_t * p_net_packet, nrf_mesh_network_secmat_t * const p_net_secmat)
+uint32_t network_pkt_relay(packet_net_t * p_net_packet, const nrf_mesh_network_secmat_t * const p_net_secmat)
 {
-    m_relay_count++;
     return NRF_SUCCESS;
 }
 
@@ -295,7 +220,13 @@ void event_handle(nrf_mesh_evt_t * p_event)
     m_event_push_count ++;
 }
 
-uint32_t net_state_rx_iv_index_get(uint8_t ivi)
+static uint32_t net_state_seqnum_alloc_mock(uint32_t * p_seqnum, int count)
+{
+    *p_seqnum = m_seqnum++;
+    return NRF_SUCCESS;
+}
+
+static uint32_t net_state_rx_iv_index_get_mock(uint8_t ivi, int count)
 {
     TEST_ASSERT_EQUAL(ivi, ivi & 0x01);
     if (ivi == (m_iv_index & 0x01))
@@ -308,12 +239,15 @@ uint32_t net_state_rx_iv_index_get(uint8_t ivi)
     }
 }
 
-uint32_t net_state_tx_iv_index_get(void)
+static uint32_t net_state_tx_iv_index_get_mock(int count)
 {
     return m_iv_index;
 }
 
-void net_state_iv_index_lock(bool lock) { /* Ignore */ }
+static void net_state_iv_index_lock_mock(bool lock, int count)
+{
+    /* Does nothing */
+}
 
 void nrf_mesh_app_secmat_next_get(const nrf_mesh_network_secmat_t * p_network_secmat, uint8_t aid, const nrf_mesh_application_secmat_t ** pp_app_secmat)
 {
@@ -372,7 +306,62 @@ static void provision(const uint8_t * app_key, const uint8_t * device_key, uint3
     memset(&m_device_key, 0, sizeof(nrf_mesh_application_secmat_t));
     memcpy(m_device_key.key, device_key, NRF_MESH_KEY_SIZE);
     m_device_key.aid = 0;
-    is_provisioned = true;
+}
+
+/************************/
+/* Test setup functions */
+/************************/
+
+
+void setUp(void)
+{
+
+    __LOG_INIT((LOG_SRC_ENC | LOG_SRC_TRANSPORT | LOG_SRC_CCM |LOG_SRC_TEST), 4, LOG_CALLBACK_DEFAULT);
+
+    packet_mgr_init(mp_mesh_init_params);
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, packet_mgr_alloc((packet_generic_t **) &mp_packet, sizeof(packet_t)));
+
+    transport_init(NULL);
+
+    m_event_push_count = 0;
+    m_network_pkt_out_return = NRF_SUCCESS;
+
+    memset(m_timer_event_buffer, 0, sizeof(m_timer_event_buffer));
+    m_timers_added = 0;
+    m_time_now = 0;
+
+    bearer_event_mock_Init();
+    net_state_mock_Init();
+
+    net_state_seqnum_alloc_StubWithCallback(net_state_seqnum_alloc_mock);
+    net_state_rx_iv_index_get_StubWithCallback(net_state_rx_iv_index_get_mock);
+    net_state_tx_iv_index_get_StubWithCallback(net_state_tx_iv_index_get_mock);
+    net_state_iv_index_lock_StubWithCallback(net_state_iv_index_lock_mock);
+}
+
+void tearDown(void)
+{
+    replay_cache_clear();
+    packet_mgr_free(mp_packet);
+
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
+    net_state_mock_Verify();
+    net_state_mock_Destroy();
+}
+
+void setup_test_packet(const uint8_t * network_packet)
+{
+    uint32_t size = (network_packet[0] + 1) + sizeof(ble_packet_hdr_t) + BLE_GAP_ADDR_LEN;
+    printf("Size: %u %u\n", size, network_packet[0]);
+    TEST_ASSERT(size <= BLE_ADV_PACKET_MAX_LENGTH);
+
+    /* Allocate and construct an incoming packet: */
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, packet_mgr_alloc((packet_generic_t **) &mp_packet, size));
+    memset(mp_packet, 0, size);
+
+    packet_payload_size_set(mp_packet, network_packet[0] + 1);
+    memcpy(mp_packet->payload, network_packet, network_packet[0] + 1);
 }
 
 /******************/
@@ -545,6 +534,9 @@ void test_trs_sar_rx(void)
     uint8_t meta_addr[6];
     meta.p_addr = meta_addr;
 
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
+
     for (int i = 0; i < 2; ++i)
     {
         setup_test_packet(&m_sar_rx_pkts[i][0]);
@@ -581,6 +573,9 @@ void test_trs_sar_rx_giveup(void)
     setup_test_packet(m_sar_rx_pkts[0]);
     packet_net_t * p_net_pkt = packet_net_packet_get(mp_packet);
     TEST_ASSERT_NOT_NULL(p_net_pkt);
+
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_pkt_in(p_net_pkt, &meta, &m_network, m_iv_index));
 
     /* On RX two timers are added: the session timer and the segment acknowledgement timer. */
@@ -628,6 +623,8 @@ void test_trs_sar_multiple_session_tx(void)
 
     for (uint32_t i=0;i<TRANSPORT_SAR_TX_SESSIONS_MAX;i++)
     {
+        bearer_event_critical_section_begin_Expect();
+        bearer_event_critical_section_end_Expect();
         TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     }
     TEST_ASSERT_EQUAL(NRF_ERROR_NO_MEM, transport_tx_sar(&params, &ref));
@@ -661,11 +658,16 @@ void test_trs_sar_opt_retries_tx(void)
         };
     memcpy(&params.dst, &unicast_addr, sizeof(params.dst));
     uint32_t ref;
+
     /* Default retry value */
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
     memcpy(&params.dst, &group_addr, sizeof(params.dst));
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
@@ -675,11 +677,17 @@ void test_trs_sar_opt_retries_tx(void)
       nrf_mesh_opt_t opt = {.opt.val = 0};
     memcpy(&params.dst, &unicast_addr, sizeof(params.dst));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SAR_TX_RETRIES, &opt));
+
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
     memcpy(&params.dst, &group_addr, sizeof(params.dst));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SAR_TX_RETRIES, &opt));
+
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
@@ -689,11 +697,17 @@ void test_trs_sar_opt_retries_tx(void)
     opt.opt.val = TRANSPORT_SAR_TX_RETRIES_MAX;
     memcpy(&params.dst, &unicast_addr, sizeof(params.dst));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SAR_TX_RETRIES, &opt));
+
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
     memcpy(&params.dst, &group_addr, sizeof(params.dst));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SAR_TX_RETRIES, &opt));
+
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
@@ -730,6 +744,8 @@ void test_trs_sar_tx_giveup(void)
         };
     memcpy(&params.dst, &address, sizeof(params.dst));
     uint32_t ref;
+    bearer_event_critical_section_begin_Expect();
+    bearer_event_critical_section_end_Expect();
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_tx_sar(&params, &ref));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_sar_process());
 
@@ -751,94 +767,16 @@ void test_trs_maxlen_get(void)
     TEST_ASSERT_EQUAL(380, transport_seg_maxlen_get());
 
     opt.opt.val = 1;
-    transport_opt_set(NRF_MESH_OPT_TRS_SZMIC, &opt);
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SZMIC, &opt));
 
     /* 64bit MIC + 32bit NMIC */
     TEST_ASSERT_EQUAL(376, transport_seg_maxlen_get());
 
     opt.opt.val = 0;
-    transport_opt_set(NRF_MESH_OPT_TRS_SZMIC, &opt);
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SZMIC, &opt));
 }
 
 void test_big_mic(void)
 {
-    TEST_IGNORE_MESSAGE("Big MIC is only supported for segmented messages, contrary to what sample data #24 would've led you to believe.");
-
-    packet_meta_t meta = {0};
-    uint8_t meta_addr[6];
-    meta.p_addr = meta_addr;
-    uint32_t status = 0;
-
-    uint8_t my_virtual_addr[] = {0xf4, 0xa0, 0x02, 0xc7, 0xfb, 0x1e, 0x4c, 0xa0, 0xa4, 0x69, 0xa0, 0x21, 0xde, 0x0d, 0xb8, 0x75};
-    nrf_mesh_address_t my_addr = {.type = NRF_MESH_ADDRESS_TYPE_VIRTUAL,
-                                  .value = 0x8012, .p_virtual_uuid = my_virtual_addr};
-    nrf_mesh_address_t my_second_addr = {.type = NRF_MESH_ADDRESS_TYPE_UNICAST,
-                                         .value = 0x1234};
-    memcpy(&m_addr, &my_second_addr, sizeof(m_addr));
-    fflush(stdout);
-
-    uint8_t packet_array[] = {0x1b, AD_TYPE_MESH,
-                              /* Header */
-                              0xe8, 0x03, 0x07, 0x08, 0x0d, 0x12, 0x34, 0x97, 0x36, 0x34, 0xde, 0x15, 0x47, 0xb9, 0x16, 0x58, 0xf1, 0x61, 0x62, 0x74, 0xfe, 0x58, 0x00, 0x00, 0x00, 0x00};
-
-    uint8_t unenc_packet_array[] = {0x1b, AD_TYPE_MESH,
-                                    /* Header */
-                                    0xe8, 0x03, 0x07, 0x08, 0x0d, 0x12, 0x34, 0x97, 0x36, 0x34, 0xea, 0x0a, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    /* Add keys: */
-    __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Add keys\n");
-    fflush(stdout);
-    provision(m_app_key, m_dev_key, 0x12345677, 0x07080d);
-    setup_test_packet(packet_array);
-
-    packet_net_t * p_net_pkt = packet_net_packet_get(mp_packet);
-    packet_net_t * p_out     = (packet_net_t *) unenc_packet_array;
-    TEST_ASSERT_NOT_NULL(p_net_pkt);
-
-    status = transport_pkt_in(p_net_pkt, &meta, &m_network, m_iv_index);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
-
-    /* Packet should have been pushed to app. */
-    __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Check packet in app\n");
-    fflush(stdout);
-    TEST_ASSERT_EQUAL(1, m_event_push_count);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(p_out->payload,
-                                 p_net_pkt->payload,
-                                 (packet_net_payload_size_get(p_net_pkt) -
-                                  2 * 8));
-
-    nrf_mesh_opt_t opt = {.len = 4, .opt.val = 1};
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, transport_opt_set(NRF_MESH_OPT_TRS_SZMIC, &opt));
-
-    uint8_t data[4] = {0xea, 0x0a, 0x00, 0xff};
-
-    /* Test TX */
-    __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Test TX\n");
-
-    fflush(stdout);
-    nrf_mesh_tx_params_t params =
-        {
-            .p_data = &data[0],
-            .data_len = sizeof(data),
-            .src = 0x1234,
-            .security_material.p_app = &m_application,
-            .security_material.p_net = &m_network,
-            .ttl = 0x03
-        };
-    memcpy(&params.dst, &my_addr, sizeof(params.dst));
-    network_pkt_out_mock_reset();
-
-    status = transport_tx(&params, NULL);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
-    TEST_ASSERT_NOT_NULL(mp_net_pkt_out);
-
-
-    p_net_pkt = mp_net_pkt_out;
-    p_out     = (packet_net_t *) packet_array;
-
-    /* Compare the correct MIC as well */
-    __LOG(LOG_SRC_TEST, LOG_LEVEL_INFO, "Check MIC\n");
-    fflush(stdout);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(p_out->payload,
-                                 p_net_pkt->payload,
-                                 (packet_net_payload_size_get(p_net_pkt) - 8));
+    TEST_IGNORE_MESSAGE("Test not implemented");
 }

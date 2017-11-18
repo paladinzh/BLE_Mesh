@@ -37,43 +37,34 @@
 #ifndef MESH_TOOLCHAIN_H__
 #define MESH_TOOLCHAIN_H__
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 void toolchain_init_irqs(void);
 
-#define POPCOUNT64(n) __builtin_popcountll(n)
-
-#if defined(UNIT_TEST)
+#if defined(_lint)
+    #define _DISABLE_IRQS(_was_masked) _was_masked = 0; __disable_irq()
+    #define _ENABLE_IRQS(_was_masked) (void) _was_masked; __enable_irq()
+#elif defined(UNIT_TEST)
     #define _DISABLE_IRQS(_was_masked) (void)_was_masked /* avoid "not used" warning */
     #define _ENABLE_IRQS(_was_masked)
     #define _GET_LR(lr) lr = (uint32_t) __builtin_return_address(0);
-    #define FORCEINLINE inline
 #elif defined(MTT_TEST)
     #include <pthread.h>
     extern pthread_mutex_t irq_mutex;
     #define _GET_LR(lr) lr = (uint32_t) __builtin_return_address(0);
     #define _DISABLE_IRQS(_was_masked) pthread_mutex_lock(&irq_mutex); (void) _was_masked;
     #define _ENABLE_IRQS(_was_masked) pthread_mutex_unlock(&irq_mutex);
-    #define FORCEINLINE inline
 #elif defined(__CC_ARM)
-/** ARMCC specific implementations */
-
 /** Disable all interrupts and get whether it was masked. */
     #define _DISABLE_IRQS(_was_masked) _was_masked = __disable_irq()
 
 /** Enable all interrupts if they weren't masked. */
     #define _ENABLE_IRQS(_was_masked) do{ if (!(_was_masked)) { __enable_irq(); } } while(0)
 
-
 /** Get the value of the link register. */
     #define _GET_LR(lr) do { lr = __return_address(); } while (0)
 
-/** Force inline attribute for functions. */
-    #define FORCEINLINE __forceinline
-
 #elif defined(__GNUC__)
-/** GCC specific implementations */
-
 /** Disable all interrupts and get whether it was masked. */
     #define _DISABLE_IRQS(_was_masked) do{ \
             __ASM volatile ("MRS %0, primask" : "=r" (_was_masked) );\
@@ -85,9 +76,6 @@ void toolchain_init_irqs(void);
 
 /** Get the value of the link register. */
     #define _GET_LR(lr) do { lr = (uint32_t) __builtin_return_address(0); } while (0)
-
-/** Force inline attribute for functions. */
-    #define FORCEINLINE __attribute__((always_inline))
 
 #endif
 

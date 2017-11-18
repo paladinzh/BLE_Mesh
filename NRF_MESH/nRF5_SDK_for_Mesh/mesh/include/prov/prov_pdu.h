@@ -86,6 +86,8 @@ typedef enum
 /** Value of the algorithm field in the start message. */
 #define PROV_PDU_START_ALGO_FIPS_P256   0x00
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Contents of the provisioning invite PDU. */
 typedef struct __attribute((packed))
 {
@@ -180,6 +182,8 @@ typedef struct __attribute((packed))
     uint8_t pdu_type;     /**< Packet PDU type can be one of type @ref prov_pdu_type_t. */
     uint8_t failure_code; /**< Error code representing the error that occured. */
 } prov_pdu_failed_t;
+
+/*lint -align_max(pop) */
 
 /** @} */
 

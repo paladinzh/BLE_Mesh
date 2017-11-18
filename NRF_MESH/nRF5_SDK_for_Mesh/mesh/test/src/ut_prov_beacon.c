@@ -47,7 +47,7 @@
 #include "event_mock.h"
 #include "enc_mock.h"
 
-/** Sample data from d09r16 8.4.1 */
+/* Sample data from the specification, section 8.4.1 (unprovisioned device beacon without URI): */
 #define UNPROV_SAMPLE_DATA_1                                                                                                                       \
 {                                                                                                                                                  \
     .uri = NULL,                                                                                                                                   \
@@ -57,10 +57,10 @@
     .uuid   = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4},                                    \
     .beacon_len = 18, \
     .uri_hash = {0}, \
-    .beacon = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4, 0xa0, 0x40, 0x00, 0x00, 0x00, 0x00} \
+    .beacon = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4, 0xa0, 0x40} \
 }
 
-/** Sample data from d09r16 8.4.2 */
+/* Sample data from the speciication, section 8.4.2 (unprovisioned device beacon with URI): */
 #define UNPROV_SAMPLE_DATA_2                                                                                                                       \
 {                                                                                                                                                  \
     .uri = (URI_SCHEME_HTTPS "//www.example.com/mesh/products/light-switch-v3"),                                                                   \
@@ -69,7 +69,7 @@
     .uuid   = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4},                                    \
     .beacon_len = 22, \
     .uri_hash = {0xd9, 0x74, 0x78, 0xb3, 0x66, 0x7f, 0x48, 0x39, 0x48, 0x74, 0x69, 0xc7, 0x2b, 0x8e, 0x5e, 0x9e}, \
-    .beacon = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4, 0x40, 0x20, 0x2b, 0x8e, 0x5e, 0x9e} \
+    .beacon = {0x70, 0xcf, 0x7c, 0x97, 0x32, 0xa3, 0x45, 0xb6, 0x91, 0x49, 0x48, 0x10, 0xd2, 0xe9, 0xcb, 0xf4, 0x40, 0x20, 0xd9, 0x74, 0x78, 0xb3} \
 }
 
 typedef struct
@@ -91,16 +91,23 @@ void setUp(void)
 {
     m_evt_handle_calls_expected = 0;
     m_evt_len = 0;
-    CMOCK_SETUP(beacon);
-    CMOCK_SETUP(nrf_mesh_configure);
-    CMOCK_SETUP(event);
-    CMOCK_SETUP(enc);
+    beacon_mock_Init();
+    nrf_mesh_configure_mock_Init();
+    event_mock_Init();
+    enc_mock_Init();
 }
 
 void tearDown(void)
 {
     enc_mock_Verify();
-    CMOCK_TEARDOWN();
+    beacon_mock_Verify();
+    beacon_mock_Destroy();
+    nrf_mesh_configure_mock_Verify();
+    nrf_mesh_configure_mock_Destroy();
+    event_mock_Verify();
+    event_mock_Destroy();
+    enc_mock_Verify();
+    enc_mock_Destroy();
 }
 
 void evt_handle_cb(nrf_mesh_evt_t* p_evt, int calls)
@@ -166,11 +173,11 @@ void test_rx(void)
         memcpy(m_evt.params.unprov_recv.device_uuid, sample_data.uuid, NRF_MESH_UUID_SIZE);
         if (sample_data.uri == NULL)
         {
-            memset(m_evt.params.unprov_recv.uri_hash, 0, 4);
+            memset(m_evt.params.unprov_recv.uri_hash, 0, NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE);
         }
         else
         {
-            memcpy(m_evt.params.unprov_recv.uri_hash, &sample_data.uri_hash[12], 4);
+            memcpy(m_evt.params.unprov_recv.uri_hash, sample_data.uri_hash, NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE);
         }
         m_evt.params.unprov_recv.rssi = -78;
         m_evt.params.unprov_recv.gatt_supported = false;

@@ -51,7 +51,7 @@ static uint32_t m_mesh_assert_expect = 0;
 /* Assertion handler, automatically fails the test. */
 void nrf_mesh_assertion_handler(uint32_t pc)
 {
-    if(m_mesh_assert_expect)
+    if (m_mesh_assert_expect)
     {
         --m_mesh_assert_expect;
     }
@@ -87,7 +87,7 @@ void test_packet_mgr_basic(void)
     TEST_ASSERT(size >= TEST_PACKET_1_SIZE);
 
     /* Free packet: */
-    packet_mgr_decref(p_test_pkg);
+    packet_mgr_free(p_test_pkg);
 }
 
 /* Tests allocating the largest buffer there is room for. */
@@ -97,7 +97,7 @@ void test_packet_mgr_alloc_largest(void)
     uint16_t size;
     const uint8_t margin = 4;
     packet_generic_t * p_test_pkg;
-    while(packet_mgr_get_free_space() >= PACKET_MGR_PACKET_MAXLEN)
+    while (packet_mgr_get_free_space() >= PACKET_MGR_PACKET_MAXLEN)
     {
         status = packet_mgr_alloc(&p_test_pkg, PACKET_MGR_PACKET_MAXLEN);
         TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
@@ -113,7 +113,7 @@ void test_packet_mgr_alloc_largest(void)
     uint8_t refcount = packet_mgr_refcount_get(p_test_pkg);
     TEST_ASSERT_EQUAL(1, refcount);
     /* Release the large packet and allocate a packet smaller than the default size, and the packet should be resized to default value.*/
-    packet_mgr_decref(p_test_pkg);
+    packet_mgr_free(p_test_pkg);
     status = packet_mgr_alloc(&p_test_pkg, PACKET_MGR_DEFAULT_PACKET_LEN - margin);
     TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
     /* Check that we are getting the right size every time */
@@ -162,7 +162,7 @@ void test_packet_mgr_alloc_mixed_sizes(void)
     uint16_t starting_free_space = packet_mgr_get_free_space();
 
     /* Allocate all the buffers with the required sizes from teh allocation set table */
-    for(uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
+    for (uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
     {
         status = packet_mgr_alloc(&alloc_set_table[i].p_test_pkg, alloc_set_table[i].expected_size);
         TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
@@ -172,15 +172,15 @@ void test_packet_mgr_alloc_mixed_sizes(void)
     }
 
     /* release all allocated buffers and then check that we have the expected amount of buffer space available. */
-    for(uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
+    for (uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
     {
-        packet_mgr_decref(alloc_set_table[i].p_test_pkg);
+        packet_mgr_free(alloc_set_table[i].p_test_pkg);
     }
 
     TEST_ASSERT_EQUAL(starting_free_space, packet_mgr_get_free_space());
 
     /* Now that the buffers are fragmented, try to allocate them once more */
-    for(uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
+    for (uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
     {
         status = packet_mgr_alloc(&alloc_set_table[i].p_test_pkg, alloc_set_table[i].expected_size);
         TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
@@ -190,9 +190,9 @@ void test_packet_mgr_alloc_mixed_sizes(void)
     }
 
     /* Release all and check. */
-    for(uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
+    for (uint32_t i=0; i< sizeof(alloc_set_table)/sizeof(mem_expected_size_pair_t);i++)
     {
-        packet_mgr_decref(alloc_set_table[i].p_test_pkg);
+        packet_mgr_free(alloc_set_table[i].p_test_pkg);
     }
 
     TEST_ASSERT_EQUAL(starting_free_space, packet_mgr_get_free_space());
@@ -216,15 +216,10 @@ void test_packet_mgr_lots_of_packets(void)
     uint32_t test_packet_alloc_size = 42;
     uint16_t starting_free_space = packet_mgr_get_free_space();
 
-    for (int i = 0; i < 100; ++i)
+    for (uint8_t i = 0; i < 100; ++i)
     {
-        status = packet_mgr_alloc(&p_test_pkg, test_packet_alloc_size);
-        TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
-
-        /* Testing decref on the packet by using bufstart_get anywhere in the packet */
-        packet_generic_t * p_start;
-        packet_mgr_bufstart_get(p_test_pkg + i % test_packet_alloc_size/sizeof(packet_generic_t *), &p_start);
-        packet_mgr_decref(p_start);
+        TEST_ASSERT_EQUAL(NRF_SUCCESS, packet_mgr_alloc(&p_test_pkg, test_packet_alloc_size));
+        packet_mgr_free(p_test_pkg);
     }
     TEST_ASSERT_EQUAL(starting_free_space, packet_mgr_get_free_space());
 
@@ -241,10 +236,10 @@ void test_packet_mgr_lots_of_packets(void)
     status = packet_mgr_alloc(&p_test_pkgs[3], test_packet_alloc_size);
     TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
 
-    packet_mgr_decref(p_test_pkgs[0]);
-    packet_mgr_decref(p_test_pkgs[1]);
-    packet_mgr_decref(p_test_pkgs[2]);
-    packet_mgr_decref(p_test_pkgs[3]);
+    packet_mgr_free(p_test_pkgs[0]);
+    packet_mgr_free(p_test_pkgs[1]);
+    packet_mgr_free(p_test_pkgs[2]);
+    packet_mgr_free(p_test_pkgs[3]);
     TEST_ASSERT_EQUAL(starting_free_space, packet_mgr_get_free_space());
 
 }

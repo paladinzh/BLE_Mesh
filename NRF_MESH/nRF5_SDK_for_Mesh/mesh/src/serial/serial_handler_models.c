@@ -135,12 +135,12 @@ static void model_command(const serial_packet_t * p_cmd)
             status = p_targeted_model->model_command(p_cmd_params, &cmd_rsp);
             if (cmd_rsp.data_len > 0)
             {
-                serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &cmd_rsp, cmd_rsp.data_len + sizeof(cmd_rsp.data_len));
+                (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &cmd_rsp, cmd_rsp.data_len + sizeof(cmd_rsp.data_len));
                 return;
             }
         }
     }
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 #define MODEL_INIT_SIZE_MIN         sizeof(serial_cmd_model_specific_init_header_t)

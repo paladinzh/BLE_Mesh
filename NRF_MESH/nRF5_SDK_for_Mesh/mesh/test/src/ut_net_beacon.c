@@ -35,10 +35,10 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdlib.h>
+
 #include <cmock.h>
 #include <unity.h>
-#include <signal.h>
-#include <stdlib.h>
 
 #include "net_beacon.h"
 
@@ -52,12 +52,6 @@
 #include "net_state_mock.h"
 #include "nrf_mesh_assert.h"
 
-void handler(int sig)
-{
-  printf("FAIL: Segfault\n");
-  exit(1);
-}
-
 typedef struct
 {
     bool iv_update;
@@ -70,7 +64,7 @@ typedef struct
     uint8_t beacon[21]; /**< Without beacon type */
 } net_beacon_sample_data_t;
 
-/** Sample data from d09r21 8.4.3 */
+/* Secure network beacon sample packet 1: */
 #define SEC_NET_SAMPLE_DATA_1 {                                                                                                                          \
     .iv_update          = false,                                                                                                                         \
     .key_refresh        = false,                                                                                                                         \
@@ -83,7 +77,7 @@ typedef struct
     .beacon             = {0x00, 0x3e, 0xca, 0xff, 0x67, 0x2f, 0x67, 0x33, 0x70, 0x12, 0x34, 0x56, 0x78, 0x8e, 0xa2, 0x61, 0x58, 0x2f, 0x36, 0x4f, 0x6f} \
 }
 
-/** Sample data from d09r21 8.4.4 */
+/* Secure network beacon sample packet 2 (IV update in progress): */
 #define SEC_NET_SAMPLE_DATA_2 {                                                                                                                          \
     .iv_update          = true,                                                                                                                          \
     .key_refresh        = false,                                                                                                                         \
@@ -96,7 +90,7 @@ typedef struct
     .beacon             = {0x02, 0x3e, 0xca, 0xff, 0x67, 0x2f, 0x67, 0x33, 0x70, 0x12, 0x34, 0x56, 0x79, 0xc2, 0xaf, 0x80, 0xad, 0x07, 0x2a, 0x13, 0x5c} \
 }
 
-/** Sample data from d09r21 8.4.5 */
+/* Secure network beacon sample packet 3 (IV update complete): */
 #define SEC_NET_SAMPLE_DATA_3 {                                                                                                                          \
     .iv_update          = false,                                                                                                                         \
     .key_refresh        = false,                                                                                                                         \
@@ -133,18 +127,25 @@ void setUp(void)
     m_timer_cb = NULL;
     m_time_now = 0;
     m_assertion_handler = assert_handler;
-    CMOCK_SETUP(beacon);
-    CMOCK_SETUP(net_state);
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(timer);
-    CMOCK_SETUP(enc);
-
-    signal(SIGSEGV, handler);
+    beacon_mock_Init();
+    net_state_mock_Init();
+    timer_scheduler_mock_Init();
+    timer_mock_Init();
+    enc_mock_Init();
 }
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    beacon_mock_Verify();
+    beacon_mock_Destroy();
+    net_state_mock_Verify();
+    net_state_mock_Destroy();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    timer_mock_Verify();
+    timer_mock_Destroy();
+    enc_mock_Verify();
+    enc_mock_Destroy();
 }
 
 void nrf_mesh_beacon_info_next_get(const uint8_t * p_network_id, const nrf_mesh_beacon_info_t ** pp_beacon_info)

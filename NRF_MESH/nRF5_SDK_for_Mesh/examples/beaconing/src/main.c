@@ -133,7 +133,7 @@ static void start_advertiser(void)
         if (bearer_adv_tx(&m_advertiser, p_packet, BEARER_ADV_REPEAT_INFINITE) != NRF_SUCCESS)
         {
             /* TX failed, free the packet */
-            packet_mgr_decref(p_packet);
+            packet_mgr_free(p_packet);
         }
     }
 
@@ -180,7 +180,7 @@ int main(void)
 
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Initialization complete!\n");
 
-    while(true)
+    while (true)
     {
         nrf_mesh_process();
     }

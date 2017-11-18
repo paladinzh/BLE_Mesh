@@ -87,7 +87,7 @@
  * @note BLE Mesh specification: ~10s.
  */
 #ifndef NRF_MESH_BEACON_SECURE_NET_BCAST_INTERVAL_SECONDS
-#define NRF_MESH_BEACON_SECURE_NET_BCAST_INTERVAL_SECONDS (10)
+#define NRF_MESH_BEACON_SECURE_NET_BCAST_INTERVAL_SECONDS 10
 #endif
 
 /** Default beacon interval. */
@@ -130,7 +130,7 @@
 
 /** Specify which bearers are available to the mesh by default. */
 #ifndef BEARER_TYPES
-#define BEARER_TYPES (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO)
+#define BEARER_TYPES BEARER_ADV_RADIO
 #endif
 
 /** Default number of repeated transmissions of one packet. */
@@ -177,22 +177,22 @@
 
 /** Lower boundary on advertisement interval. */
 #ifndef BEARER_ADV_INT_MIN_MS
-#define BEARER_ADV_INT_MIN_MS (20)
+#define BEARER_ADV_INT_MIN_MS 20
 #endif
 
 /** Upper boundary on advertisement interval. */
 #ifndef BEARER_ADV_INT_MAX_MS
-#define BEARER_ADV_INT_MAX_MS (10240)
+#define BEARER_ADV_INT_MAX_MS 10240
 #endif
 
 /** Lower boundary on scan interval. */
 #ifndef BEARER_ADV_SCAN_INT_MIN
-#define BEARER_ADV_SCAN_INT_MIN (3)
+#define BEARER_ADV_SCAN_INT_MIN 3
 #endif
 
 /** Upper boundary on scan interval. */
 #ifndef BEARER_ADV_SCAN_INT_MAX
-#define BEARER_ADV_SCAN_INT_MAX (10240)
+#define BEARER_ADV_SCAN_INT_MAX 10240
 #endif
 
 /** @} end of MESH_CONFIG_BEARER_ADV */
@@ -209,7 +209,7 @@
 
 /** Number of flags available for allocation. */
 #ifndef BEARER_EVENT_FLAG_COUNT
-#define BEARER_EVENT_FLAG_COUNT     4
+#define BEARER_EVENT_FLAG_COUNT 4
 #endif
 
 /** @} end of MESH_CONFIG_BEARER_EVENT */
@@ -234,6 +234,21 @@
 /** Maximum number of events to queue up for the application. */
 #ifndef EVENT_QUEUE_SIZE
 #define EVENT_QUEUE_SIZE 32
+#endif
+
+/** @} */
+
+/**
+ * @defgroup MESH_CONFIG_FIFO FIFO configuration
+ * @{
+ */
+
+/**
+ * Define to 1 to enable FIFO statistics tracking.
+ * This adds additional performance counters to FIFO instances.
+ */
+#ifndef FIFO_STATS
+#define FIFO_STATS 0
 #endif
 
 /** @} */
@@ -389,7 +404,7 @@
  * take at least 200ms, and the device would be blocked from sending new messages if it runs out.
  */
 #ifndef NETWORK_SEQNUM_FLASH_BLOCK_THRESHOLD
-#define NETWORK_SEQNUM_FLASH_BLOCK_THRESHOLD  64
+#define NETWORK_SEQNUM_FLASH_BLOCK_THRESHOLD 64
 #endif
 
 /**
@@ -443,6 +458,24 @@
 /** @} end of MESH_CONFIG_PACMAN */
 
 /**
+ * @defgroup MESH_CONFIG_PACKET_BUFFER Packet buffer configuration
+ * @{
+ */
+
+/**
+ * Set to 1 to enable debug mode for the packet buffer.
+ *
+ * @warning In debug mode, the packet buffer will print out a lot
+ * of information and this _will_ cause the system to assert due to
+ * timeslot violation.
+ */
+#ifndef PACKET_BUFFER_DEBUG_MODE
+#define PACKET_BUFFER_DEBUG_MODE 0
+#endif
+
+/** @} end of MESH_CONFIG_PACKET_BUFFER */
+
+/**
  * @defgroup MESH_CONFIG_RADIO Radio configuration
  * @{
  */
@@ -472,62 +505,23 @@
 /** @} end of MESH_CONFIG_REPLAY_CACHE */
 
 /**
- * @defgroup MESH_CONFIG_ACCESS Access layer configuration.
- * @{
- */
-
-/**
- * Maximum number of subscriptions (addresses) per model.
- */
-#ifndef ACCESS_MODEL_SUBSCRIPTIONS_MAX
-#define ACCESS_MODEL_SUBSCRIPTIONS_MAX 8
-#endif
-
-/**
- * Maximum number of application contexts per model.
- *
- * @note According to the BLE Mesh specification, up to 64 application keys can
- * be bound to a model (section 2.3.8.1).
- */
-#ifndef ACCESS_MODEL_APPLICATIONS_MAX
-#define ACCESS_MODEL_APPLICATIONS_MAX 4
-#endif
-
-/**
- * Default TTL value used when sending an access layer message.
- */
-#ifndef ACCESS_TTL_DEFAULT
-#define ACCESS_TTL_DEFAULT 8
-#endif
-
-/**
- * Access timeout margin.
- */
-#ifndef ACCESS_TIMEOUT_MARGIN
-#define ACCESS_TIMEOUT_MARGIN 1000000
-#endif
-
-/** @} end of MESH_CONFIG_ACCESS */
-
-
-/**
  * @defgroup MESH_CONFIG_FLASH_MANAGER Flash manager configuration defines
  * @{
  */
 
 /** Maximum number of pages that can be owned by a single flash manager */
 #ifndef FLASH_MANAGER_PAGE_COUNT_MAX
-#define FLASH_MANAGER_PAGE_COUNT_MAX    (255)
+#define FLASH_MANAGER_PAGE_COUNT_MAX 255
 #endif
 
 /** Size of the flash manager data pool, storing pending writes. */
 #ifndef FLASH_MANAGER_POOL_SIZE
-#define FLASH_MANAGER_POOL_SIZE         (256)
+#define FLASH_MANAGER_POOL_SIZE 256
 #endif
 
 /** Maximum size of a single flash entry in bytes. */
 #ifndef FLASH_MANAGER_ENTRY_MAX_SIZE
-#define FLASH_MANAGER_ENTRY_MAX_SIZE    (128)
+#define FLASH_MANAGER_ENTRY_MAX_SIZE 128
 #endif
 
 /** @} end of MESH_CONFIG_FLASH_MANAGER */

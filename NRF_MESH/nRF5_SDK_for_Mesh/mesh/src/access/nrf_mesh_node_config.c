@@ -130,7 +130,7 @@ static void mesh_evt_handler(nrf_mesh_evt_t * p_evt)
         case NRF_MESH_EVT_PROV_LINK_CLOSED:
             if (!m_node_provisioned)
             {
-                start_provisionee();
+                (void) start_provisionee();
             }
             else
             {
@@ -216,11 +216,12 @@ uint32_t nrf_mesh_node_config(const nrf_mesh_node_config_params_t * p_params)
 
     if (!m_sd_initialized)
     {
-        softdevice_setup(p_params->lf_clk_cfg, p_params->sd_assertion_handler);
+        RETURN_ON_ERROR(softdevice_setup(p_params->lf_clk_cfg, p_params->sd_assertion_handler));
     }
 
     /* Initialize and enable the mesh stack: */
-    nrf_mesh_init_params_t mesh_init_params = { {0} };
+    nrf_mesh_init_params_t mesh_init_params;
+    memset(&mesh_init_params, 0, sizeof(mesh_init_params));
     mesh_init_params.lfclksrc = p_params->lf_clk_cfg;
     if (p_params->mesh_assertion_handler != NULL)
     {
@@ -239,7 +240,7 @@ uint32_t nrf_mesh_node_config(const nrf_mesh_node_config_params_t * p_params)
     access_init();
 
     /* Initialize the configuration server: */
-    config_server_init();
+    RETURN_ON_ERROR(config_server_init());
 
     if (mp_init_params->setup_callback != NULL)
     {

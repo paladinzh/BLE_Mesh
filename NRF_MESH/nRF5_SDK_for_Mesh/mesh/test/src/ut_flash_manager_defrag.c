@@ -93,18 +93,19 @@ void setUp(void)
 
     NRF_UICR = &m_uicr;
     NRF_FICR = &m_ficr;
-    NRF_UICR->BOOTLOADERADDR = (uint32_t) (mp_recovery_area + 1);
-    NRF_FICR->CODESIZE = NRF_UICR->BOOTLOADERADDR / PAGE_SIZE;
+    NRF_UICR->BOOTLOADERADDR = (uint32_t) (mp_recovery_area + 1); /*lint !e123 Usage of symbol declared as function-like macro elsewhere */
+    NRF_FICR->CODESIZE = NRF_UICR->BOOTLOADERADDR / PAGE_SIZE;    /*lint !e123 Usage of symbol declared as function-like macro elsewhere */
     NRF_FICR->CODEPAGESIZE = PAGE_SIZE;
     memset((uint8_t *)mp_recovery_area, 0, sizeof(flash_manager_recovery_area_t));
     flash_manager_defrag_reset();
     flash_manager_test_util_setup();
-    CMOCK_SETUP(flash_manager);
+    flash_manager_mock_Init();
 }
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    flash_manager_mock_Verify();
+    flash_manager_mock_Destroy();
 }
 
 /**

@@ -38,6 +38,7 @@
 #define MESH_RADIO_H__
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "radio_config.h"
 
 /**
@@ -84,7 +85,7 @@ typedef struct
 typedef struct
 {
     /** Radio mode (250kbit, 500kbit, 1Mbit or 2Mbit). */
-    uint8_t         radio_mode;
+    radio_mode_t    radio_mode;
     /** Access address to use for all transmissions and receptions. */
     uint32_t        access_address;
     /** Function pointer to a callback for when the radio has finished a receive. */

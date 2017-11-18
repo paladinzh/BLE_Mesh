@@ -50,6 +50,10 @@ set(CMAKE_SKIP_INSTALL_RULES true)
 
 set(CMAKE_ASM_FLAGS       "--cpreproc --apcs=interwork --cpreproc_opts=\"-DASSEMBLER_PREPROC__\"")
 set(CMAKE_C_FLAGS         "--c99")
+set(CMAKE_C_FLAGS_RELEASE "-O3 --no_debug")
+set(CMAKE_C_FLAGS_DEBUG "-O1 --debug")
+set(CMAKE_C_FLAGS_MINSIZEREL "-Ospace --no_debug")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O3 --debug")
 
 set(CMAKE_DEPFILE_FLAGS_C "--depend=<DEPFILE> --depend_single_line --no_depend_system_headers")
 set(CMAKE_C_LINK_FLAGS    "--strict --summary_stderr --info summarysizes --map --xref --info=stack --callgraph --symbols --info sizes --info totals --info unused --info veneers" CACHE STRING "")

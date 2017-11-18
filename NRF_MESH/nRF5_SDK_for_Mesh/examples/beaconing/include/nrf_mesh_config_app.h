@@ -144,4 +144,3 @@
 /** @} */
 
 #endif /* NRF_MESH_CONFIG_APP_H__ */
-

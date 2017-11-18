@@ -35,10 +35,10 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bearer_adv.h"
-
 #include <stddef.h>
 #include <string.h>
+
+#include "bearer_adv.h"
 
 #include "nrf_mesh_config_core.h"
 #include "bearer.h"
@@ -58,7 +58,7 @@
 
 #include "nrf_mesh_assert.h"
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "ble_gap.h"
 
 /*****************************************************************************
@@ -137,15 +137,15 @@ static void scan_order(void)
     }
     else
     {
-        packet_mgr_decref(rx_evt.p_packet);
+        packet_mgr_free(rx_evt.p_packet);
     }
 }
 
 static void scan_channel_iterate(void)
 {
-    while(true)
+    while (true)
     {
-        if(m_scan_ch == 39)
+        if (m_scan_ch == 39)
         {
             m_scan_ch = 36;
         }
@@ -154,7 +154,7 @@ static void scan_channel_iterate(void)
             ++m_scan_ch;
         }
 
-        if((1 << (m_scan_ch - 37)) & (m_scan_config.scan_channel_map))
+        if ((1 << (m_scan_ch - 37)) & (m_scan_config.scan_channel_map))
         {
             break;
         }
@@ -203,21 +203,21 @@ static bool is_valid_gap_addr(const ble_gap_addr_t* p_addr)
         case BLE_GAP_ADDR_TYPE_PUBLIC:
         case BLE_GAP_ADDR_TYPE_RANDOM_STATIC:
             /* The two most significant bits of the address shall be equal to 1 */
-            if((p_addr->addr[5] & 0xC0) == 0xC0)
+            if ((p_addr->addr[5] & 0xC0) == 0xC0)
             {
                 is_valid = true;
             }
             break;
         case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE:
             /* The two most significant bits of the address shall be equal to 0 */
-            if((p_addr->addr[5] & 0xC0) == 0x00)
+            if ((p_addr->addr[5] & 0xC0) == 0x00)
             {
                 is_valid = true;
             }
             break;
         case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE:
             /* The two most significant bits of the address shall be equal to 0b10 */
-            if((p_addr->addr[5] & 0xC0) == 0x80)
+            if ((p_addr->addr[5] & 0xC0) == 0x80)
             {
                 is_valid = true;
             }
@@ -249,11 +249,12 @@ static void radio_rx_cb(uint8_t* p_data, bool success, uint32_t crc, int8_t rssi
 {
     if (!success)
     {
-        packet_mgr_decref(p_data);
+        packet_mgr_free(p_data);
         return;
     }
     packet_t* p_packet = (packet_t*) p_data;
 
+    /*lint -save -e446 */
     packet_meta_t meta =
     {
         .rssi = rssi,
@@ -261,6 +262,7 @@ static void radio_rx_cb(uint8_t* p_data, bool success, uint32_t crc, int8_t rssi
         .addr_type = p_packet->header.addr_type,
         .p_addr = p_packet->addr
     };
+    /*lint -restore */
 
     m_scan_config.rx_cb(p_packet, BEARER_ADV_RADIO, &meta);
 }
@@ -270,8 +272,8 @@ static void radio_tx_cb(uint8_t* p_data, bool free_packet)
 {
     if (free_packet)
     {
-        packet_mgr_decref((packet_t*) p_data);
-        bearer_event_generic_post(tx_event_send, (void*) p_data);
+        packet_mgr_free((packet_t*) p_data);
+        NRF_MESH_ASSERT(bearer_event_generic_post(tx_event_send, (void*) p_data) == NRF_SUCCESS);
     }
 }
 
@@ -301,7 +303,7 @@ static void packet_tx(packet_t* p_packet, uint8_t* p_channel_map, bool free_on_e
         }
     }
 
-    radio_order(radio_evts, &count);
+    (void) radio_order(radio_evts, &count);
     radio_invoke();
 
     for (uint32_t ch = 0; ch < 3; ++ch)
@@ -340,7 +342,7 @@ static void adv_evt_timeout(timestamp_t timestamp, void * p_context)
         /* Replace the old packet - remove its reference. */
         if (p_advertiser->internal.tx_evt.p_packet != NULL)
         {
-            packet_mgr_decref(p_advertiser->internal.tx_evt.p_packet);
+            packet_mgr_free(p_advertiser->internal.tx_evt.p_packet);
             p_advertiser->internal.tx_evt.p_packet = NULL;
         }
         uint32_t error_code = fifo_pop(&p_advertiser->internal.tx_fifo, &p_advertiser->internal.tx_evt);
@@ -348,6 +350,7 @@ static void adv_evt_timeout(timestamp_t timestamp, void * p_context)
         if (error_code != NRF_SUCCESS)
         {
             /* no more events in fifo, stop advertising */
+            p_advertiser->internal.adv_evt.interval = 0;
             return;
         }
         /* set BLE fields */
@@ -420,7 +423,7 @@ uint32_t bearer_adv_init(bearer_scan_config_t* p_config)
 
     radio_init_params_t radio_params =
         {
-            .radio_mode     = RADIO_MODE_MODE_Ble_1Mbit,
+            .radio_mode     = RADIO_MODE_BLE_1MBIT,
             .access_address = BEARER_ADV_ACCESS_ADDR,
             .rx_cb          = radio_rx_cb,
             .tx_cb          = radio_tx_cb,
@@ -429,27 +432,24 @@ uint32_t bearer_adv_init(bearer_scan_config_t* p_config)
     __LOG(LOG_SRC_BEARER, LOG_LEVEL_DBG1, "BEARER_ADV_ACCESS_ADDR: %8X\n", BEARER_ADV_ACCESS_ADDR);
     radio_init(&radio_params);
 
+#if !HOST
     if (!is_valid_gap_addr(&m_default_gap_addr))
     {
         ble_gap_addr_t ficr_gap_addr;
-        error_code = bearer_adv_addr_get(&ficr_gap_addr);
-        if (error_code != NRF_SUCCESS)
-        {
-            return error_code;
-        }
+        bearer_adv_addr_get(&ficr_gap_addr);
         bearer_adv_gap_type_set(&ficr_gap_addr);
-        bearer_adv_addr_default_set(&ficr_gap_addr);
+        (void) bearer_adv_addr_default_set(&ficr_gap_addr);
     }
+#endif
 
     return NRF_SUCCESS;
 }
 
-uint32_t bearer_adv_advertiser_init(advertiser_t* p_adv)
+void bearer_adv_advertiser_init(advertiser_t* p_adv)
 {
-    if (p_adv == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
+    NRF_MESH_ASSERT(p_adv != NULL);
+    NRF_MESH_ASSERT(p_adv->internal.advertisement_in_progress == false);
+    NRF_MESH_ASSERT(fifo_get_len(&p_adv->internal.tx_fifo) == 0);
 
     p_adv->internal.tx_fifo.elem_size = sizeof(tx_packet_t);
     p_adv->internal.tx_fifo.elem_array = p_adv->internal.tx_fifo_buffer;
@@ -461,7 +461,6 @@ uint32_t bearer_adv_advertiser_init(advertiser_t* p_adv)
     p_adv->internal.tx_evt.p_packet = NULL;
     p_adv->internal.tx_evt.transmits = 0;
     p_adv->internal.advertisement_in_progress = false;
-    memset(&p_adv->internal.adv_evt, 0, sizeof(timer_event_t));
 
     p_adv->internal.adv_evt.cb = adv_evt_timeout;
     p_adv->internal.adv_evt.p_context = p_adv;
@@ -472,8 +471,6 @@ uint32_t bearer_adv_advertiser_init(advertiser_t* p_adv)
     __LOG(LOG_SRC_BEARER, LOG_LEVEL_INFO, "Advertiser address: %.02x:%.02x:%.02x:%.02x:%.02x:%.02x\n",
         p_adv->internal.ble_adv_addr.addr[5], p_adv->internal.ble_adv_addr.addr[4], p_adv->internal.ble_adv_addr.addr[3],
         p_adv->internal.ble_adv_addr.addr[2], p_adv->internal.ble_adv_addr.addr[1], p_adv->internal.ble_adv_addr.addr[0]);
-
-    return NRF_SUCCESS;
 }
 
 uint32_t bearer_adv_opt_set(nrf_mesh_opt_id_t id, const nrf_mesh_opt_t * const p_opt)
@@ -489,8 +486,7 @@ uint32_t bearer_adv_opt_set(nrf_mesh_opt_id_t id, const nrf_mesh_opt_t * const p
             return NRF_SUCCESS;
 
         case NRF_MESH_OPT_RADIO_CHMAP:
-            if (p_opt->opt.chmap.adv_chmap != 0x00 &&
-                p_opt->opt.chmap.adv_chmap <= 0x07)
+            if (p_opt->opt.chmap.adv_chmap != 0x00)
             {
                 m_scan_config.scan_channel_map = p_opt->opt.chmap.adv_chmap;
                 return NRF_SUCCESS;
@@ -682,21 +678,32 @@ void bearer_adv_flush_tx(advertiser_t* p_adv)
     {
         packet_t* p_packet = p_adv->internal.tx_evt.p_packet;
         p_adv->internal.tx_evt.p_packet = NULL;
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         p_adv->internal.tx_evt.transmits = 0;
     }
     tx_packet_t tx_packet;
     while (fifo_pop(&p_adv->internal.tx_fifo, &tx_packet) == NRF_SUCCESS)
     {
-        packet_mgr_decref(tx_packet.p_packet);
+        packet_mgr_free(tx_packet.p_packet);
     }
     bearer_event_critical_section_end();
 }
 
-void bearer_adv_interval_reset(advertiser_t * p_adv)
+uint32_t bearer_adv_interval_reset(advertiser_t * p_adv)
 {
-    p_adv->internal.advertisement_in_progress = true;
-    timer_sch_reschedule(&p_adv->internal.adv_evt, timer_now() + p_adv->adv_int_min_ms * 1000);
+    if (p_adv == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+    else if (!p_adv->internal.advertisement_in_progress)
+    {
+        return NRF_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        timer_sch_reschedule(&p_adv->internal.adv_evt, timer_now() + p_adv->adv_int_min_ms * 1000);
+        return NRF_SUCCESS;
+    }
 }
 
 void bearer_adv_scan_start(void)
@@ -722,23 +729,18 @@ void bearer_adv_scan_stop(void)
     scan_end_timer_cb(0, NULL);
 }
 
-uint32_t bearer_adv_addr_get(ble_gap_addr_t* p_addr)
+void bearer_adv_addr_get(ble_gap_addr_t* p_addr)
 {
-#if !defined(HOST)
+#if !HOST
     p_addr->addr_type = !!(NRF_FICR->DEVICEADDRTYPE);
     memcpy(p_addr->addr, (uint8_t*) NRF_FICR->DEVICEADDR, BLE_GAP_ADDR_LEN);
-    return bearer_adv_gap_type_set(p_addr);
-#else
-    return NRF_SUCCESS;
+    bearer_adv_gap_type_set(p_addr);
 #endif
 }
 
-uint32_t bearer_adv_gap_type_set(ble_gap_addr_t* p_addr)
+void bearer_adv_gap_type_set(ble_gap_addr_t* p_addr)
 {
-    if (!p_addr)
-    {
-        return NRF_ERROR_NULL;
-    }
+    NRF_MESH_ASSERT(p_addr != NULL);
 
     switch (p_addr->addr_type)
     {
@@ -757,9 +759,8 @@ uint32_t bearer_adv_gap_type_set(ble_gap_addr_t* p_addr)
             p_addr->addr[5] = 0x40 | p_addr->addr[5];
             break;
         default:
-            return NRF_ERROR_INVALID_PARAM;
+            NRF_MESH_ASSERT(false);
     }
-    return NRF_SUCCESS;
 }
 
 uint32_t bearer_adv_addr_default_set(const ble_gap_addr_t* p_addr)

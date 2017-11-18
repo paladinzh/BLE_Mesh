@@ -7,6 +7,7 @@ set(SRCS
     "${MBTLE_SRCS_SERIAL}"
     "${MBTLE_SRCS_PROV}"
     "${MBTLE_SRCS_PB_ADV_ER}"
+    "${MBTLE_SRCS_PB_ADV_EE}"
     )
 
 include_directories(

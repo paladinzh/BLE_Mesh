@@ -88,7 +88,7 @@ void KeyExpansion()
     uint8_t temp[4],k;
 
     // The first round key is the key itself.
-    for(i=0;i<Nk;i++)
+    for (i=0;i<Nk;i++)
     {
         RoundKey[i*4]=Key[i*4];
         RoundKey[i*4+1]=Key[i*4+1];
@@ -99,7 +99,7 @@ void KeyExpansion()
     // All other round keys are found from the previous round keys.
     while (i < (Nb * (Nr+1)))
     {
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
             temp[j]=RoundKey[(i-1) * 4 + j];
         }
@@ -153,9 +153,9 @@ void KeyExpansion()
 void AddRoundKey(int32_t round)
 {
     int32_t i,j;
-    for(i=0;i<4;i++)
+    for (i=0;i<4;i++)
     {
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
             state[j][i] ^= RoundKey[round * Nb * 4 + i * Nb + j];
         }
@@ -167,9 +167,9 @@ void AddRoundKey(int32_t round)
 void SubBytes()
 {
     int32_t i,j;
-    for(i=0;i<4;i++)
+    for (i=0;i<4;i++)
     {
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
             state[i][j] = getSBoxValue(state[i][j]);
 
@@ -218,7 +218,7 @@ void MixColumns()
 {
     int32_t i;
     uint8_t Tmp,Tm,t;
-    for(i=0;i<4;i++)
+    for (i=0;i<4;i++)
     {
         t=state[0][i];
         Tmp = state[0][i] ^ state[1][i] ^ state[2][i] ^ state[3][i] ;
@@ -235,9 +235,9 @@ void Cipher()
     int32_t i,j,round=0;
 
     //Copy the input PlainText to state array.
-    for(i=0;i<4;i++)
+    for (i=0;i<4;i++)
     {
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
             state[j][i] = in[i*4 + j];
         }
@@ -249,7 +249,7 @@ void Cipher()
     // There will be Nr rounds.
     // The first Nr-1 rounds are identical.
     // These Nr-1 rounds are executed in the loop below.
-    for(round=1;round<Nr;round++)
+    for (round=1;round<Nr;round++)
     {
         SubBytes();
         ShiftRows();
@@ -265,9 +265,9 @@ void Cipher()
 
     // The encryption process is over.
     // Copy the state array to output array.
-    for(i=0;i<4;i++)
+    for (i=0;i<4;i++)
     {
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
             out[i*4+j]=state[j][i];
         }
@@ -283,7 +283,7 @@ void aes_encrypt(uint8_t const * const p_key, uint8_t const * const p_in, uint8_
   Nr = Nk + 6;
 
   // Copy the Key and PlainText
-  /* for(i=0;i<Nk*4;i++) */
+  /* for (i=0;i<Nk*4;i++) */
   /* { */
   /*     Key[i]=p_key[Nk*4 - i -1]; */
   /*     in[i]=p_in[Nk*4 - i -1]; */
@@ -299,7 +299,7 @@ void aes_encrypt(uint8_t const * const p_key, uint8_t const * const p_in, uint8_
 
   memcpy(p_out, out, 16);
   /* // Output the encrypted text. */
-  /* for(i=0;i<Nk*4;i++) */
+  /* for (i=0;i<Nk*4;i++) */
   /* { */
   /*     p_out[Nk*4 - i -1] = out[i]; */
   /* } */
@@ -311,7 +311,7 @@ void main()
     int32_t i;
 
     // Receive the length of key here.
-    while(Nr!=128 && Nr!=192 && Nr!=256)
+    while (Nr!=128 && Nr!=192 && Nr!=256)
     {
         printf("Enter the length of Key(128, 192 or 256 only): ");
         scanf("%d",&Nr);
@@ -332,7 +332,7 @@ void main()
     uint8_t temp2[16]= {0x00  ,0x11  ,0x22  ,0x33  ,0x44  ,0x55  ,0x66  ,0x77  ,0x88  ,0x99  ,0xaa  ,0xbb  ,0xcc  ,0xdd  ,0xee  ,0xff};
 
     // Copy the Key and PlainText
-    for(i=0;i<Nk*4;i++)
+    for (i=0;i<Nk*4;i++)
     {
         Key[i]=temp[i];
         in[i]=temp2[i];
@@ -351,13 +351,13 @@ void main()
 
     //Recieve the Key from the user
     printf("Enter the Key in hexadecimal: ");
-    for(i=0;i<Nk*4;i++)
+    for (i=0;i<Nk*4;i++)
     {
         scanf("%x",&Key[i]);
     }
 
     printf("Enter the PlainText in hexadecimal: ");
-    for(i=0;i<Nb*4;i++)
+    for (i=0;i<Nb*4;i++)
     {
         scanf("%x",&in[i]);
     }
@@ -373,7 +373,7 @@ void main()
 
     // Output the encrypted text.
     printf("\nText after encryption:\n");
-    for(i=0;i<Nk*4;i++)
+    for (i=0;i<Nk*4;i++)
     {
         printf("%02x ",out[i]);
     }

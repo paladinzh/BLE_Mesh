@@ -58,7 +58,7 @@ typedef struct __advertiser_t advertiser_t;
 
 #ifndef BEARER_TYPES
     /** Specify which bearers are available to the mesh by default. */
-    #define BEARER_TYPES            (BEARER_ADV_RADIO | BEARER_ADV_DFU_RADIO)
+    #define BEARER_TYPES            (BEARER_ADV_RADIO)
 #endif
 
 
@@ -66,7 +66,7 @@ typedef struct __advertiser_t advertiser_t;
 typedef uint32_t bearer_t;
 
 /** RX callback type for the various bearer implementations. */
-typedef void (*bearer_rx_cb_t)(packet_t* p_packet, bearer_t bearer, packet_meta_t * p_meta);
+typedef void (*bearer_rx_cb_t)(packet_t* p_packet, bearer_t bearer, const packet_meta_t * p_meta);
 
 /**
  * Initialize the bearer module.

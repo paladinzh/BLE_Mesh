@@ -39,24 +39,31 @@
 #include <cmock.h>
 
 #include "nrf_mesh_keygen.h"
-#include "enc_mock.h"
-
-
 
 /*****************************************************************************
-* Defines
+* Test vectors (from the Sample data section in the specification)
 *****************************************************************************/
 
+#define APPLICATION_KEY    { 0x63, 0x96, 0x47, 0x71, 0x73, 0x4f, 0xbd, 0x76,\
+                             0xe3, 0xb4, 0x05, 0x19, 0xd1, 0xd9, 0x4a, 0x48 }
+#define NETWORK_KEY        { 0x7d, 0xd7, 0x36, 0x4c, 0xd8, 0x42, 0xad, 0x18,\
+                             0xc1, 0x7c, 0x2b, 0x82, 0x0c, 0x84, 0xc3, 0xd6 }
+#define VIRTUAL_LABEL_UUID { 0x00, 0x73, 0xe7, 0xe4, 0xd8, 0xb9, 0x44, 0x0f,\
+                             0xaf, 0x84, 0x15, 0xdf, 0x4c, 0x56, 0xc0, 0xe1 }
 
-/*****************************************************************************
-* UT globals
-*****************************************************************************/
+#define EXPECTED_AID             0x26
+#define EXPECTED_NID             0x68
+#define EXPECTED_VIRTUAL_ADDRESS 0xb529
 
-
-/*****************************************************************************
-* Mocks
-*****************************************************************************/
-
+#define EXPECTED_ENCRYPTION_KEY { 0x09, 0x53, 0xfa, 0x93, 0xe7, 0xca, 0xac, 0x96,\
+                                  0x38, 0xf5, 0x88, 0x20, 0x22, 0x0a, 0x39, 0x8e }
+#define EXPECTED_PRIVACY_KEY    { 0x8b, 0x84, 0xee, 0xde, 0xc1, 0x00, 0x06, 0x7d,\
+                                  0x67, 0x09, 0x71, 0xdd, 0x2a, 0xa7, 0x00, 0xcf }
+#define EXPECTED_BEACON_KEY     { 0x54, 0x23, 0xd9, 0x67, 0xda, 0x63, 0x9a, 0x99,\
+                                  0xcb, 0x02, 0x23, 0x1a, 0x83, 0xf7, 0xd2, 0x54 }
+#define EXPECTED_NETWORK_ID     { 0x3e, 0xca, 0xff, 0x67, 0x2f, 0x67, 0x33, 0x70 }
+#define EXPECTED_IDENTITY_KEY   { 0x84, 0x39, 0x6c, 0x43, 0x5a, 0xc4, 0x85, 0x60,\
+                                  0xb5, 0x96, 0x53, 0x85, 0x25, 0x3e, 0x21, 0x0c }
 
 /*****************************************************************************
 * Setup functions
@@ -64,78 +71,83 @@
 
 void setUp(void)
 {
-    CMOCK_SETUP(enc);
 }
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
 }
 
 /*****************************************************************************
 * Tests
 *****************************************************************************/
-void test_keygen(void)
+
+void test_aid(void)
 {
-    uint8_t key[NRF_MESH_KEY_SIZE];
-    /* Testing nrf_mesh_keygen_aid */
+    const uint8_t key[NRF_MESH_KEY_SIZE] = APPLICATION_KEY;
     uint8_t aid;
+
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_aid(NULL, &aid));
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_aid(key, NULL));
-    /* AID generation: Section 3.8.6.2 in core spec d09r22*/
-    enc_k4_Expect(key, &aid);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_aid(key, &aid));
 
-    /* Testing nrf_mesh_keygen_network_secmat */
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_aid(key, &aid));
+    TEST_ASSERT_EQUAL_HEX8(EXPECTED_AID, aid);
+}
+
+void test_network_secmat(void)
+{
+    const uint8_t key[NRF_MESH_KEY_SIZE] = NETWORK_KEY;
     nrf_mesh_network_secmat_t secmat;
+
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_network_secmat(NULL, &secmat));
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_network_secmat(key, NULL));
-    /* NID, Encryption Key, and Privacy Key generation: Section 3.8.6.3.1 in core spec d09r22*/
-    enc_k2_Expect(key, NULL, 1, &secmat);
-    enc_k2_IgnoreArg_p_p();
+
     TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_network_secmat(key, &secmat));
 
-    /* Testing nrf_mesh_keygen_beacon_secmat */
-    nrf_mesh_beacon_secmat_t beacon_secmat;
-    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_beacon_secmat(NULL, &beacon_secmat));
+    const uint8_t expected_encryption_key[NRF_MESH_KEY_SIZE] = EXPECTED_ENCRYPTION_KEY;
+    const uint8_t expected_privacy_key[NRF_MESH_KEY_SIZE] = EXPECTED_PRIVACY_KEY;
+    TEST_ASSERT_EQUAL_HEX8(EXPECTED_NID, secmat.nid);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_encryption_key, secmat.encryption_key, NRF_MESH_KEY_SIZE);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_privacy_key, secmat.privacy_key, NRF_MESH_KEY_SIZE);
+}
+
+void test_beacon_secmat(void)
+{
+    const uint8_t key[NRF_MESH_KEY_SIZE] = NETWORK_KEY;
+    nrf_mesh_beacon_secmat_t secmat;
+
+    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_beacon_secmat(NULL, &secmat));
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_beacon_secmat(key, NULL));
-    /* Network ID generation: Section 3.8.6.3.2 in core spec d09r22*/
-    enc_k3_Expect(key, beacon_secmat.net_id);
-    /* Beacon Key generation: Section 3.8.6.3.4 in core spec d09r22*/
-    enc_s1_Expect(NULL, 4, NULL);
-    enc_s1_IgnoreArg_p_in();
-    enc_s1_IgnoreArg_p_out();
-    enc_k1_Expect(key, NRF_MESH_KEY_SIZE, NULL, NULL, 6, beacon_secmat.key);
-    enc_k1_IgnoreArg_p_salt();
-    enc_k1_IgnoreArg_p_info();
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_beacon_secmat(key, &beacon_secmat));
 
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_beacon_secmat(key, &secmat));
 
-    /* Testing nrf_mesh_keygen_identitykey */
+    const uint8_t expected_beacon_key[NRF_MESH_KEY_SIZE] = EXPECTED_BEACON_KEY;
+    const uint8_t expected_network_id[NRF_MESH_NETID_SIZE] = EXPECTED_NETWORK_ID;
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_beacon_key, secmat.key, NRF_MESH_KEY_SIZE);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_network_id, secmat.net_id, NRF_MESH_NETID_SIZE);
+}
+
+void test_identity_key(void)
+{
+    const uint8_t key[NRF_MESH_KEY_SIZE] = NETWORK_KEY;
     uint8_t identity_key[NRF_MESH_KEY_SIZE];
+    const uint8_t expected_identity_key[NRF_MESH_KEY_SIZE] = EXPECTED_IDENTITY_KEY;
+
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_identitykey(NULL, identity_key));
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_identitykey(key, NULL));
-    enc_s1_Expect(NULL, 4, NULL);
-    enc_s1_IgnoreArg_p_out();
-    enc_s1_IgnoreArg_p_in();
-    enc_k1_Expect(key, NRF_MESH_KEY_SIZE, NULL, NULL, 6, identity_key);
-    enc_k1_IgnoreArg_p_info();
-    enc_k1_IgnoreArg_p_salt();
+
     TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_identitykey(key, identity_key));
-
-    /* Testing nrf_mesh_keygen_virtual_address*/
-    uint16_t address;
-    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_virtual_address(NULL, &address));
-    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_virtual_address(key, NULL));
-    enc_s1_Expect(NULL, 4, NULL);
-    enc_s1_IgnoreArg_p_out();
-    enc_s1_IgnoreArg_p_in();
-    enc_aes_cmac_Expect(NULL, key, NRF_MESH_KEY_SIZE, NULL);
-    enc_aes_cmac_IgnoreArg_p_key();
-    enc_aes_cmac_IgnoreArg_p_result();
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_virtual_address(key, &address));
-    /* See Figure 3-4: Virtual Address Format in mesh core spec d09r22 */
-    TEST_ASSERT_TRUE((address & (3 << 14)) == (1<<15));
-
-
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_identity_key, identity_key, NRF_MESH_KEY_SIZE);
 }
+
+void test_virtual_address(void)
+{
+    uint8_t uuid[NRF_MESH_KEY_SIZE] = VIRTUAL_LABEL_UUID;
+    uint16_t address;
+
+    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_virtual_address(NULL, &address));
+    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, nrf_mesh_keygen_virtual_address(uuid, NULL));
+
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_keygen_virtual_address(uuid, &address));
+    TEST_ASSERT_EQUAL_HEX16(EXPECTED_VIRTUAL_ADDRESS, address);
+}
+

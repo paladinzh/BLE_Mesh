@@ -66,9 +66,9 @@ typedef enum
      * Sent from the Server to the Client to indicate the state of the _local_
      * packet transfer. Is acknowledged with a @ref PB_REMOTE_OP_PACKET_TRANSFER_STATUS.
      */
-    PB_REMOTE_OP_PACKET_TRANSFER_REPORT           = 0x01,
+    PB_REMOTE_OP_PACKET_TRANSFER_REPORT           = 0x11,
     /** Provisioning PDU from the Remote Client/Server. */
-    PB_REMOTE_OP_PACKET_TRANSFER                  = 0x02,
+    PB_REMOTE_OP_PACKET_TRANSFER                  = 0x12,
     /**
      * Status message sent as reply to a @ref PB_REMOTE_OP_PACKET_TRANSFER or @ref
      * PB_REMOTE_OP_PACKET_TRANSFER_REPORT.
@@ -299,6 +299,8 @@ typedef enum
     PB_REMOTE_PACKET_TRANSFER_STATUS_REJECTED = 0x04
 } pb_remote_packet_transfer_status_t;
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * Remote Provisioning Scan Start with Filter Message.
  */
@@ -437,7 +439,6 @@ typedef struct __attribute((packed))
     uint8_t status;
 } pb_remote_msg_packet_transfer_report_t;
 
-
 /**
  * Remote Provisioning Packet Transport Status Message.
  */
@@ -447,6 +448,7 @@ typedef struct __attribute((packed))
     uint8_t status;
 } pb_remote_msg_packet_transfer_status_t;
 
+/*lint -align_max(pop) */
 /** @} */
 
 #endif  /* PB_REMOTE_MSGS_H__ */

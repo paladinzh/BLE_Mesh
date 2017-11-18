@@ -30,7 +30,6 @@ NOTE:   String length must be evenly divisible by 16byte (str_len % 16 == 0)
 
 */
 
-
 /*****************************************************************************/
 /* Includes:                                                                 */
 /*****************************************************************************/
@@ -57,6 +56,7 @@ NOTE:   String length must be evenly divisible by 16byte (str_len % 16 == 0)
   #define MULTIPLY_AS_A_FUNCTION 0
 #endif
 
+/*lint -e650 -e572 Ignore errors about shifts and out-of-range constants caused by macro usage */
 
 /*****************************************************************************/
 /* Private variables:                                                        */
@@ -159,7 +159,7 @@ static void KeyExpansion(void)
   uint8_t tempa[4]; // Used for the column/row operations
 
   // The first round key is the key itself.
-  for(i = 0; i < Nk; ++i)
+  for (i = 0; i < Nk; ++i)
   {
     RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];
     RoundKey[(i * 4) + 1] = Key[(i * 4) + 1];
@@ -168,9 +168,9 @@ static void KeyExpansion(void)
   }
 
   // All other round keys are found from the previous round keys.
-  for(; (i < (Nb * (Nr + 1))); ++i)
+  for (; (i < (Nb * (Nr + 1))); ++i)
   {
-    for(j = 0; j < 4; ++j)
+    for (j = 0; j < 4; ++j)
     {
       tempa[j]=RoundKey[(i-1) * 4 + j];
     }
@@ -223,9 +223,9 @@ static void KeyExpansion(void)
 static void AddRoundKey(uint8_t round)
 {
   uint8_t i,j;
-  for(i=0;i<4;++i)
+  for (i=0;i<4;++i)
   {
-    for(j = 0; j < 4; ++j)
+    for (j = 0; j < 4; ++j)
     {
       (*state)[i][j] ^= RoundKey[round * Nb * 4 + i * Nb + j];
     }
@@ -237,9 +237,9 @@ static void AddRoundKey(uint8_t round)
 static void SubBytes(void)
 {
   uint8_t i, j;
-  for(i = 0; i < 4; ++i)
+  for (i = 0; i < 4; ++i)
   {
-    for(j = 0; j < 4; ++j)
+    for (j = 0; j < 4; ++j)
     {
       (*state)[j][i] = getSBoxValue((*state)[j][i]);
     }
@@ -287,7 +287,7 @@ static void MixColumns(void)
 {
   uint8_t i;
   uint8_t Tmp,Tm,t;
-  for(i = 0; i < 4; ++i)
+  for (i = 0; i < 4; ++i)
   {
     t   = (*state)[i][0];
     Tmp = (*state)[i][0] ^ (*state)[i][1] ^ (*state)[i][2] ^ (*state)[i][3] ;
@@ -325,7 +325,7 @@ static void InvMixColumns(void)
 {
   int i;
   uint8_t a,b,c,d;
-  for(i=0;i<4;++i)
+  for (i=0;i<4;++i)
   {
     a = (*state)[i][0];
     b = (*state)[i][1];
@@ -345,9 +345,9 @@ static void InvMixColumns(void)
 static void InvSubBytes(void)
 {
   uint8_t i,j;
-  for(i=0;i<4;++i)
+  for (i=0;i<4;++i)
   {
-    for(j=0;j<4;++j)
+    for (j=0;j<4;++j)
     {
       (*state)[j][i] = getSBoxInvert((*state)[j][i]);
     }
@@ -394,7 +394,7 @@ static void Cipher(void)
   // There will be Nr rounds.
   // The first Nr-1 rounds are identical.
   // These Nr-1 rounds are executed in the loop below.
-  for(round = 1; round < Nr; ++round)
+  for (round = 1; round < Nr; ++round)
   {
     SubBytes();
     ShiftRows();
@@ -419,7 +419,7 @@ static void InvCipher(void)
   // There will be Nr rounds.
   // The first Nr-1 rounds are identical.
   // These Nr-1 rounds are executed in the loop below.
-  for(round=Nr-1;round>0;round--)
+  for (round=Nr-1;round>0;round--)
   {
     InvShiftRows();
     InvSubBytes();
@@ -489,7 +489,7 @@ void AES128_ECB_decrypt(const uint8_t * const input, const uint8_t * const key, 
 static void XorWithIv(uint8_t* buf)
 {
   uint8_t i;
-  for(i = 0; i < KEYLEN; ++i)
+  for (i = 0; i < KEYLEN; ++i)
   {
     buf[i] ^= Iv[i];
   }
@@ -504,18 +504,18 @@ void AES128_CBC_encrypt_buffer(uint8_t* output, uint8_t* input, uint32_t length,
   state = (state_t*)output;
 
   // Skip the key expansion if key is passed as 0
-  if(0 != key)
+  if (0 != key)
   {
     Key = key;
     KeyExpansion();
   }
 
-  if(iv != 0)
+  if (iv != 0)
   {
     Iv = (uint8_t*)iv;
   }
 
-  for(i = 0; i < length; i += KEYLEN)
+  for (i = 0; i < length; i += KEYLEN)
   {
     XorWithIv(input);
     BlockCopy(output, input);
@@ -526,7 +526,7 @@ void AES128_CBC_encrypt_buffer(uint8_t* output, uint8_t* input, uint32_t length,
     output += KEYLEN;
   }
 
-  if(remainders)
+  if (remainders)
   {
     BlockCopy(output, input);
     memset(output + remainders, 0, KEYLEN - remainders); /* add 0-padding */
@@ -544,19 +544,19 @@ void AES128_CBC_decrypt_buffer(uint8_t* output, uint8_t* input, uint32_t length,
   state = (state_t*)output;
 
   // Skip the key expansion if key is passed as 0
-  if(0 != key)
+  if (0 != key)
   {
     Key = key;
     KeyExpansion();
   }
 
   // If iv is passed as 0, we continue to encrypt without re-setting the Iv
-  if(iv != 0)
+  if (iv != 0)
   {
     Iv = (uint8_t*)iv;
   }
 
-  for(i = 0; i < length; i += KEYLEN)
+  for (i = 0; i < length; i += KEYLEN)
   {
     BlockCopy(output, input);
     state = (state_t*)output;
@@ -567,7 +567,7 @@ void AES128_CBC_decrypt_buffer(uint8_t* output, uint8_t* input, uint32_t length,
     output += KEYLEN;
   }
 
-  if(remainders)
+  if (remainders)
   {
     BlockCopy(output, input);
     memset(output+remainders, 0, KEYLEN - remainders); /* add 0-padding */

@@ -1,10 +1,10 @@
-# Serial Status Codes
+# Serial status codes
 
-Most serial commands send the an nRF5x device will yield a [command response](@ref cmd-rsp)
+Most serial commands sent to an nRF5 device will yield a [command response](@ref cmd-rsp)
 from the device.  This command response always contains a status field,
-indicating whether the command succeeded, or what the reason for failing was.
+indicating whether the command succeeded or what the reason for failing was.
 
-The status codes yielded by the Mesh serial interface are as follows:
+The status codes yielded by the mesh serial interface are as follows:
 
 | Code   | Name                      | Description
 |--------|---------------------------|-------------
@@ -18,6 +18,6 @@ The status codes yielded by the Mesh serial interface are as follows:
 | `0x86` | `ERROR_BUSY`              | The mesh device was busy processing a previous command, or a required resources was temporarily unavailable.
 | `0x87` | `ERROR_INVALID_DATA`      | Invalid data was sent as part of the command parameters.
 | `0x8e` | `ERROR_REJECTED`          | The command was rejected, either because of insufficient resources or because the requested resource was temporarily unavailable.
-| `0x93` | `ERROR_TIMEOUT`           | The command processing was aborted because of a timeout.
-| `0x98` | `ERROR_INVALID_KEY_DATA`  | The key data sent as part of the command parameters were invalid.
+| `0x93` | `ERROR_TIMEOUT`           | The command processing was aborted because of a time-out.
+| `0x98` | `ERROR_INVALID_KEY_DATA`  | The key data sent as part of the command parameters was invalid.
 

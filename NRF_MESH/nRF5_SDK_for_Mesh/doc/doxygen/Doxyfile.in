@@ -228,7 +228,45 @@ TAB_SIZE               = 4
 # "Side Effects:". You can put \n's in the value part of an alias to insert
 # newlines.
 
-ALIASES                =
+# rufu: External links must be added with target="_blank" to make them open
+# in a new window.
+ALIASES                = \
+link_nRF5SDK="<a href=\"https://www.nordicsemi.com/eng/Products/Bluetooth-low-energy/nRF5-SDK\" target=\"_blank\">nRF5 SDK</a>" \
+link_openmesh="<a href=\"https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh\" target=\"_blank\">nRF OpenMesh</a>" \
+link_openmeshrepo="<a href=\"https://github.com/NordicSemiconductor/nRF51-ble-bcast-mesh/tree/master/nRF51/bootloader\" target=\"_blank\">nRF OpenMesh repository</a>" \
+link_nRF8001="<a href=\"http://www.nordicsemi.com/eng/Products/Bluetooth-low-energy/nRF8001\" target=\"_blank\">nRF8001</a>" \
+link_SLIP="<a href=\"https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol\" target=\"_blank\">SLIP</a>" \
+link_BluetoothSIG="<a href=\"http://www.bluetooth.org/\" target=\"_blank\">Bluetooth SIG</a>" \
+link_nrfutil_github="<a href=\"https://github.com/NordicSemiconductor/pc-nrfutil/tree/mesh_dfu\" target=\"_blank\">https://github.com/NordicSemiconductor/pc-nrfutil/tree/mesh_dfu</a>" \
+link_companyID="<a href=\"https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers\" target=\"_blank\">Bluetooth SIG assigned Company ID</a>" \
+link_nordicsemi="<a href=\"http://www.nordicsemi.com/\" target=\"_blank\">nordicsemi.com</a>" \
+link_pyserial="<a href=\"https://pypi.python.org/pypi/pyserial\" target=\"_blank\">pyserial package</a>" \
+link_cmake="<a href=\"https://cmake.org/\" target=\"_blank\">CMake</a>" \
+link_seggerstudio="<a href=\"https://www.segger.com/products/development-tools/embedded-studio/?L=0\" target=\"_blank\">SEGGER Embedded Studio</a>" \
+link_armnone="<a href=\"https://developer.arm.com/open-source/gnu-toolchain/gnu-rm\" target=\"_blank\">arm-none-eabi-gcc</a>" \
+link_armcc="<a href=\"https://developer.arm.com/products/software-development-tools/compilers/arm-compiler/downloads/version-5\" target=\"_blank\">armcc v5</a>" \
+link_keil="<a href=\"http://www2.keil.com/mdk5/compiler/5/\" target=\"_blank\">Keil</a>" \
+link_keiluvision="<a href=\"http://www2.keil.com/mdk5/uvision/\" target=\"_blank\">Keil uVision IDE</a>" \
+link_ninja="<a href=\"https://ninja-build.org/\" target=\"_blank\">Ninja</a>" \
+link_make="<a href=\"http://pubs.opengroup.org/onlinepubs/9699919799/utilities/make.html\" target=\"_blank\">make</a>" \
+link_GCC="<a href=\"https://gcc.gnu.org/\" target=\"_blank\">GCC</a>" \
+link_unity="<a href=\"https://github.com/ThrowTheSwitch/Unity\" target=\"_blank\">Unity</a>" \
+link_cmock="<a href=\"https://github.com/ThrowTheSwitch/CMock\" target=\"_blank\">CMock</a>" \
+link_ruby="<a href=\"https://www.ruby-lang.org/\" target=\"_blank\">Ruby</a>" \
+link_about_cmake="<a href=\"https://cmake.org/overview/\" target=\"_blank\">About CMake</a>" \
+link_cmake_download="<a href=\"https://cmake.org/download/\" target=\"_blank\">CMake download site</a>" \
+link_ninja_download="<a href=\"https://github.com/ninja-build/ninja/releases\" target=\"_blank\">Ninja download site</a>" \
+link_mingw="<a href=\"https://sourceforge.net/projects/mingw/files/\" target=\"_blank\">MinGW</a>" \
+link_btsig_intro="<a href=\"https://blog.bluetooth.com/introducing-bluetooth-mesh-networking\" target=\"_blank\">Bluetooth SIG's introduction to Bluetooth Mesh</a>" \
+link_btsig_spec="<a href=\"https://www.bluetooth.com/specifications/mesh-specifications?_ga=2.18257471.723078495.1501226603-93769939.1480503530\" target=\"_blank\">Bluetooth Mesh Networking Specifications</a>" \
+
+# rufu: Links to the Infocenter must use a prefix because they differ for 
+# offline and online documentation.
+ALIASES               += \
+link_ic_SDtimeslotAPI="[SoftDevice Timeslot API](@INFOCENTER@/com.nordic.infocenter.s132.sds/dita/softdevices/s130/concurrent_multiprotocol_tsl_api/concurrent_multiprotocol_tsl_api.html)" \
+link_ic_nrfutil="[nrfutil](@INFOCENTER@/com.nordic.infocenter.tools/dita/tools/nrfutil/nrfutil_intro.html)" \
+link_ic_nRF51PS="[nRF51](@INFOCENTER@/com.nordic.infocenter.nrf51/dita/nrf51/pdflinks/51822_ps.html)" \
+link_ic_nRF52832PS="[nRF52832](@INFOCENTER@/com.nordic.infocenter.nrf52/dita/nrf52/chips/nrf52832_ps.html)"
 
 # This tag can be used to specify a number of word-keyword mappings (TCL only).
 # A mapping has the form "name=value". For example adding "class=itcl::class"
@@ -746,7 +784,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # messages should be written. If left blank the output is written to standard
 # error (stderr).
 
-WARN_LOGFILE           =
+WARN_LOGFILE           = 
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
@@ -757,6 +795,11 @@ WARN_LOGFILE           =
 # directories like /usr/src/myproject. Separate the files or directories with
 # spaces.
 # Note: If this tag is empty the current directory is searched.
+
+#########
+# WARNING: The ordering of the markdown files are important and affects the
+#          order of the output
+#########
 
 INPUT                  = @PROJECT_SOURCE_DIR@/mesh/src \
                          @PROJECT_SOURCE_DIR@/mesh/include/core \
@@ -772,6 +815,7 @@ INPUT                  = @PROJECT_SOURCE_DIR@/mesh/src \
                          @PROJECT_SOURCE_DIR@/RELEASE_NOTES.md \
                          @PROJECT_SOURCE_DIR@/COPYING.md \
                          @PROJECT_SOURCE_DIR@/README.md \
+                         @PROJECT_SOURCE_DIR@/doc/getting_started/getting_started.md \
                          @PROJECT_SOURCE_DIR@/mesh/doc \
                          @PROJECT_SOURCE_DIR@/doc \
                          @PROJECT_SOURCE_DIR@/doc/doxygen \
@@ -1088,7 +1132,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/header.html
+HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/header@ONLINE_DOC@.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1098,7 +1142,7 @@ HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/footer.html
+HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/footer@ONLINE_DOC@.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1110,7 +1154,7 @@ HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/footer.html
 # obsolete.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_STYLESHEET        = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/style.css
+HTML_STYLESHEET        = 
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
 # cascading style sheets that are included after the standard style sheets
@@ -1123,7 +1167,7 @@ HTML_STYLESHEET        = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/style.css
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  =
+HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/style@ONLINE_DOC@.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1133,7 +1177,7 @@ HTML_EXTRA_STYLESHEET  =
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =
+HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/doxygen/favicon.ico
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
@@ -1144,7 +1188,7 @@ HTML_EXTRA_FILES       =
 # Minimum value: 0, maximum value: 359, default value: 220.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_HUE    = 196
 
 # The HTML_COLORSTYLE_SAT tag controls the purity (or saturation) of the colors
 # in the HTML output. For a value of 0 the output will use grayscales only. A
@@ -1152,7 +1196,7 @@ HTML_COLORSTYLE_HUE    = 220
 # Minimum value: 0, maximum value: 255, default value: 100.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_COLORSTYLE_SAT    = 100
+HTML_COLORSTYLE_SAT    = 46
 
 # The HTML_COLORSTYLE_GAMMA tag controls the gamma correction applied to the
 # luminance component of the colors in the HTML output. Values below 100
@@ -1163,7 +1207,7 @@ HTML_COLORSTYLE_SAT    = 100
 # Minimum value: 40, maximum value: 240, default value: 80.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_COLORSTYLE_GAMMA  = 80
+HTML_COLORSTYLE_GAMMA  = 92
 
 # If the HTML_TIMESTAMP tag is set to YES then the footer of each generated HTML
 # page will contain the date and time when the page was generated. Setting this
@@ -1372,7 +1416,7 @@ QHG_LOCATION           =
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-GENERATE_ECLIPSEHELP   = NO
+GENERATE_ECLIPSEHELP   = @ONLY_ONLINE@
 
 # A unique identifier for the Eclipse help plugin. When installing the plugin
 # the directory name containing the HTML and XML files should also have this
@@ -1380,7 +1424,7 @@ GENERATE_ECLIPSEHELP   = NO
 # The default value is: org.doxygen.Project.
 # This tag requires that the tag GENERATE_ECLIPSEHELP is set to YES.
 
-ECLIPSE_DOC_ID         = org.doxygen.Project
+ECLIPSE_DOC_ID         = com.nordic.infocenter.meshsdk.v@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_BUGFIX@
 
 # If you want full control over the layout of the generated HTML pages it might
 # be necessary to disable the index and replace it with your own. The
@@ -1408,7 +1452,7 @@ DISABLE_INDEX          = YES
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-GENERATE_TREEVIEW      = YES
+GENERATE_TREEVIEW      = @ONLY_OFFLINE@
 
 # The ENUM_VALUES_PER_LINE tag can be used to set the number of enum values that
 # doxygen will group on one line in the generated HTML documentation.
@@ -1522,7 +1566,7 @@ MATHJAX_CODEFILE       =
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-SEARCHENGINE           = YES
+SEARCHENGINE           = @ONLY_OFFLINE@
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
 # implemented using a web server instead of a web client using Javascript. There
@@ -2111,7 +2155,7 @@ CLASS_DIAGRAMS         = NO
 # the mscgen tool resides. If left empty the tool is assumed to be found in the
 # default search path.
 
-MSCGEN_PATH            =
+MSCGEN_PATH            = 
 
 # You can include diagrams made with dia in doxygen documentation. Doxygen will
 # then run dia to produce the diagram and insert it in the documentation. The
@@ -2289,7 +2333,7 @@ DIRECTORY_GRAPH        = YES
 # The default value is: png.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_IMAGE_FORMAT       = png
+DOT_IMAGE_FORMAT       = svg
 
 # If DOT_IMAGE_FORMAT is set to svg, then this option can be set to YES to
 # enable generation of interactive SVG images that allow zooming and panning.

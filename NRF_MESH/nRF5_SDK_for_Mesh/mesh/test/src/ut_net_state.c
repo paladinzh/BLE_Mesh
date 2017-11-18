@@ -46,8 +46,8 @@
 /*****************************************************************************
 * Defines
 *****************************************************************************/
-#define SEQ_NUM_MAX 0xFFFFFF /* Fron section 3.8.2 of mesh core spec d09r21 */
-#define EXPECTED_NET_STATE_TIMER_RES 60000000 /* Fron net_state.c */
+#define SEQ_NUM_MAX 0xFFFFFF
+#define EXPECTED_NET_STATE_TIMER_RES 60000000 /* From net_state.c */
 #define BUFFER_SEAL 0xCABACABA
 #define MEMORY_LISTENERS_MAX 2
 #define HANDLE_SEQNUM  0x0001
@@ -158,8 +158,8 @@ void setUp(void)
 {
     m_critical_section_counter = 0;
     mp_iv_update_timer = NULL;
-    CMOCK_SETUP(event);
-    CMOCK_SETUP(flash_manager);
+    event_mock_Init();
+    flash_manager_mock_Init();
 
     flash_manager_recovery_page_get_ExpectAndReturn(&m_flash_pages[1]);
     flash_manager_add_StubWithCallback(flash_manager_add_callback);
@@ -171,7 +171,10 @@ void tearDown(void)
 {
     event_mock_Verify();
     TEST_ASSERT_EQUAL(0, m_critical_section_counter);
-    CMOCK_TEARDOWN();
+    event_mock_Verify();
+    event_mock_Destroy();
+    flash_manager_mock_Verify();
+    flash_manager_mock_Destroy();
 }
 
 static void m_skip_minutes(uint32_t minutes)
@@ -347,7 +350,7 @@ void test_iv_seqnum_initiated(void)
     uint32_t seq_expect = 0;
     for (; seq_expect < NETWORK_SEQNUM_FLASH_BLOCK_SIZE * 2; ++seq_expect)
     {
-        for (; seq_expect < allocated_seqnums - NETWORK_SEQNUM_FLASH_BLOCK_THRESHOLD; ++seq_expect)
+        for (; seq_expect < allocated_seqnums - NETWORK_SEQNUM_FLASH_BLOCK_THRESHOLD; ++seq_expect) /*lint !e445 Weird, but intentional */
         {
             TEST_ASSERT_EQUAL(NRF_SUCCESS, net_state_seqnum_alloc(&seqnum));
             TEST_ASSERT_EQUAL(seq_expect, seqnum);
@@ -433,7 +436,6 @@ void test_iv_lock(void)
     expect_flash_load(0, 0, false);
     net_state_recover_from_flash();
     notify_flash_write_complete(mp_expected_seqnum_flash_buffer);
-    uint32_t seqnum_allocated = NETWORK_SEQNUM_FLASH_BLOCK_SIZE;
 
     net_state_iv_index_lock(true);
     m_skip_minutes(96*60 + 3);
@@ -448,7 +450,6 @@ void test_iv_lock(void)
 
         if (m_did_dummy_seqnum_block_alloc)
         {
-            seqnum_allocated += NETWORK_SEQNUM_FLASH_BLOCK_SIZE;
             notify_flash_write_complete((fm_entry_t *) m_flash_buffer);
         }
     }

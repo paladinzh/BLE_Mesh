@@ -72,16 +72,13 @@
  * Initializes the packet manager.
  *
  * @param[in] p_init_params Pointer to the mesh initialization structure.
- *
- * @retval NRF_SUCCESS The packet manager was successfully initialized.
  */
-uint32_t packet_mgr_init(const nrf_mesh_init_params_t * p_init_params);
+void packet_mgr_init(const nrf_mesh_init_params_t * p_init_params);
 
 /**
  * Allocates a new packet buffer.
  *
- * The reference count for the returned buffer is set to 1. The size of the allocated
- * buffer is always equal to or greater than the specified size.
+ * The size of the allocated buffer is always equal to or greater than the specified size.
  *
  * @param[out] pp_buffer Pointer to a variable where a pointer to the allocated memory
  *                       is stored.
@@ -93,28 +90,11 @@ uint32_t packet_mgr_init(const nrf_mesh_init_params_t * p_init_params);
 uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size);
 
 /**
- * Decreases the reference count of a packet buffer.
- *
- * When the reference count reaches 0, the packet is released and the allocated
- * memory is returned to the packet memory pool.
+ * Frees a previously allocated packet buffer.
  *
  * @param[in] p_buffer Pointer to the start of the buffer.
  */
-void packet_mgr_decref(packet_generic_t * p_buffer);
-
-/**
- * Retrieves the start of a buffer.
- *
- * The specified pointer may point to anywhere within a buffer.
- *
- * @param[in]     p_buffer Pointer to within an allocated buffer.
- * @param[in,out] pp_start Pointer to a variable where a pointer to the start of
- *                         the buffer is stored.
- *
- * @retval NRF_SUCCESS      The start of the buffer was successfully located and returned.
- * @retval NRF_INVALID_ADDR The pointer did not point to memory owned by the packet manager.
- */
-uint32_t packet_mgr_bufstart_get(packet_generic_t * p_buffer, packet_generic_t ** pp_start);
+void packet_mgr_free(packet_generic_t * p_buffer);
 
 /**
  * Gets the amount of free space left in the memory pool.

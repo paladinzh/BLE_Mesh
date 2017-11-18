@@ -68,6 +68,8 @@
 * Local typedefs
 *****************************************************************************/
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * Secure network broadcast beacon flags.
  */
@@ -96,6 +98,8 @@ typedef struct __attribute((packed))
     net_beacon_payload_t payload;                    /**< Payload of the secure network beacon. */
     uint8_t              cmac[NET_BEACON_CMAC_SIZE]; /**< CMAC authentication value. */
 } net_beacon_t;
+
+/*lint -align_max(pop) */
 
 /*****************************************************************************
 * Static globals
@@ -240,11 +244,11 @@ void net_beacon_init(void)
 void net_beacon_state_set(bool enabled)
 {
     /* Enable the beacon from disabled state: */
-    if(!m_enabled && enabled)
+    if (!m_enabled && enabled)
     {
         timer_sch_reschedule((timer_event_t *) &m_tx_event, timer_now() + m_tx_event.interval);
     }
-    else if(m_enabled && !enabled)
+    else if (m_enabled && !enabled)
     {
         timer_sch_abort((timer_event_t *) & m_tx_event);
     }

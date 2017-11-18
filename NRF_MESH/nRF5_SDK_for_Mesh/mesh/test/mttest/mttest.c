@@ -71,23 +71,23 @@ static void * test_thread(void * thread_num)
 
     /* Synchronize the start of the tests: */
     pthread_mutex_lock(&m_test_ready_mutex);
-    while(!m_test_ready)
+    while (!m_test_ready)
     {
         pthread_cond_wait(&m_test_ready_cond, &m_test_ready_mutex);
     }
     pthread_mutex_unlock(&m_test_ready_mutex);
 
     bool passed = true;
-    for(uint32_t invocations = 0; invocations < mp_current_test->num_invocations; ++invocations)
+    for (uint32_t invocations = 0; invocations < mp_current_test->num_invocations; ++invocations)
     {
-        if(!mp_current_test->test_func(thread_id, invocations, mp_current_test->p_context))
+        if (!mp_current_test->test_func(thread_id, invocations, mp_current_test->p_context))
         {
             passed = false;
             m_kill_test = true;
             break;
         }
 
-        if(m_kill_test)
+        if (m_kill_test)
         {
             passed = false;
             break;
@@ -99,7 +99,7 @@ static void * test_thread(void * thread_num)
 
 static void free_current_test(void)
 {
-    if(mp_current_test == NULL)
+    if (mp_current_test == NULL)
     {
         return;
     }
@@ -120,7 +120,7 @@ void mttest_init(void)
 
 bool mttest_run(uint32_t num_threads, uint32_t num_invocations, mttest_test_func_t test_func, void * p_context)
 {
-    if(mp_current_test != NULL)
+    if (mp_current_test != NULL)
     {
         return NRF_ERROR_BUSY;
     }
@@ -138,16 +138,16 @@ bool mttest_run(uint32_t num_threads, uint32_t num_invocations, mttest_test_func
     m_kill_test = false;
 
     /* Seed the random number generators: */
-    for(uint32_t i = 0; i < num_threads; ++i)
+    for (uint32_t i = 0; i < num_threads; ++i)
     {
         mp_current_test->p_rand_states[i] = rand();
     }
 
     /* Start the threads: */
-    for(uint32_t i = 0; i < num_threads; ++i)
+    for (uint32_t i = 0; i < num_threads; ++i)
     {
         int status = pthread_create(&mp_current_test->p_threads[i], NULL, test_thread, (void *) i);
-        if(status != 0)
+        if (status != 0)
         {
             return NRF_ERROR_INTERNAL;
         }
@@ -161,11 +161,11 @@ bool mttest_run(uint32_t num_threads, uint32_t num_invocations, mttest_test_func
 
     /* Finish the test and get the results: */
     bool passed = true;
-    for(uint32_t i = 0; i < mp_current_test->num_threads; ++i)
+    for (uint32_t i = 0; i < mp_current_test->num_threads; ++i)
     {
         void * result = 0;
         pthread_join(mp_current_test->p_threads[i], &result);
-        if(result != 0)
+        if (result != 0)
         {
             passed = false;
         }
@@ -173,7 +173,7 @@ bool mttest_run(uint32_t num_threads, uint32_t num_invocations, mttest_test_func
 
     free_current_test();
 
-    if(m_kill_test)
+    if (m_kill_test)
     {
         passed = false;
     }

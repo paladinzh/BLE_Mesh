@@ -94,6 +94,7 @@ static nrf_radio_request_t m_radio_request_earliest =
                         .length_us = TIMESLOT_SLOT_LENGTH_US,
                         .timeout_us = TIMESLOT_TIMEOUT_DEFAULT_US
                     }
+                    /*lint -restore */
                 };
 
 static nrf_radio_signal_callback_return_param_t m_ret_param; /** Return parameter for SD radio signal handler. */
@@ -126,7 +127,7 @@ static void ts_order_earliest(timestamp_t length_us)
     }
     else
     {
-        sd_radio_request(&m_radio_request_earliest);
+        (void) sd_radio_request(&m_radio_request_earliest);
     }
     m_timeslot_length = length_us;
 }
@@ -150,13 +151,13 @@ void start_time_update(void)
     uint64_t rtc_time = NRF_RTC0->COUNTER;
 
     /* First run, no delta. */
-    if(m_timeslot_count == 0)
+    if (m_timeslot_count == 0)
     {
         s_last_rtc_value = rtc_time;
     }
 
     uint64_t delta_rtc_time;
-    if(s_last_rtc_value > rtc_time)
+    if (s_last_rtc_value > rtc_time)
     {
         delta_rtc_time = RTC_MAX_TIME_TICKS - s_last_rtc_value + rtc_time;
     }
@@ -248,7 +249,6 @@ static void end_timer_handler(timestamp_t timestamp)
 static nrf_radio_signal_callback_return_param_t* radio_signal_callback(uint8_t sig)
 {
     static uint32_t requested_extend_time = 0;
-    static uint32_t successful_extensions = 0;
     m_is_in_callback = true;
 
     switch (m_timeslot_forced_command)
@@ -276,7 +276,6 @@ static nrf_radio_signal_callback_return_param_t* radio_signal_callback(uint8_t s
         {
             m_is_in_timeslot = true;
             m_end_timer_triggered = false;
-            successful_extensions = 0;
 
             start_time_update();
 
@@ -286,7 +285,7 @@ static nrf_radio_signal_callback_return_param_t* radio_signal_callback(uint8_t s
 
             m_negotiate_timeslot_length = TIMESLOT_SLOT_EXTEND_LENGTH_US;
 
-            timer_order_cb(TIMER_INDEX_TS_END, timeslot_start_time_get() + m_timeslot_length - end_timer_margin(),
+            (void) timer_order_cb(TIMER_INDEX_TS_END, timeslot_start_time_get() + m_timeslot_length - end_timer_margin(),
                     end_timer_handler, (timer_attr_t) (TIMER_ATTR_SYNCHRONOUS | TIMER_ATTR_TIMESLOT_LOCAL));
 
             /* attempt to extend our time right away */
@@ -313,11 +312,9 @@ static nrf_radio_signal_callback_return_param_t* radio_signal_callback(uint8_t s
         case NRF_RADIO_CALLBACK_SIGNAL_TYPE_EXTEND_SUCCEEDED:
             m_timeslot_length += requested_extend_time;
             requested_extend_time = 0;
-            ++successful_extensions;
 
-            timer_abort(TIMER_INDEX_TS_END);
-
-            timer_order_cb(TIMER_INDEX_TS_END, timeslot_start_time_get() + m_timeslot_length - end_timer_margin(),
+            (void) timer_abort(TIMER_INDEX_TS_END);
+            (void) timer_order_cb(TIMER_INDEX_TS_END, timeslot_start_time_get() + m_timeslot_length - end_timer_margin(),
                     end_timer_handler, (timer_attr_t) (TIMER_ATTR_SYNCHRONOUS | TIMER_ATTR_TIMESLOT_LOCAL));
 
             m_ret_param.callback_action = NRF_RADIO_SIGNAL_CALLBACK_ACTION_NONE;
@@ -515,7 +512,9 @@ timestamp_t timeslot_remaining_time_get(void)
     {
         return 0;
     }
-    return TIMER_DIFF((m_timeslot_length + m_start_time), timer_now());
+
+    timestamp_t now = timer_now();
+    return TIMER_DIFF((m_timeslot_length + m_start_time), now);
 }
 
 bool timeslot_is_in_ts(void)

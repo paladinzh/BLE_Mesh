@@ -34,13 +34,13 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include <string.h>
+
 #include "fifo.h"
 #include "nrf_error.h"
 #include "toolchain.h"
-#include "utils.h"
-#include "log.h"
-
-#include <string.h>
+#include "nrf_mesh_assert.h"
 
 /*****************************************************************************
 * Local defines
@@ -51,23 +51,11 @@
 /*****************************************************************************
 * Interface functions
 *****************************************************************************/
-uint32_t fifo_init(fifo_t* p_fifo)
+void fifo_init(fifo_t* p_fifo)
 {
-    if (p_fifo == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
-    if (p_fifo->elem_size == 0 ||
-        p_fifo->elem_array == NULL ||
-        p_fifo->array_len == 0)
-    {
-        return NRF_ERROR_INVALID_PARAM;
-    }
-    if ((p_fifo->array_len) & (p_fifo->array_len - 1))
-    {
-        p_fifo->array_len = 0; /** Prevent future usage of this fifo, as it would cause weird issues. */
-        return NRF_ERROR_INVALID_LENGTH;
-    }
+    NRF_MESH_ASSERT(p_fifo != NULL);
+    NRF_MESH_ASSERT(p_fifo->elem_size > 0 && p_fifo->elem_array != NULL && p_fifo->array_len > 0);
+    NRF_MESH_ASSERT((p_fifo->array_len & (p_fifo->array_len - 1)) == 0);
 
     p_fifo->head = 0;
     p_fifo->tail = 0;
@@ -77,8 +65,6 @@ uint32_t fifo_init(fifo_t* p_fifo)
     p_fifo->drops = 0;
     p_fifo->max_len = 0;
 #endif
-
-    return NRF_SUCCESS;
 }
 
 uint32_t fifo_push(fifo_t* p_fifo, const void* p_elem)
@@ -155,7 +141,7 @@ uint32_t fifo_pop(fifo_t* p_fifo, void* p_elem)
     return NRF_SUCCESS;
 }
 
-uint32_t fifo_peek_at(fifo_t* p_fifo, void* p_elem, uint32_t elem)
+uint32_t fifo_peek_at(const fifo_t* p_fifo, void* p_elem, uint32_t elem)
 {
     if (p_fifo == NULL || p_elem == NULL)
     {
@@ -182,7 +168,7 @@ uint32_t fifo_peek_at(fifo_t* p_fifo, void* p_elem, uint32_t elem)
     return NRF_SUCCESS;
 }
 
-uint32_t fifo_peek(fifo_t* p_fifo, void* p_elem)
+uint32_t fifo_peek(const fifo_t* p_fifo, void* p_elem)
 {
     return fifo_peek_at(p_fifo, p_elem, 0);
 }
@@ -192,17 +178,17 @@ void fifo_flush(fifo_t* p_fifo)
     p_fifo->tail = p_fifo->head;
 }
 
-uint32_t fifo_get_len(fifo_t* p_fifo)
+uint32_t fifo_get_len(const fifo_t* p_fifo)
 {
     return (p_fifo->head - p_fifo->tail);
 }
 
-bool fifo_is_full(fifo_t* p_fifo)
+bool fifo_is_full(const fifo_t* p_fifo)
 {
     return FIFO_IS_FULL(p_fifo);
 }
 
-bool fifo_is_empty(fifo_t* p_fifo)
+bool fifo_is_empty(const fifo_t* p_fifo)
 {
     return FIFO_IS_EMPTY(p_fifo);
 }

@@ -531,6 +531,8 @@ static void execute_procedure_step(void)
 
 static void on_flash_op_end(mesh_flash_user_t user, const flash_operation_t * p_op, uint16_t token)
 {
+    /*lint -esym(715, user, token) Ignore unused tokens */
+
     if (p_op->type == FLASH_OP_TYPE_ALL)
     {
         m_defrag.wait_for_idle = false;

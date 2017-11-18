@@ -88,7 +88,6 @@
 #define SERIAL_OPCODE_CMD_RANGE_CONFIG_END                    (0x5F) /**< CONFIG range end. */
 
 #define SERIAL_OPCODE_CMD_RANGE_PROV_START                    (0x60) /**< PROVISIONING range start. */
-#define SERIAL_OPCODE_CMD_PROV_INIT_CONTEXT                   (0x60) /**< Params: @ref serial_cmd_prov_init_t */
 #define SERIAL_OPCODE_CMD_PROV_SCAN_START                     (0x61) /**< Params: None. */
 #define SERIAL_OPCODE_CMD_PROV_SCAN_STOP                      (0x62) /**< Params: None. */
 #define SERIAL_OPCODE_CMD_PROV_PROVISION                      (0x63) /**< Params: @ref serial_cmd_prov_data_t */
@@ -210,6 +209,7 @@ typedef enum
 } serial_cmd_tx_power_value_t;
 
 /************** Device commands **************/
+/*lint -align_max(push) -align_max(1) */
 
 /** Echo cmd parameters. */
 typedef struct __attribute((packed))
@@ -312,16 +312,10 @@ typedef struct __attribute((packed))
     uint8_t public_key[NRF_MESH_ECDH_PUBLIC_KEY_SIZE];   /**< Public key. */
 } serial_cmd_prov_keypair_t;
 
-/** Provisioning context init parameters. */
-typedef struct __attribute((packed))
-{
-    uint8_t context_id; /**< Context ID to use for the provisioning. */
-} serial_cmd_prov_init_t;
-
 /** Provisioning set capabilities parameters. */
 typedef struct __attribute((packed))
 {
-    uint8_t  num_components;     /**< The number of components in the device */
+    uint8_t  num_elements;       /**< The number of elements in the device */
     uint8_t  public_key_type;    /**< The type of public key used in the device. */
 
     uint8_t  static_oob_types;   /**< The types of static OOB authentication methods. */
@@ -371,7 +365,6 @@ typedef struct __attribute((packed))
 /** Union of all provisioning command parameters. */
 typedef union __attribute((packed))
 {
-    serial_cmd_prov_init_t      init;      /**< Parameters for the Provisioning init packet. */
     serial_cmd_prov_keypair_t   keypair;   /**< Parameters for the Set keypair packet. */
     serial_cmd_prov_caps_t      caps;      /**< Parameters for the Set capabilities packet. */
     serial_cmd_prov_data_t      data;      /**< Parameters for the Provisioning data packet. */
@@ -734,6 +727,7 @@ typedef union __attribute((packed))
     serial_cmd_application_t application; /**< Application parameters. */
 } serial_cmd_t;
 
+/*lint -align_max(pop) */
 /** @} */
 
 #endif

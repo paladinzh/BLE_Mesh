@@ -37,7 +37,7 @@
 
 #include "radio_config.h"
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_assert.h"
 #include <stddef.h>
 
@@ -105,7 +105,7 @@ void radio_config_config(const radio_config_t * const p_config)
     NRF_MESH_ASSERT( 0 < p_config->payload_maxlen);
     /* payload_maxlen can't be larger than supported value
        +2: 1 byte for LEN field and 1 byte for S0 (S1 is 0 for large values of payload_maxlen). */
-    NRF_MESH_ASSERT(RADIO_MAX_PACKET_LEN >= (p_config->payload_maxlen + 2));
+    NRF_MESH_ASSERT(RADIO_MAX_PACKET_LEN >= (((uint32_t) p_config->payload_maxlen) + 2));
     NRF_RADIO->TXPOWER = p_config->tx_power;
     NRF_RADIO->MODE    = p_config->datarate;
 

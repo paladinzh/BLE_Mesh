@@ -1,6 +1,6 @@
 # Examples {#example-projects}
 
-The SDK provides several example projects to demonstrate certain features and
+The nRF5 SDK for Bluetooth Mesh provides several example projects to demonstrate certain features and
 to help you get started on new mesh-based projects.
 
 The following examples are provided:
@@ -16,7 +16,7 @@ The following examples are provided:
   example of a device that provides an end-point for relayed provisioning packets when
   using the remote provisioning feature to provision devices.
 * @subpage md_examples_beaconing_README        "Beaconing" - An examples that implements custom beacon advertising
-  and shows how to send and receive custom packets using the mesh SDK.
+  and shows how to send and receive custom packets using the nRF5 SDK for Bluetooth Mesh.
 * @subpage md_examples_dfu_README              "DFU over mesh" - An example that shows
   how to use the mesh DFU framework to update the firmware of a device over the mesh.
 * @subpage md_examples_serial_README           "Serial" - An example that shows how to

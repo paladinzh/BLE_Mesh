@@ -54,13 +54,6 @@
 #include <nrf_gpio.h>
 #include <boards.h>
 
-#define NETWORK_COUNT                   (8)
-#define APPLICATION_COUNT               (8)
-#define DEVICE_KEY_COUNT                (8)
-#define UNICAST_AND_GROUP_ADDRESS_COUNT (8)
-#define VIRTUAL_ADDRESS_COUNT           (4)
-#define RX_ADDRESS_COUNT  (UNICAST_AND_GROUP_ADDRESS_COUNT + VIRTUAL_ADDRESS_COUNT)
-
 /********** Application Functionality **********/
 
 int main(void)
@@ -70,7 +63,7 @@ int main(void)
 #endif
 
 
-    __LOG_INIT(LOG_MSK_DEFAULT | LOG_SRC_ACCESS | LOG_SRC_PROV | LOG_SRC_APP, LOG_LEVEL_INFO, log_callback_rtt);
+    __LOG_INIT(LOG_MSK_DEFAULT | LOG_SRC_ACCESS | LOG_SRC_SERIAL | LOG_SRC_APP, LOG_LEVEL_INFO, log_callback_rtt);
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "----- Bluetooth Mesh Serial Interface Application -----\n");
 
     NRF_GPIO->DIRSET = 0xFFFFFFFF;
@@ -82,10 +75,6 @@ int main(void)
         NRF_GPIO->OUT ^= BSP_LED_0_MASK;
         nrf_delay_ms(100);
     }
-
-    // nrf_gpio_range_cfg_output(LED_START, LED_STOP);
-    // for(int i = LED_START; i <= LED_STOP; ++i)
-    //     nrf_gpio_pin_set(i);
 
 #if defined(S130) || defined(S132)
     nrf_clock_lf_cfg_t lfc_cfg = {NRF_CLOCK_LF_SRC_XTAL, 0, 0, NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM};
@@ -119,7 +108,7 @@ int main(void)
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Initialization complete!\n");
     NRF_GPIO->OUTCLR = BSP_LED_0_MASK;
 
-    while(true)
+    while (true)
     {
         nrf_mesh_process();
     }

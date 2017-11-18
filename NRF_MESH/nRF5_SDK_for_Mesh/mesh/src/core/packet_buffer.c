@@ -34,14 +34,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <string.h>
 #include <stdbool.h>
-
-#if defined(__linux__) || defined(_WIN32)
-    #include <pthread.h>
-#endif
+#include <string.h>
 
 #include "nrf_mesh_assert.h"
+#include "nrf_mesh_config_core.h"
 #include "packet_buffer.h"
 #include "nrf_error.h"
 #include "utils.h"
@@ -58,7 +55,7 @@
 static void m_index_increment(uint16_t * index, uint16_t arr_size, uint16_t length)
 {
     *index += length;
-    if(*index == arr_size)
+    if (*index == arr_size)
     {
         *index = 0;
     }
@@ -79,22 +76,22 @@ static void m_free_popped_packet(packet_buffer_t * p_buffer, packet_buffer_packe
 #endif
 }
 
-static uint16_t m_get_packet_buffer_index(packet_buffer_t * p_buffer, packet_buffer_packet_t * p_packet)
+static inline uint16_t m_get_packet_buffer_index(const packet_buffer_t * p_buffer, const packet_buffer_packet_t * p_packet)
 {
-    return (uint16_t)((uint8_t *)p_packet - p_buffer->buffer);
+    return (uint16_t)((const uint8_t *)p_packet - p_buffer->buffer);
 }
 
 
-static packet_buffer_packet_t * m_get_packet(packet_buffer_t * p_buffer, uint16_t index)
+static inline packet_buffer_packet_t * m_get_packet(const packet_buffer_t * p_buffer, uint16_t index)
 {
     return (packet_buffer_packet_t *) &p_buffer->buffer[index];
 }
 
-static uint8_t * m_get_next_packet(packet_buffer_t * p_buffer, packet_buffer_packet_t * p_packet)
+static uint8_t * m_get_next_packet(const packet_buffer_t * p_buffer, packet_buffer_packet_t * p_packet)
 {
     uint8_t* proceeding_packet_ref = &p_packet->packet[p_packet->size];
     /* Packet proceeding this may have wrapped around */
-    if(proceeding_packet_ref == &p_buffer->buffer[p_buffer->size])
+    if (proceeding_packet_ref == &p_buffer->buffer[p_buffer->size])
     {
         proceeding_packet_ref = p_buffer->buffer;
     }
@@ -137,7 +134,7 @@ static uint16_t m_max_packet_len_get(const packet_buffer_t *  const p_buffer)
 
 static void m_adjust_reserved_packet_len(packet_buffer_t * p_buffer, packet_buffer_packet_t * p_packet, uint16_t length)
 {
-    if(p_packet->size > length)
+    if (p_packet->size > length)
     {
         /* The packet size needs to be shrunk: */
         uint16_t reduction_in_packet = p_packet->size - length;
@@ -294,7 +291,7 @@ static uint32_t m_prepare_for_reserve(packet_buffer_t * p_buffer, uint16_t* p_le
         available_space_end = p_buffer->tail;
     }
 
-    if(status == NRF_SUCCESS)
+    if (status == NRF_SUCCESS)
     {
         m_adjust_desired_packet_length(p_buffer->head, available_space_end, p_length);
     }
@@ -389,7 +386,7 @@ void packet_buffer_commit(packet_buffer_t * const p_buffer, packet_buffer_packet
     length = ALIGN_VAL(length, WORD_SIZE);
 
     /* Check if there are any other packets reserved after the given block*/
-    if(length != p_packet->size)
+    if (length != p_packet->size)
     {
         uint8_t* proceeding_packet_ref = m_get_next_packet(p_buffer, p_packet);
         /* Locking IRQs before accesing head :(*/

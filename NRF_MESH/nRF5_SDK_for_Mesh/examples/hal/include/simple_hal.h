@@ -92,11 +92,12 @@ void hal_led_mask_set(uint32_t led_mask, bool value);
 bool hal_led_pin_get(uint32_t pin);
 
 /**
- * Blinks pin_mask repeat % 2 for delay_ms seconds.
+ * Blinks pin_mask a specified number of times.
  *
  * @param[in] pin_mask Mask of LED pins.
  * @param[in] delay_ms Delay in milliseconds between each state change.
- * @param[in] repeat   Number of repeats (is forced even).
+ * @param[in] repeat   Number of repeats. This number is rounded down if it
+ *                     is not an even number.
  */
 void hal_led_blink_ms(uint32_t pin_mask, uint32_t delay_ms, uint32_t repeat);
 

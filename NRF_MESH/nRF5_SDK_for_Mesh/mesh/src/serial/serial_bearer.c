@@ -40,7 +40,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_error.h"
 
 #include "nrf_mesh_serial.h"
@@ -69,12 +69,16 @@ typedef enum
 
 /********** Static variables **********/
 
-static uint8_t m_tx_buffer[sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t)];
+/* Buffers must be word-aligned to the largest possible serial packet. */
+#define RX_BUFFER_SIZE ALIGN_VAL(sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t), WORD_SIZE)
+#define TX_BUFFER_SIZE ALIGN_VAL(sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t), WORD_SIZE)
+
+static uint8_t m_tx_buffer[TX_BUFFER_SIZE];
 static packet_buffer_t m_tx_packet_buf;
 static packet_buffer_packet_t * mp_current_tx_packet;
 static uint16_t m_cur_tx_packet_index;
 static uint16_t m_stored_pac_len;
-static uint8_t m_rx_buffer[sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t)];
+static uint8_t m_rx_buffer[RX_BUFFER_SIZE];
 static packet_buffer_t m_rx_packet_buf;
 static packet_buffer_packet_t * mp_current_rx_packet;
 static serial_state_t m_serial_state = SERIAL_STATE_IDLE;
@@ -173,6 +177,7 @@ static inline bool char_rx_first_byte(uint16_t * p_rx_index, uint8_t byte_receiv
     return packet_reserved;
 }
 
+#ifndef SERIAL_SLIP_ENCODING
 static inline void char_rx_simple(uint16_t * p_rx_index, uint8_t byte_received)
 {
     if (*p_rx_index == 0 && !char_rx_first_byte(p_rx_index, byte_received))
@@ -209,6 +214,7 @@ static inline void char_tx_simple(void)
         serial_uart_byte_send(value);
     }
 }
+#endif
 
 #ifdef SERIAL_SLIP_ENCODING
 static inline bool valid_slip_byte(uint8_t byte_val)
@@ -335,8 +341,12 @@ static inline void char_rx_with_slip_encoding(uint16_t * p_rx_index, uint8_t byt
         {
             return; /* Early return since we could not reserve a packet*/
         }
-        mp_current_rx_packet->packet[*p_rx_index] = byte_received;
-        (*p_rx_index)++;
+
+        if (mp_current_rx_packet != NULL)
+        {
+            mp_current_rx_packet->packet[*p_rx_index] = byte_received;
+            (*p_rx_index)++;
+        }
     }
 }
 #endif
@@ -392,8 +402,8 @@ static void do_transmit(void)
 /********** Interface Functions **********/
 void serial_bearer_init(void)
 {
-    packet_buffer_init(&m_tx_packet_buf, (void *)&m_tx_buffer, sizeof(m_tx_buffer));
-    packet_buffer_init(&m_rx_packet_buf, (void *)&m_rx_buffer, sizeof(m_rx_buffer));
+    packet_buffer_init(&m_tx_packet_buf, (void *) m_tx_buffer, sizeof(m_tx_buffer));
+    packet_buffer_init(&m_rx_packet_buf, (void *) m_rx_buffer, sizeof(m_rx_buffer));
 
     NRF_MESH_ASSERT(NRF_SUCCESS == serial_uart_init(char_rx, char_tx));
     serial_uart_receive_set(true);

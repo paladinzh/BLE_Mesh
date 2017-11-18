@@ -70,6 +70,8 @@
  */
 #define ACCESS_MESSAGE_LENGTH_MAX (NRF_MESH_SEG_PAYLOAD_SIZE_MAX)
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Access layer model ID. */
 typedef struct __attribute((packed))
 {
@@ -78,6 +80,8 @@ typedef struct __attribute((packed))
     /** Company ID. Bluetooth SIG models shall set this to @ref ACCESS_COMPANY_ID_NONE. */
     uint16_t company_id;
 } access_model_id_t;
+
+/*lint -align_max(pop) */
 
 /** Access layer handle type. */
 typedef uint16_t access_model_handle_t;
@@ -94,15 +98,16 @@ typedef void (*access_publish_timeout_cb_t)(access_model_handle_t handle, void *
  * Access layer opcode type.
  *
  * The format of the opcodes is given in the table below:
- * @verbatim Table 3.42 in Mesh Core Spec d09r21
- Byte 0    Byte 1    Byte 2    Description
- ----------------------------------------------------------------------------------------------
- 0xxxxxxx                      1-octet Bluetooth SIG Opcodes (excluding 01111111)
- 01111111                      Reserved for Future Use
- 10xxxxxx  xxxxxxxx            2-octet Bluetooth SIG Opcodes
- 11xxxxxx  zzzzzzzz  zzzzzzzz  3-octet Vendor Specific Opcodes. 'z' denotes company identifier.
- @endverbatim
-*/
+ * Table 3.43 in the Mesh Profile Specification (v1.0)
+ *
+ * | Byte 0     | Byte 1     | Byte 2     | Description                                                     |
+ * | ---------- | ---------- | ---------- | --------------------------------------------------------------- |
+ * | `0xxxxxxx` |            |            | 1-octet Bluetooth SIG Opcodes (excluding 01111111)              |
+ * | `01111111` |            |            | Reserved for Future Use                                         |
+ * | `10xxxxxx` | `xxxxxxxx` |            | 2-octet Bluetooth SIG Opcodes                                   |
+ * | `11xxxxxx` | `zzzzzzzz` | `zzzzzzzz` | 3-octet Vendor Specific Opcodes. `z` denotes company identifier |
+ *
+ */
 typedef struct
 {
     /** 14-bit or 7-bit Bluetooth SIG defined opcode or 6-bit vendor specific opcode. */

@@ -77,12 +77,8 @@
  *
  * @param[in] interval_ms The beacon advertisement interval in milliseconds.
  * Must be between @ref BEACON_INTERVAL_MS_MIN and @ref BEACON_INTERVAL_MS_MAX.
- *
- * @retval NRF_SUCCESS The beacon module has been successfully initialized.
- * @retval NRF_ERROR_INVALID_PARAM The given advertisement interval is outside
- * of the accepted boundaries.
  */
-uint32_t beacon_init(uint32_t interval_ms);
+void beacon_init(uint32_t interval_ms);
 
 /**
  * Enable the mesh beacon with the given contents. Will replace any current

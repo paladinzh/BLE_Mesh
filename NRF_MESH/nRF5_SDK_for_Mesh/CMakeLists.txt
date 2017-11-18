@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 9)
-set(VERSION_BUGFIX 1)
-set(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUGFIX}-ALPHA")
+set(VERSION_MAJOR  0)
+set(VERSION_MINOR  9)
+set(VERSION_BUGFIX 2)
+set(VERSION_STAGE  -Alpha)
+set(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUGFIX}${VERSION_STAGE}")
+configure_file( doc/ble_mesh_version.txt.in doc/ble_mesh_version.txt )
 
 set(NRF51_SOFTDEVICE "S130" CACHE STRING "nRF51 SoftDevice version (S110 or S130)")
 set(NRF52_SOFTDEVICE "S132" CACHE STRING "nRF52 SoftDevice version (S132)")
@@ -62,6 +64,23 @@ find_dependency(UNITY_ROOT "Root folder of Unity test library" "${CMOCK_ROOT}/ve
 
 # Setup PC Lint tool
 include(${CMAKE_SOURCE_DIR}/CMake/pc_lint.cmake)
+
+
+# Set a default build type if none was specified
+# From https://blog.kitware.com/cmake-and-the-default-build-type/
+set(default_build_type "RelWithDebInfo")
+if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
+    set(default_build_type "Debug")
+endif()
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+    set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+        STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 if (BUILD_HOST)
     # Compiling for x86

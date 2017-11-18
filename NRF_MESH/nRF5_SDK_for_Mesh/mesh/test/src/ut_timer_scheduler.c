@@ -58,7 +58,6 @@ static timer_callback_t m_timer_cb;
 static timestamp_t      m_time_now;
 static uint32_t         m_ret_val;
 static uint32_t         m_cb_count;
-static uint32_t         m_timer_fifo_capacity;
 static  bearer_event_flag_callback_t m_flag_cb;
 nrf_mesh_assertion_handler_t m_assertion_handler;
 
@@ -76,7 +75,6 @@ void setUp(void)
     m_last_timestamp = 0xFFFFFFFF;
     m_last_timer_order = 0xFFFFFFFF;
     m_async_exec = false;
-    m_timer_fifo_capacity = 100000; /* inf */
     timer_sch_init();
 }
 

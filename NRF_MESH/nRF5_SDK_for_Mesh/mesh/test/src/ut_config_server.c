@@ -192,6 +192,7 @@ uint32_t access_model_reply_mock(access_model_handle_t handle, const access_mess
     }
 
     mp_previous_reply_buffer = malloc(p_reply->length);
+    TEST_ASSERT_NOT_NULL(mp_previous_reply_buffer);
     memcpy(mp_previous_reply_buffer, p_reply->p_buffer, p_reply->length);
 
     m_previous_reply.opcode = p_reply->opcode;
@@ -244,14 +245,14 @@ uint32_t dsm_appkey_get_all_mock(dsm_handle_t subnet_handle, mesh_key_index_t * 
 
 void setUp(void)
 {
-    CMOCK_SETUP(access);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(composition_data);
-    CMOCK_SETUP(device_state_manager);
-    CMOCK_SETUP(net_beacon);
-    CMOCK_SETUP(nrf_mesh_opt);
-    CMOCK_SETUP(nrf_mesh_keygen);
-    CMOCK_SETUP(rand);
+    access_mock_Init();
+    access_config_mock_Init();
+    composition_data_mock_Init();
+    device_state_manager_mock_Init();
+    net_beacon_mock_Init();
+    nrf_mesh_opt_mock_Init();
+    nrf_mesh_keygen_mock_Init();
+    rand_mock_Init();
 
     m_assertion_handler = nrf_mesh_assertion_handler;
     m_previous_reply_received = false;
@@ -260,7 +261,7 @@ void setUp(void)
     access_model_add_StubWithCallback(access_model_add_mock);
     access_model_reply_StubWithCallback(access_model_reply_mock);
 
-    config_server_init();
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, config_server_init());
 }
 
 void tearDown(void)
@@ -280,7 +281,22 @@ void tearDown(void)
     nrf_mesh_keygen_mock_Verify();
     rand_mock_Verify();
 
-    CMOCK_TEARDOWN();
+    access_mock_Verify();
+    access_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    composition_data_mock_Verify();
+    composition_data_mock_Destroy();
+    device_state_manager_mock_Verify();
+    device_state_manager_mock_Destroy();
+    net_beacon_mock_Verify();
+    net_beacon_mock_Destroy();
+    nrf_mesh_opt_mock_Verify();
+    nrf_mesh_opt_mock_Destroy();
+    nrf_mesh_keygen_mock_Verify();
+    nrf_mesh_keygen_mock_Destroy();
+    rand_mock_Verify();
+    rand_mock_Destroy();
 }
 
 /*********** Test Cases ***********/
@@ -665,7 +681,8 @@ void test_publication_set(void)
 
         access_model_publish_address_set_ExpectAndReturn(model_handle, address_handle, NRF_SUCCESS);
         access_model_publish_period_set_ExpectAndReturn(model_handle, ACCESS_PUBLISH_RESOLUTION_100MS, 0, NRF_SUCCESS);
-        access_model_publish_period_set_ExpectAndReturn(model_handle, messages[i].state.publish_period >> ACCESS_PUBLISH_STEP_NUM_BITS, messages[i].state.publish_period & (0xff >> (8 - ACCESS_PUBLISH_STEP_NUM_BITS)), NRF_SUCCESS);
+        access_model_publish_period_set_ExpectAndReturn(model_handle, (access_publish_resolution_t) (messages[i].state.publish_period >> ACCESS_PUBLISH_STEP_NUM_BITS),
+            messages[i].state.publish_period & (0xff >> (8 - ACCESS_PUBLISH_STEP_NUM_BITS)), NRF_SUCCESS);
         access_model_publish_application_set_ExpectAndReturn(model_handle, appkey_handle, NRF_SUCCESS);
         access_model_publish_ttl_set_ExpectAndReturn(model_handle, messages[i].state.publish_ttl, NRF_SUCCESS);
         access_flash_config_store_Expect();
@@ -697,7 +714,7 @@ void test_publication_set(void)
         access_model_publish_ttl_get_IgnoreArg_p_ttl();
         access_model_publish_ttl_get_ReturnThruPtr_p_ttl(&messages[i].state.publish_ttl);
 
-        access_publish_resolution_t publish_resolution = messages[i].state.publish_period >> ACCESS_PUBLISH_STEP_NUM_BITS;
+        access_publish_resolution_t publish_resolution = (access_publish_resolution_t) (messages[i].state.publish_period >> ACCESS_PUBLISH_STEP_NUM_BITS);
         uint8_t publish_steps = messages[i].state.publish_period & ~(0xff << ACCESS_PUBLISH_STEP_NUM_BITS);
         access_model_publish_period_get_ExpectAndReturn(model_handle, NULL, NULL, NRF_SUCCESS);
         access_model_publish_period_get_IgnoreArg_p_resolution();
@@ -1253,10 +1270,10 @@ void test_subscription_overwrite(void)
         ACCESS_MODEL_SUBSCRIPTIONS_GET_MOCK_SETUP(model_handle, subscriptions,
                                                   subscription_count, NRF_SUCCESS);
 
-        for (int i = 0; i < subscription_count; ++i)
+        for (int j = 0; j < subscription_count; ++j)
         {
-            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[i], NRF_SUCCESS);
-            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[i], NRF_SUCCESS);
+            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[j], NRF_SUCCESS);
+            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[j], NRF_SUCCESS);
         }
 
         dsm_handle_t address_handle = 89;
@@ -1321,10 +1338,10 @@ void test_subscription_delete_all(void)
         ACCESS_MODEL_SUBSCRIPTIONS_GET_MOCK_SETUP(model_handle, subscriptions,
                                                   subscription_count, NRF_SUCCESS);
 
-        for (int i = 0; i < subscription_count; ++i)
+        for (int j = 0; j < subscription_count; ++j)
         {
-            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[i], NRF_SUCCESS);
-            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[i], NRF_SUCCESS);
+            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[j], NRF_SUCCESS);
+            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[j], NRF_SUCCESS);
         }
 
         access_flash_config_store_Expect();
@@ -1449,10 +1466,10 @@ void test_subscription_virtual_overwrite(void)
         ACCESS_MODEL_SUBSCRIPTIONS_GET_MOCK_SETUP(model_handle, subscriptions,
                                                   subscription_count, NRF_SUCCESS);
 
-        for (int i = 0; i < subscription_count; ++i)
+        for (int j = 0; j < subscription_count; ++j)
         {
-            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[i], NRF_SUCCESS);
-            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[i], NRF_SUCCESS);
+            access_model_subscription_remove_ExpectAndReturn(model_handle, subscriptions[j], NRF_SUCCESS);
+            dsm_address_subscription_remove_ExpectAndReturn(subscriptions[j], NRF_SUCCESS);
         }
 
         dsm_handle_t address_handle = 442;

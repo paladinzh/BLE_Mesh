@@ -62,8 +62,17 @@
 /** Invalid handle index */
 #define DSM_HANDLE_INVALID  (0xFFFF)
 
-/** Maximal key index allowed, according to specification, Section 3.8.5.4. */
-#define DSM_KEY_INDEX_MAX   (0xFFF)
+/** Maximum key index allowed. */
+#define DSM_KEY_INDEX_MAX   (NRF_MESH_GLOBAL_KEY_INDEX_MAX)
+
+/** Set to indicate GATT proxy is supported. GATT proxy support is currently not implemented. */
+#ifndef GATT_PROXY
+#define GATT_PROXY 0
+#endif
+
+#if GATT_PROXY
+#error "GATT proxy is currently not supported."
+#endif
 
 /** Key index type, used for network key index and application key index. */
 typedef uint16_t mesh_key_index_t;

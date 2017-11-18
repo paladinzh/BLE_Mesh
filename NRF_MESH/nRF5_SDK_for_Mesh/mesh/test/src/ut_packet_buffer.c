@@ -324,7 +324,7 @@ void test_packet_buffer_alloc_all_free_all(void)
         Do this for many iterations to check for possible memory leaks due to incorrect
         calculations in the pacman*/
     uint32_t table_size = sizeof(m_mixed_size_alloc_table)/sizeof(mem_expected_size_pair_t);
-    for(uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
+    for (uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
     {
         uint32_t i=0;
         do
@@ -338,7 +338,7 @@ void test_packet_buffer_alloc_all_free_all(void)
                 packet_buffer_commit(&my_pacman, m_mixed_size_alloc_table[i].p_test_pkg, m_mixed_size_alloc_table[i].expected_size);
             }
             i = (i+1)%table_size;
-        }while(NRF_SUCCESS == status);
+        } while (NRF_SUCCESS == status);
         TEST_ASSERT_EQUAL(NRF_ERROR_NO_MEM, status);
 
         /* Pop and free */
@@ -349,7 +349,7 @@ void test_packet_buffer_alloc_all_free_all(void)
             {
                 packet_buffer_free(&my_pacman, p_my_packet);
             }
-        }while(NRF_SUCCESS == status);
+        } while (NRF_SUCCESS == status);
         TEST_ASSERT_EQUAL(NRF_ERROR_NOT_FOUND, status);
 
         /* Now that we have freed all, it should be possible to allocate max size. */
@@ -384,7 +384,7 @@ void test_packet_buffer_alloc_all_free_some(void)
         Do this for many iterations to check for possible memory leaks due to incorrect
         calculations in the pacman*/
     uint32_t table_size = sizeof(m_mixed_size_alloc_table)/sizeof(mem_expected_size_pair_t);
-    for(uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
+    for (uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
     {
         uint32_t i=0;
         do
@@ -398,10 +398,10 @@ void test_packet_buffer_alloc_all_free_some(void)
                 packet_buffer_commit(&my_pacman, m_mixed_size_alloc_table[i].p_test_pkg, m_mixed_size_alloc_table[i].expected_size);
             }
             i = (i+1)%table_size;
-        }while(NRF_SUCCESS == status);
+        } while (NRF_SUCCESS == status);
         TEST_ASSERT_EQUAL(NRF_ERROR_NO_MEM, status);
         /* Pop and free */
-        for(uint32_t j=0; j < table_size/2; j++)
+        for (uint32_t j=0; j < table_size/2; j++)
         {
             status = packet_buffer_pop(&my_pacman, &p_my_packet);
             TEST_ASSERT_EQUAL(NRF_SUCCESS, status);
@@ -423,7 +423,7 @@ void test_packet_buffer_skip(void)
         Do this for many iterations to check for possible memory leaks due to incorrect
         calculations in the pacman*/
     uint32_t table_size = sizeof(m_uniform_size_alloc_table)/sizeof(mem_expected_size_pair_t);
-    for(uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
+    for (uint32_t repeat_count=0; repeat_count < REPETITION_TEST_MAX_COUNT; repeat_count++)
     {
         uint32_t i=0;
         /* First reserve as much as possible*/
@@ -431,12 +431,12 @@ void test_packet_buffer_skip(void)
         {
             status = packet_buffer_reserve(&my_pacman, &m_uniform_size_alloc_table[i].p_test_pkg, m_uniform_size_alloc_table[i].expected_size);
             i++;
-        }while(NRF_SUCCESS == status && i < table_size);
+        } while (NRF_SUCCESS == status && i < table_size);
 
         /* Free all reserved except last one. By the end pacman should look like:
          * | SKIPPED | SKIPPED | .... | SKIPPED | RESERVED |
          */
-        for(uint32_t j=0; j < i-1; j++)
+        for (uint32_t j=0; j < i-1; j++)
         {
             packet_buffer_free(&my_pacman, m_uniform_size_alloc_table[j].p_test_pkg);
         }
@@ -452,7 +452,7 @@ void test_packet_buffer_skip(void)
                 packet_buffer_free(&my_pacman, p_my_packet);
                 no_popped++;
             }
-        }while(NRF_SUCCESS == status);
+        } while (NRF_SUCCESS == status);
         TEST_ASSERT_EQUAL(NRF_ERROR_NOT_FOUND, status);
         TEST_ASSERT_EQUAL(1, no_popped);
     }

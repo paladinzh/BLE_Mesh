@@ -24,10 +24,6 @@ file(GLOB MOCK_SRC
 # Generate targets for mock files for all headers in ${MOCK_SRC}:
 foreach(headerpath IN ITEMS ${MOCK_SRC})
     get_filename_component(header ${headerpath} NAME_WE)
-    if (${header} MATCHES "nrf_mesh_hw")
-        continue()
-    endif()
-    # message(STATUS "header = ${header}")
 
     add_custom_command(OUTPUT ${CMOCK_BIN}/${header}_mock.c ${CMOCK_BIN}/${header}_mock.h
         COMMAND ${RUBY_EXECUTABLE} ${CMOCK_ROOT}/lib/cmock.rb -o${CMAKE_CURRENT_SOURCE_DIR}/mocks.yml "${headerpath}"
@@ -37,16 +33,10 @@ foreach(headerpath IN ITEMS ${MOCK_SRC})
         )
 endforeach(headerpath)
 
-include_directories(
-    "${MBTLE_LIB_HEADERS}"
-    "${MBTLE_SRC_HEADERS}"
-    "${MBTLE_HOST_HEADERS}"
-    )
-
-include_directories(
+include_directories(BEFORE
     "include"
+    "include/device_wrappers"
     "mocks"
-    "../api"
     "../models/pb_remote/include"
     "${CMOCK_ROOT}/src/"
     )
@@ -62,29 +52,34 @@ function(add_unit_test testname sources)
         ${UNITY_SRC}
         ${CMOCK_SRC}
         ${CMAKE_CURRENT_BINARY_DIR}/ut_${testname}_runner.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test_assert.c
-        )
-
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/test_assert.c)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ut_${testname}_runner.c
         COMMAND ${RUBY_EXECUTABLE} ${UNITY_ROOT}/auto/generate_test_runner.rb ${CMAKE_CURRENT_SOURCE_DIR}/src/ut_${testname}.c
         ${CMAKE_CURRENT_BINARY_DIR}/ut_${testname}_runner.c
         DEPENDS ${sources}
         )
 
-    # Add debugging flag for unit tests always.
-    set(unit_test_flags
-        "-g"
+    target_compile_options(ut_${testname} PRIVATE "-g") # Always add debugging flag for unit tests
+    target_compile_definitions(ut_${testname} PUBLIC
         "-DNRF_MESH_LOG_ENABLE=1"
         "-DLOG_CALLBACK_DEFAULT=log_callback_stdout"
-        "-DUNIT_TEST=1"
-        )
-    target_compile_options(ut_${testname} PRIVATE ${unit_test_flags})
+        "-DUNIT_TEST=1")
 
     set_platform_compile_properties(${testname})
     add_test(${testname} ut_${testname})
     if(ARGV2)
         target_compile_definitions(ut_${testname} PUBLIC ${ARGV2})
     endif(ARGV2)
+
+    set(lint_sources)
+    foreach(source ${sources})
+        if(NOT ${source} MATCHES ".*_mock.c")
+            set(lint_sources ${lint_sources} ${source})
+        endif()
+    endforeach()
+
+    add_pc_lint(ut_${testname} ${lint_sources})
+
 endfunction(add_unit_test)
 
 # Adds a unit test, with automatic test runner generation.
@@ -134,8 +129,9 @@ set(transport_test_srcs
     ../src/core/replay_cache.c
     ../src/core/log.c
     ../src/core/nrf_mesh_utils.c
-    ${CMOCK_SRC}
     mocks/nrf_mesh_dfu_mock.c
+    mocks/bearer_event_mock.c
+    mocks/net_state_mock.c
     )
 add_unit_test(transport "${transport_test_srcs}")
 
@@ -155,8 +151,6 @@ set(network_test_srcs
     ../src/host/packet_mgr_linux.c
     ../src/core/replay_cache.c
     ../src/core/nrf_mesh_utils.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     mocks/bearer_mock.c
     mocks/msg_cache_mock.c
     mocks/transport_mock.c
@@ -299,7 +293,11 @@ add_unit_test(enc "${enc_test_srcs}")
 set(keygen_srcs
     src/ut_keygen.c
     ../src/core/nrf_mesh_keygen.c
-    mocks/enc_mock.c
+    ../src/core/enc.c
+    ../src/core/rand.c
+    ../src/host/aes_soft.c
+    ../src/core/ccm_soft.c
+    ../src/core/aes_cmac.c
     ../src/core/log.c
     )
 add_unit_test(keygen "${keygen_srcs}")
@@ -337,8 +335,6 @@ set(prov_bearer_adv_test_srcs
     src/ut_prov_bearer_adv.c
     ../src/prov/prov_bearer_adv.c
     ../src/core/log.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     mocks/timer_mock.c
     mocks/timer_scheduler_mock.c
     mocks/bearer_adv_mock.c
@@ -354,7 +350,6 @@ add_unit_test(prov_bearer_adv "${prov_bearer_adv_test_srcs}")
 # The Great Provisioning Test - Provisioner vs Provisionee - two in one!
 set(prov_provisioning_test_srcs
     src/ut_prov_provisioning.c
-    "${UNITY_SRC}"
     )
 add_unit_test(prov_provisioning "${prov_provisioning_test_srcs}")
 target_link_libraries(ut_prov_provisioning ut_UECC_LIB)
@@ -374,7 +369,6 @@ add_unit_test(replay_cache "${replay_cache_srcs}")
 
 set(serial_packet_srcs
     src/ut_serial_packet.c
-    "${UNITY_SRC}"
     )
 add_unit_test(serial_packet "${serial_packet_srcs}")
 
@@ -386,8 +380,6 @@ set(serial_handler_access_srcs
     mocks/serial_mock.c
     mocks/access_config_mock.c
     mocks/access_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(serial_handler_access "${serial_handler_access_srcs}")
 
@@ -398,8 +390,6 @@ set(serial_handler_models_srcs
     ../src/serial/serial_handler_common.c
     mocks/serial_mock.c
     mocks/access_config_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(serial_handler_models "${serial_handler_models_srcs}" "-DACCESS_MODEL_COUNT=2")
 
@@ -411,8 +401,6 @@ set(serial_pb_remote_client_srcs
     mocks/serial_mock.c
     mocks/pb_remote_client_mock.c
     mocks/access_config_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(serial_pb_remote_client "${serial_pb_remote_client_srcs}" "-DSERIAL_PB_REMOTE_CLIENT_INSTANCE_COUNT=2")
 
@@ -428,8 +416,6 @@ set(serial_handler_mesh_srcs
     mocks/access_mock.c
     mocks/net_state_mock.c
     mocks/device_state_manager_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(serial_handler_mesh "${serial_handler_mesh_srcs}")
 
@@ -444,28 +430,46 @@ set(serial_handler_device_srcs
     mocks/radio_mock.c
     mocks/bearer_adv_mock.c
     mocks/packet_mgr_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(serial_handler_device "${serial_handler_device_srcs}" "-DNRF_MESH_SERIAL_BEACON_SLOTS=3")
 
-# Serial handler
-set(serial_handler_srcs
-    src/ut_serial_handler.c
-    ../src/serial/serial_handler.c
-    ../src/core/log.c
-    mocks/nrf_mesh_mock.c
-    mocks/internal_event_mock.c
-    mocks/nrf_mesh_configure_mock.c
+# Serial handler DFU
+set(serial_handler_dfu_srcs
+    src/ut_serial_handler_dfu.c
+    ../src/serial/serial_handler_dfu.c
+    mocks/serial_mock.c
+    mocks/nrf_mesh_dfu_mock.c
     mocks/nrf_mesh_events_mock.c
+    )
+add_unit_test(serial_handler_dfu "${serial_handler_dfu_srcs}" "-DNRF_MESH_DFU_ENABLE")
+
+# Application serial handler
+set(serial_handler_app_srcs
+    src/ut_serial_handler_app.c
+    ../src/serial/serial_handler_app.c
+    mocks/serial_mock.c
+    )
+add_unit_test(serial_handler_app "${serial_handler_app_srcs}")
+
+# Config serial handler
+set(serial_handler_config_srcs
+    src/ut_serial_handler_config.c
+    ../src/serial/serial_handler_config.c
     mocks/bearer_adv_mock.c
+    mocks/serial_mock.c
+    mocks/nrf_mesh_configure_mock.c
+    )
+add_unit_test(serial_handler_config "${serial_handler_config_srcs}")
+
+# OpenMesh serial handler
+set(serial_handler_openmesh_srcs
+    src/ut_serial_handler_openmesh.c
+    ../src/serial/serial_handler_openmesh.c
     mocks/serial_mock.c
     mocks/nrf_mesh_dfu_mock.c
     mocks/hal_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
-add_unit_test(serial_handler "${serial_handler_srcs}" "-DNRF_MESH_DFU_ENABLE")
+add_unit_test(serial_handler_openmesh "${serial_handler_openmesh_srcs}" "-DNRF_MESH_DFU_ENABLE")
 
 # Flash module
 set(mesh_flash_srcs
@@ -474,8 +478,6 @@ set(mesh_flash_srcs
     ../src/core/msqueue.c
     mocks/nrf_flash_mock.c
     mocks/timer_mock.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     )
 add_unit_test(mesh_flash "${mesh_flash_srcs}")
 
@@ -486,8 +488,6 @@ set(nrf_mesh_srcs
     ../src/core/log.c
     ../src/core/packet_mgr.c
     ../src/core/nrf_mesh_utils.c
-    "${UNITY_SRC}"
-    "${CMOCK_SRC}"
     mocks/toolchain_mock.c
     mocks/timer_scheduler_mock.c
     mocks/transport_mock.c
@@ -516,12 +516,14 @@ set(serial_srcs
     mocks/serial_handler_models_mock.c
     mocks/bearer_event_mock.c
     mocks/serial_bearer_mock.c
-    mocks/serial_handler_mock.c
+    mocks/serial_handler_app_mock.c
+    mocks/serial_handler_config_mock.c
+    mocks/serial_handler_dfu_mock.c
     mocks/serial_handler_mesh_mock.c
+    mocks/serial_handler_openmesh_mock.c
     mocks/serial_handler_device_mock.c
     mocks/serial_handler_prov_mock.c
-    "${CMOCK_SRC}"
-    "${UNITY_SRC}"
+    mocks/serial_handler_dfu_mock.c
     )
 add_unit_test(serial "${serial_srcs}" "-DNRF51")
 
@@ -554,15 +556,12 @@ set(ticker_srcs
     ../src/core/ticker.c
     mocks/timer_mock.c
     mocks/timer_scheduler_mock.c
-    "${CMOCK_SRC}"
-    "${UNITY_SRC}"
     )
 add_unit_test(ticker "${ticker_srcs}" "-DNRF51")
 
 set(queue_srcs
   src/ut_queue.c
   ../src/core/queue.c
-  "${UNITY_SRC}"
   )
 add_unit_test(queue "${queue_srcs}")
 
@@ -680,7 +679,10 @@ set(config_server_srcs
     mocks/nrf_mesh_keygen_mock.c
     mocks/rand_mock.c
     )
-add_unit_test(config_server "${config_server_srcs}" "-DACCESS_ELEMENT_COUNT=1024")
+set(config_server_defines
+    -DACCESS_ELEMENT_COUNT=1024
+    -DACCESS_SUBSCRIPTION_LIST_COUNT=3)
+add_unit_test(config_server "${config_server_srcs}" "${config_server_defines}")
 
 set(composition_data_srcs
     src/ut_composition_data.c
@@ -694,7 +696,7 @@ set(composition_data_defines
     -DREPLAY_CACHE_ENTRIES=0x0008
     -DDEVICE_FEATURES=0x0003
     -DACCESS_ELEMENT_COUNT=1
-    -DACCESS_MODEL_COUNT=6
+    -DACCESS_MODEL_COUNT=7
     )
 add_unit_test(composition_data "${composition_data_srcs}" "${composition_data_defines}")
 
@@ -708,6 +710,7 @@ set(device_state_manager_srcs
     mocks/net_state_mock.c
     mocks/flash_manager_mock.c
     mocks/event_mock.c
+    mocks/bearer_event_mock.c
     )
 add_unit_test(device_state_manager "${device_state_manager_srcs}")
 

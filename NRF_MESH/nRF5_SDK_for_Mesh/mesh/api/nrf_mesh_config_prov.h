@@ -44,11 +44,6 @@
  * @{
  */
 
-/** Remote acknowledgment timeout for PB-MESH.  */
-#ifndef NRF_MESH_PROV_MESH_ACK_TIMEOUT
-#define NRF_MESH_PROV_MESH_ACK_TIMEOUT 2000000
-#endif
-
 /** Maximum number of UUIDs in local UUID cache. */
 #ifndef NRF_MESH_PROV_MESH_SERVER_UUID_LIST_SIZE
 #define NRF_MESH_PROV_MESH_SERVER_UUID_LIST_SIZE 3
@@ -71,7 +66,7 @@
 
 /** Unprovisioned beacon default advertisement interval. */
 #ifndef NRF_MESH_UNPROV_BEACON_INTERVAL_MS
-#define NRF_MESH_UNPROV_BEACON_INTERVAL_MS (2000)
+#define NRF_MESH_UNPROV_BEACON_INTERVAL_MS 2000
 #endif
 
 /** @} end of NRF_MESH_CONFIG_PROV_BEARER */

@@ -64,6 +64,8 @@ typedef enum
     ENC_NONCE_DEV = 0x02               /**< Nonce for device key data. */
 } enc_nonce_t;
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * Network nonce structure.
  */
@@ -84,8 +86,9 @@ typedef struct __attribute((packed))
 typedef struct __attribute((packed))
 {
     uint8_t  type;              /**< Nonce type. */
-    uint32_t zero1 : 8;         /**< Zero byte. */
-    uint32_t seq   : 24;        /**< Sequence number. */
+    uint32_t padding : 7;       /**< Padding bits. */
+    uint32_t aszmic  : 1;       /**< Application MIC size bit if segmented message, 0 otherwise. */
+    uint32_t seq     : 24;      /**< Sequence number. */
     uint16_t src;               /**< Source address. */
     uint16_t dst;               /**< Destination address. */
     uint32_t iv_index;          /**< IV index. */
@@ -94,15 +97,9 @@ typedef struct __attribute((packed))
 /**
  * Device key nonce structure.
  */
-typedef struct __attribute((packed))
-{
-    uint8_t  type;              /**< Nonce type. */
-    uint32_t zero1 : 8;         /**< Zero byte. */
-    uint32_t seq   : 24;        /**< Sequence number. */
-    uint16_t src;               /**< Source address. */
-    uint16_t dst;               /**< Destination address. */
-    uint32_t iv_index;          /**< IV index. */
-} enc_nonce_dev_t;
+typedef enc_nonce_app_t enc_nonce_dev_t;
+
+/*lint -align_max(pop) */
 
 /**
  * Generates a cryptographic key.
@@ -148,16 +145,17 @@ void enc_aes_ccm_decrypt(ccm_soft_data_t * const p_ccm_data, bool * const p_mic_
 /**
  * Utility function for generating nonce vector.
  *
- * @param p_net_pkt_hdr Pointer to network packet header.
- * @param iv_index IV index (in big endian).
- * @param type     Type of nonce: @ref ENC_NONCE_APP or @ref ENC_NONCE_NET.
- * @param p_nonce  Pointer to buffer of size @ref CCM_NONCE_LENGTH for storing
- *                 nonce.
+ * @param[in]  p_net_pkt_hdr Pointer to network packet header.
+ * @param[in]  iv_index      IV index (in big endian).
+ * @param[in]  aszmic        Application MIC size bit. Only used for application/device keys.
+ * @param[in]  type          Type of nonce.
+ * @param[out] p_nonce       Pointer to buffer of size @ref CCM_NONCE_LENGTH for storing nonce.
  */
-void enc_nonce_generate(packet_net_hdr_t const * const p_net_pkt_hdr,
+void enc_nonce_generate(const packet_net_hdr_t * p_net_pkt_hdr,
                         uint32_t iv_index,
                         enc_nonce_t type,
-                        uint8_t * const p_nonce);
+                        uint8_t aszmic,
+                        uint8_t * p_nonce);
 
 /**
  * Salt generation function `s1`.

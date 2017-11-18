@@ -39,7 +39,7 @@
 #include "unity.h"
 
 #include "nrf_error.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_assert.h"
 #include "nrf_mesh_config_core.h"
 
@@ -86,7 +86,7 @@ static uint32_t m_channel_frequency_offset_get(uint32_t channel)
     {
         offset = 6 + channel * 2;
     }
-    else if(channel < RADIO_NO_RF_CHANNELS)
+    else if (channel < RADIO_NO_RF_CHANNELS)
     {
         static const uint8_t adv_freqs[] = {2, 26, 80};
         offset = adv_freqs[(channel - 37)];
@@ -161,7 +161,7 @@ void test_radio_config(void)
     /* Check that channel settings was untouched until here */
     TEST_ASSERT_EQUAL(0, m_radio.FREQUENCY);
     TEST_ASSERT_EQUAL(0, m_radio.DATAWHITEIV);
-    for(int i=0; i<RADIO_NO_RF_CHANNELS; i++)
+    for (int i=0; i<RADIO_NO_RF_CHANNELS; i++)
     {
         radio_config_channel_set(i);
         TEST_ASSERT_EQUAL(m_channel_frequency_offset_get(i), m_radio.FREQUENCY);
@@ -210,11 +210,11 @@ void test_radio_config_unhappy(void)
     radio_config_config(&my_radio_config);
 
     /* Test that the radio config is not happy with invalid modes */
-    my_radio_config.datarate = RADIO_MODE_BLE_1MBIT + 1;
+    my_radio_config.datarate = RADIO_MODE_BLE_1MBIT + 1; /*lint !e64 Invalid value for enum */
 #ifdef NRF52
     radio_config_config(&my_radio_config);
     m_radio_config_config_state_verify(my_radio_config, 6, 1, 2);
-    my_radio_config.datarate = RADIO_MODE_NRF_62K5BIT + 1;
+    my_radio_config.datarate = RADIO_MODE_NRF_62K5BIT + 1; /*lint !e64 Invalid value for enum */
 #endif
     TEST_NRF_MESH_ASSERT_EXPECT(radio_config_config(&my_radio_config));
 

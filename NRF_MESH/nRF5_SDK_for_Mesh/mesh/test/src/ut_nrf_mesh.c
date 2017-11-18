@@ -71,11 +71,11 @@ static nrf_mesh_adv_packet_rx_data_t m_adv_packet_rx_data_expect;
 
 static void initialize_mesh(nrf_mesh_init_params_t * p_init_params)
 {
-#if __linux__
+#ifdef __linux__
     toolchain_init_irqs_Expect();
 #endif
     nrf_mesh_configure_device_uuid_reset_Expect();
-    msg_cache_init_ExpectAndReturn(NRF_SUCCESS);
+    msg_cache_init_Expect();
     timer_sch_init_Expect();
     bearer_event_init_Expect();
     bearer_init_ExpectAndReturn(p_init_params, NRF_SUCCESS);
@@ -83,7 +83,7 @@ static void initialize_mesh(nrf_mesh_init_params_t * p_init_params)
     network_init_Expect(p_init_params);
     ticker_init_Expect();
     mesh_flash_init_Expect();
-    beacon_init_ExpectAndReturn(BEACON_INTERVAL_MS_DEFAULT, NRF_SUCCESS);
+    beacon_init_Expect(BEACON_INTERVAL_MS_DEFAULT);
     flash_manager_init_Expect();
 
     TEST_ASSERT_EQUAL(NRF_SUCCESS, nrf_mesh_init(p_init_params));
@@ -106,23 +106,23 @@ static void rx_cb(const nrf_mesh_adv_packet_rx_data_t * p_rx_data)
 
 void setUp(void)
 {
-    CMOCK_SETUP(toolchain);
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(transport);
-    CMOCK_SETUP(network);
-    CMOCK_SETUP(msg_cache);
-    CMOCK_SETUP(bearer);
-    CMOCK_SETUP(enc);
-    CMOCK_SETUP(rand);
-    CMOCK_SETUP(nrf_mesh_dfu);
-    CMOCK_SETUP(bearer_event);
-    CMOCK_SETUP(beacon);
-    CMOCK_SETUP(event);
-    CMOCK_SETUP(nrf_mesh_configure);
-    CMOCK_SETUP(prov_bearer_adv);
-    CMOCK_SETUP(ticker);
-    CMOCK_SETUP(mesh_flash);
-    CMOCK_SETUP(flash_manager);
+    toolchain_mock_Init();
+    timer_scheduler_mock_Init();
+    transport_mock_Init();
+    network_mock_Init();
+    msg_cache_mock_Init();
+    bearer_mock_Init();
+    enc_mock_Init();
+    rand_mock_Init();
+    nrf_mesh_dfu_mock_Init();
+    bearer_event_mock_Init();
+    beacon_mock_Init();
+    event_mock_Init();
+    nrf_mesh_configure_mock_Init();
+    prov_bearer_adv_mock_Init();
+    ticker_mock_Init();
+    mesh_flash_mock_Init();
+    flash_manager_mock_Init();
 
     __LOG_INIT((LOG_SRC_API | LOG_SRC_TEST), LOG_LEVEL_ERROR, LOG_CALLBACK_DEFAULT);
 
@@ -132,7 +132,7 @@ void setUp(void)
      */
     static bool initialized = false;
     nrf_mesh_init_params_t init_params = {};
-    if(!initialized)
+    if (!initialized)
     {
         initialize_mesh(&init_params);
         initialized = true;
@@ -143,7 +143,40 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    toolchain_mock_Verify();
+    toolchain_mock_Destroy();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    transport_mock_Verify();
+    transport_mock_Destroy();
+    network_mock_Verify();
+    network_mock_Destroy();
+    msg_cache_mock_Verify();
+    msg_cache_mock_Destroy();
+    bearer_mock_Verify();
+    bearer_mock_Destroy();
+    enc_mock_Verify();
+    enc_mock_Destroy();
+    rand_mock_Verify();
+    rand_mock_Destroy();
+    nrf_mesh_dfu_mock_Verify();
+    nrf_mesh_dfu_mock_Destroy();
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
+    beacon_mock_Verify();
+    beacon_mock_Destroy();
+    event_mock_Verify();
+    event_mock_Destroy();
+    nrf_mesh_configure_mock_Verify();
+    nrf_mesh_configure_mock_Destroy();
+    prov_bearer_adv_mock_Verify();
+    prov_bearer_adv_mock_Destroy();
+    ticker_mock_Verify();
+    ticker_mock_Destroy();
+    mesh_flash_mock_Verify();
+    mesh_flash_mock_Destroy();
+    flash_manager_mock_Verify();
+    flash_manager_mock_Destroy();
 }
 
 /*************** Test Cases ***************/

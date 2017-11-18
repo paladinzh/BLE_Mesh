@@ -63,7 +63,7 @@ static uint32_t m_bearer_if_tx(prov_bearer_t * p_bearer, const uint8_t * p_data,
 static uint32_t m_bearer_if_listen_start(prov_bearer_t * p_bearer, const char * p_uri, uint16_t oob_info, uint32_t link_timeout_us);
 static uint32_t m_bearer_if_listen_stop(prov_bearer_t * p_bearer);
 static uint32_t m_bearer_if_link_open(prov_bearer_t * p_bearer, const uint8_t * p_uuid, uint32_t link_timeout_us);
-static uint32_t m_bearer_if_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
+static void m_bearer_if_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
 
 static nrf_mesh_prov_link_close_reason_t m_close_reason;
 static uint8_t * mp_rx_pointer;
@@ -87,18 +87,18 @@ static prov_bearer_callbacks_t m_callbacks =
 static prov_bearer_t m_bearer;
 
 /********** Mesh Assertion Handling **********/
-nrf_mesh_assertion_handler_t m_assertion_handler;
-void nrf_mesh_assertion_handler(uint32_t pc)
+static void nrf_mesh_assertion_handler(uint32_t pc)
 {
     TEST_FAIL_MESSAGE("Mesh assertion triggered");
 }
+nrf_mesh_assertion_handler_t m_assertion_handler = nrf_mesh_assertion_handler;
 
 /********** Test Initialization and Finalization ***********/
 
 void setUp(void)
 {
-    CMOCK_SETUP(event);
-    CMOCK_SETUP(enc);
+    event_mock_Init();
+    enc_mock_Init();
     memset(&m_bearer, 0, sizeof(m_bearer));
     m_bearer.p_callbacks = &m_callbacks;
     m_cb_rx_expected = 0;
@@ -109,19 +109,22 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    event_mock_Verify();
+    event_mock_Destroy();
+    enc_mock_Verify();
+    enc_mock_Destroy();
 }
 
 /********** Callbacks ***********/
 
 #define TX_EXPECT_WITH_DATA_ARRAY_AND_RETURN(p_bearer, p_data, data_length, length, retval) \
     do { \
-        mp_bearer_if_tx_expect_bearer = p_bearer; \
-        mp_bearer_if_tx_expect_data = p_data; \
-        m_bearer_if_tx_expect_data_length = data_length; \
-        m_bearer_if_tx_expect_length = length; \
-        m_bearer_if_tx_retval = retval; \
-    } while(0);
+        mp_bearer_if_tx_expect_bearer = (p_bearer); \
+        mp_bearer_if_tx_expect_data = (p_data); \
+        m_bearer_if_tx_expect_data_length = (data_length); \
+        m_bearer_if_tx_expect_length = (length); \
+        m_bearer_if_tx_retval = (retval); \
+    } while (0);
 
 static prov_bearer_t * mp_bearer_if_tx_expect_bearer;
 static const uint8_t * mp_bearer_if_tx_expect_data;
@@ -144,7 +147,7 @@ static uint32_t m_bearer_if_tx(prov_bearer_t * p_bearer, const uint8_t * p_data,
         m_bearer_if_listen_start_expect_oob_info = oob_info; \
         m_bearer_if_listen_start_expect_timeout = link_timeout; \
         m_bearer_if_listen_start_return = retval; \
-    } while(0);
+    } while (0);
 
 static prov_bearer_t * mp_bearer_if_listen_start_expect_bearer;
 static const char * mp_bearer_if_listen_start_expect_uri;
@@ -165,7 +168,7 @@ static uint32_t m_bearer_if_listen_start(prov_bearer_t * p_bearer, const char * 
     do { \
         mp_bearer_if_listen_stop_expect_bearer = p_bearer; \
         m_bearer_if_listen_stop_retval = reval; \
-    } while(0);
+    } while (0);
 
 static prov_bearer_t * mp_bearer_if_listen_stop_expect_bearer;
 static uint32_t m_bearer_if_listen_stop_return;
@@ -182,7 +185,7 @@ static uint32_t m_bearer_if_listen_stop(prov_bearer_t * p_bearer)
         mp_bearer_if_link_open_expect_uuid = p_uuid; \
         m_bearer_if_link_open_expect_timeout = link_timeout; \
         m_bearer_if_link_open_retval = retval; \
-    } while(0);
+    } while (0);
 
 static prov_bearer_t * mp_bearer_if_link_open_expect_bearer;
 static const uint8_t * mp_bearer_if_link_open_expect_uuid;
@@ -197,22 +200,19 @@ static uint32_t m_bearer_if_link_open(prov_bearer_t * p_bearer, const uint8_t * 
     return m_bearer_if_link_open_retval;
 }
 
-#define LINK_CLOSE_EXPECT_AND_RETURN(p_bearer, close_reason, retval) \
+#define LINK_CLOSE_EXPECT(p_bearer, close_reason) \
     do { \
         mp_bearer_if_link_close_expect_bearer = p_bearer; \
         m_bearer_if_link_close_close_reason = close_reason; \
-        m_bearer_if_link_close_retval = retval; \
-    } while(0);
+    } while (0);
 
 static prov_bearer_t * mp_bearer_if_link_close_expect_bearer;
 static nrf_mesh_prov_link_close_reason_t m_bearer_if_link_close_close_reason;
-static uint32_t m_bearer_if_link_close_retval;
 
-static uint32_t m_bearer_if_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
+static void m_bearer_if_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
 {
     TEST_ASSERT_EQUAL_PTR(mp_bearer_if_link_close_expect_bearer, p_bearer);
     TEST_ASSERT_EQUAL(m_bearer_if_link_close_close_reason, close_reason);
-    return m_bearer_if_link_close_retval;
 }
 
 static void m_prov_cb_rx(prov_bearer_t * p_bearer, const uint8_t * p_data, uint16_t length)
@@ -272,7 +272,7 @@ void test_link_management(void)
     TEST_ASSERT_EQUAL(PROV_PROVISIONING_LINK_TIMEOUT_MIN_US, m_bearer.timeout);
 
     /* Start as provisioner */
-    uint8_t UUID[NRF_MESH_UUID_SIZE];
+    uint8_t UUID[NRF_MESH_UUID_SIZE] = {};
 
     LINK_OPEN_EXPECT_AND_RETURN(&m_bearer, UUID, PROV_PROVISIONING_LINK_TIMEOUT_MIN_US, ARBITRARY_ERROR);
     TEST_ASSERT_EQUAL_HEX32(ARBITRARY_ERROR, prov_link_open(&m_bearer, UUID));
@@ -282,11 +282,8 @@ void test_link_management(void)
     TEST_ASSERT_EQUAL(PROV_PROVISIONING_LINK_TIMEOUT_MIN_US, m_bearer.timeout);
 
     /* Close link */
-    LINK_CLOSE_EXPECT_AND_RETURN(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR, ARBITRARY_ERROR);
-    TEST_ASSERT_EQUAL_HEX32(ARBITRARY_ERROR, prov_link_close(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR));
-
-    LINK_CLOSE_EXPECT_AND_RETURN(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR, NRF_SUCCESS);
-    TEST_ASSERT_EQUAL_HEX32(NRF_SUCCESS, prov_link_close(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR));
+    LINK_CLOSE_EXPECT(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
+    prov_link_close(&m_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
 }
 
 void test_prov_tx(void)
@@ -424,10 +421,10 @@ void test_prov_tx(void)
     failed_pdu.failure_code = 0x43; //arbitrary 8bit number
 
     TX_EXPECT_WITH_DATA_ARRAY_AND_RETURN(&m_bearer, (const void *) &failed_pdu, 2, 2, ARBITRARY_ERROR);
-    TEST_ASSERT_EQUAL_HEX32(ARBITRARY_ERROR, prov_tx_failed(&m_bearer, 0x43));
+    TEST_ASSERT_EQUAL_HEX32(ARBITRARY_ERROR, prov_tx_failed(&m_bearer, (nrf_mesh_prov_failure_code_t) 0x43));
 
     TX_EXPECT_WITH_DATA_ARRAY_AND_RETURN(&m_bearer, (const void *) &failed_pdu, 2, 2, NRF_SUCCESS);
-    TEST_ASSERT_EQUAL_HEX32(NRF_SUCCESS, prov_tx_failed(&m_bearer, 0x43));
+    TEST_ASSERT_EQUAL_HEX32(NRF_SUCCESS, prov_tx_failed(&m_bearer, (nrf_mesh_prov_failure_code_t) 0x43));
 }
 
 void test_callbacks(void)
@@ -440,9 +437,9 @@ void test_callbacks(void)
     TEST_ASSERT_EQUAL(0, m_cb_link_opened_expected);
 
     /* Link closed */
-    m_close_reason = 0x43;
+    m_close_reason = (nrf_mesh_prov_link_close_reason_t) 0x43;
     m_cb_link_closed_expected = 1;
-    prov_cb_link_closed(&m_bearer, 0x43);
+    prov_cb_link_closed(&m_bearer, (nrf_mesh_prov_link_close_reason_t) 0x43);
     TEST_ASSERT_EQUAL(0, m_cb_link_closed_expected);
 
     /* Packet in */
@@ -463,7 +460,7 @@ void test_length_check(void)
 {
     uint32_t length[PROV_PDU_TYPE_COUNT];
 
-    /* Lengths from Mesh spec d9r19, including the opcode field */
+    /* Lengths from the specification sample data, including the opcode field */
     length[PROV_PDU_TYPE_INVITE]         = 2;
     length[PROV_PDU_TYPE_CAPABILITIES]   = 12;
     length[PROV_PDU_TYPE_START]          = 6;

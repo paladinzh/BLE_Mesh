@@ -41,7 +41,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_serial.h"
 #include "nrf_mesh_assert.h"
 
@@ -112,7 +112,7 @@ uint32_t serial_uart_init(serial_uart_rx_cb_t rx_cb, serial_uart_tx_cb_t tx_cb)
 void serial_uart_process(void)
 {
     /* receive all pending bytes */
-    while(m_can_receive && NRF_UART0->EVENTS_RXDRDY)
+    while (m_can_receive && NRF_UART0->EVENTS_RXDRDY)
     {
         NRF_UART0->EVENTS_RXDRDY = 0;
         (void) NRF_UART0->EVENTS_RXDRDY;
@@ -123,7 +123,7 @@ void serial_uart_process(void)
     }
 
     /* transmit any pending bytes */
-    if(NRF_UART0->EVENTS_TXDRDY)
+    if (NRF_UART0->EVENTS_TXDRDY)
     {
         NRF_UART0->EVENTS_TXDRDY = 0;
         (void) NRF_UART0->EVENTS_TXDRDY;

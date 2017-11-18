@@ -39,7 +39,7 @@
 #include <stdbool.h>
 #include "unity.h"
 #include "timer.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_error.h"
 #include "nrf_mesh_assert.h"
 
@@ -145,9 +145,9 @@ void setUp(void)
 
 void tearDown(void)
 {
-    timer_abort(0);
-    timer_abort(1);
-    timer_abort(2);
+    (void) timer_abort(0);
+    (void) timer_abort(1);
+    (void) timer_abort(2);
     s_ts_end(0xFFFFFF);
 }
 
@@ -189,24 +189,27 @@ void test_timer_return_codes(void)
     TEST_ASSERT_EQUAL(NRF_ERROR_NOT_FOUND, timer_abort(0));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_abort(3));
 
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_cb(3, 3000, callback3000, 0));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_cb_ppi(3, 3000, callback3000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_ppi(3, 1000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0));
+    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_cb(3, 3000, callback3000, TIMER_ATTR_NONE));
+    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_cb_ppi(3, 3000, callback3000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_NONE));
+    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, timer_order_ppi(3, 1000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_NONE));
 
+    /*lint -save -e64 Invalid value used for enum parameter (0xff) */
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_FLAGS, timer_order_cb(1, 3000, callback3000, 0xFF));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_FLAGS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0xFF));
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_FLAGS, timer_order_ppi(1, 1000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0xFF));
+    /*lint -restore */
+
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_FLAGS, timer_order_ppi(1, 1000, (uint32_t*) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_SYNCHRONOUS));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, TIMER_ATTR_NONE));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, TIMER_ATTR_SYNCHRONOUS));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, TIMER_ATTR_SYNCHRONOUS | TIMER_ATTR_TIMESLOT_LOCAL));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, TIMER_ATTR_TIMESLOT_LOCAL));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_NONE));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_TIMESLOT_LOCAL));
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_ppi(1, 1000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_ppi(1, 1000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_NONE));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_ppi(1, 1000, (uint32_t*) (uint32_t) &(NRF_TIMER0->TASKS_CAPTURE[0]), TIMER_ATTR_TIMESLOT_LOCAL));
 }
 
@@ -233,7 +236,7 @@ void test_timer_callback(void)
 void test_timer_ppi(void)
 {
     s_ts_begin(0);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_ppi(1, 3000, (uint32_t*) 0xAABBCCDD, 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_ppi(1, 3000, (uint32_t*) 0xAABBCCDD, TIMER_ATTR_NONE));
     TEST_ASSERT_EQUAL(0xAABBCCDD, NRF_PPI->CH[TIMER_PPI_CH_START + 1].TEP);
     TEST_ASSERT_EQUAL((uint32_t*) (uint32_t) &(NRF_TIMER0->EVENTS_COMPARE[1]), NRF_PPI->CH[TIMER_PPI_CH_START + 1].EEP);
     TEST_ASSERT_EQUAL((1 << (PPI_CHEN_CH0_Pos + TIMER_PPI_CH_START + 1)), NRF_PPI->CHENSET);
@@ -243,13 +246,13 @@ void test_timer_ppi_cb(void)
 {
     s_ts_begin(0);
     TEST_ASSERT_EQUAL(0, m_callbacks_called);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) 0xAABBCCDD, 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(1, 3000, callback3000, (uint32_t*) 0xAABBCCDD, TIMER_ATTR_NONE));
 
     TEST_ASSERT_EQUAL((1 << (PPI_CHEN_CH0_Pos + TIMER_PPI_CH_START + 1)), NRF_PPI->CHENSET);
     TEST_ASSERT_EQUAL(0xAABBCCDD, NRF_PPI->CH[TIMER_PPI_CH_START + 1].TEP);
     TEST_ASSERT_EQUAL((uint32_t*) (uint32_t) &(NRF_TIMER0->EVENTS_COMPARE[1]), NRF_PPI->CH[TIMER_PPI_CH_START + 1].EEP);
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(2, 5000, callback5000, (uint32_t*) 0x00AABBCC, 0));
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb_ppi(2, 5000, callback5000, (uint32_t*) 0x00AABBCC, TIMER_ATTR_NONE));
     TEST_ASSERT_EQUAL(0x00AABBCC, NRF_PPI->CH[TIMER_PPI_CH_START + 2].TEP);
     TEST_ASSERT_EQUAL((uint32_t*) (uint32_t) &(NRF_TIMER0->EVENTS_COMPARE[2]), NRF_PPI->CH[TIMER_PPI_CH_START + 2].EEP);
     TEST_ASSERT_EQUAL((1 << (PPI_CHEN_CH0_Pos + TIMER_PPI_CH_START + 2)), NRF_PPI->CHENSET);
@@ -264,7 +267,7 @@ void test_timer_ppi_cb(void)
 void test_timer_reference(void)
 {
     s_ts_begin(1000);
-    timer_order_cb(1, 3000, callback3000, TIMER_ATTR_SYNCHRONOUS);
+    TEST_ASSERT_EQUAL(NRF_SUCCESS, timer_order_cb(1, 3000, callback3000, TIMER_ATTR_SYNCHRONOUS));
     TEST_ASSERT_EQUAL(0, m_callbacks_called);
     s_timer_event_trigger(1, 3000 - 1000);
     TEST_ASSERT_EQUAL(1, m_callbacks_called);

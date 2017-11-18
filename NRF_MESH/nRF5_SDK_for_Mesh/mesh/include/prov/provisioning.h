@@ -44,6 +44,7 @@
 
 #include "nrf_mesh_prov.h"
 #include "nrf_mesh_assert.h"
+#include "nrf_mesh_utils.h"
 
 /**
  * @defgroup MESH_PROV Provisioning components
@@ -163,6 +164,20 @@ static inline prov_common_ctx_t * prov_bearer_ctx_get(prov_bearer_t * p_bearer)
 
 
 /**
+ * Verify provisioning data.
+ *
+ * @param[in] p_data Data to verify
+ *
+ * @returns Whether the provisioning data satisfies all boundary conditions.
+ */
+static inline bool prov_data_is_valid(const nrf_mesh_prov_provisioning_data_t * p_data)
+{
+    return (p_data->netkey_index <= NRF_MESH_GLOBAL_KEY_INDEX_MAX &&
+            nrf_mesh_address_type_get(p_data->address) == NRF_MESH_ADDRESS_TYPE_UNICAST);
+}
+
+
+/**
  * Checks if the length of a packet is valid.
  *
  * This is done by looking at the first byte (the PDU type) to determine the type of the
@@ -221,11 +236,8 @@ uint32_t prov_link_open(prov_bearer_t * p_bearer, const uint8_t * p_target_uuid)
  *
  * @param[in, out] p_bearer The bearer instance to use.
  * @param[in] close_reason Close reason to send to the peer device.
- *
- * @retval NRF_SUCCESS Successfully sent a link close message (repeated at least 3 times).
- * @retval NRF_ERROR_INVALID_STATE The given bearer was not in LINK OPENING or LINK OPEN state.
  */
-uint32_t prov_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
+void prov_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
 
 /****************** Provisioning PDU transmit functions ******************/
 

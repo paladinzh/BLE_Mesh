@@ -45,11 +45,11 @@ void serial_handler_common_cmd_rsp_nodata_on_error(uint8_t opcode, uint32_t stat
 {
     if (NRF_SUCCESS == status)
     {
-        serial_cmd_rsp_send(opcode, serial_translate_error(status),p_data, length);
+        (void) serial_cmd_rsp_send(opcode, serial_translate_error(status),p_data, length);
     }
     else
     {
-        serial_cmd_rsp_send(opcode, serial_translate_error(status), NULL, 0);
+        (void) serial_cmd_rsp_send(opcode, serial_translate_error(status), NULL, 0);
     }
 }
 
@@ -62,7 +62,7 @@ void serial_handler_common_rx(const serial_packet_t* p_cmd, const serial_handler
             if (p_cmd->length < SERIAL_PACKET_LENGTH_OVERHEAD + p_cmd_handlers[i].payload_minlen ||
                 p_cmd->length > SERIAL_PACKET_LENGTH_OVERHEAD + p_cmd_handlers[i].payload_minlen + p_cmd_handlers[i].payload_optional_extra_bytes)
             {
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
+                (void) serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
             }
             else
             {
@@ -73,5 +73,5 @@ void serial_handler_common_rx(const serial_packet_t* p_cmd, const serial_handler
             return;
         }
     }
-    serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
 }

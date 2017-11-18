@@ -39,7 +39,7 @@
 #define HAL_H__
 
 #include <stdint.h>
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 /**
  * @defgroup HAL Hardware Abstraction Layer

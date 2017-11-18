@@ -48,10 +48,10 @@
 #define RX_PACK_INVALID_PACK_LENGTH(CMD, MIN, MAX)  do \
                                                     { \
                                                         CMD.length = (MIN)-1;   \
-                                                        serial_cmd_rsp_send_ExpectAndReturn(CMD.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0);   \
+                                                        serial_cmd_rsp_send_Expect(CMD.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);   \
                                                         serial_handler_access_rx(&cmd); \
                                                         CMD.length = (MAX)+1;   \
-                                                        serial_cmd_rsp_send_ExpectAndReturn(CMD.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0);   \
+                                                        serial_cmd_rsp_send_Expect(CMD.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);   \
                                                         serial_handler_access_rx(&cmd); \
                                                     } while (0)
 nrf_mesh_assertion_handler_t m_assertion_handler;
@@ -71,14 +71,14 @@ static void test_access_model_pub_addr_set()
     access_model_publish_address_set_IgnoreArg_handle();
     access_model_publish_address_set_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_SET, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_SET, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_publish_address_set_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_publish_address_set_IgnoreArg_handle();
     access_model_publish_address_set_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -93,7 +93,7 @@ static void test_access_model_pub_addr_get()
     access_model_publish_address_get_IgnoreArg_handle();
     access_model_publish_address_get_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_addr_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_addr_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -101,7 +101,7 @@ static void test_access_model_pub_addr_get()
     access_model_publish_address_get_IgnoreArg_handle();
     access_model_publish_address_get_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_ADDR_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -112,20 +112,20 @@ static void test_access_model_pub_period_set()
     cmd.opcode = SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_SET;
     RX_PACK_INVALID_PACK_LENGTH(cmd, SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_pub_period_set_t), SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_pub_period_set_t));
     cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_pub_period_set_t);
-    access_model_publish_period_set_ExpectAndReturn(0, 0, 0, NRF_SUCCESS);
+    access_model_publish_period_set_ExpectAndReturn(0, (access_publish_resolution_t) 0, 0, NRF_SUCCESS);
     access_model_publish_period_set_IgnoreArg_resolution();
     access_model_publish_period_set_IgnoreArg_handle();
     access_model_publish_period_set_IgnoreArg_step_number();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_SET, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_SET, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
-    access_model_publish_period_set_ExpectAndReturn(0, 0, 0, NRF_ERROR_NO_MEM);
+    access_model_publish_period_set_ExpectAndReturn(0, (access_publish_resolution_t) 0, 0, NRF_ERROR_NO_MEM);
     access_model_publish_period_set_IgnoreArg_resolution();
     access_model_publish_period_set_IgnoreArg_handle();
     access_model_publish_period_set_IgnoreArg_step_number();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -140,7 +140,7 @@ static void test_access_model_pub_period_get()
     access_model_publish_period_get_IgnoreArg_p_resolution();
     access_model_publish_period_get_IgnoreArg_p_step_number();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_period_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_period_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -149,7 +149,7 @@ static void test_access_model_pub_period_get()
     access_model_publish_period_get_IgnoreArg_p_resolution();
     access_model_publish_period_get_IgnoreArg_p_step_number();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_PERIOD_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -164,14 +164,14 @@ static void test_access_model_subs_add()
     access_model_subscription_add_IgnoreArg_handle();
     access_model_subscription_add_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_ADD, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_ADD, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_subscription_add_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_subscription_add_IgnoreArg_handle();
     access_model_subscription_add_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_ADD, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_ADD, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -185,14 +185,14 @@ static void test_access_model_subs_remove()
     access_model_subscription_remove_IgnoreArg_handle();
     access_model_subscription_remove_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_REMOVE, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_REMOVE, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_subscription_remove_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_subscription_remove_IgnoreArg_handle();
     access_model_subscription_remove_IgnoreArg_address_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_REMOVE, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_REMOVE, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -207,7 +207,7 @@ static void test_access_model_subs_get()
     access_model_subscriptions_get_IgnoreArg_p_count();
     access_model_subscriptions_get_IgnoreArg_p_address_handles();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_subs_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_subs_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -216,7 +216,7 @@ static void test_access_model_subs_get()
     access_model_subscriptions_get_IgnoreArg_p_count();
     access_model_subscriptions_get_IgnoreArg_p_address_handles();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_INVALID_LENGTH, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_model_subs_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_model_subs_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -225,7 +225,7 @@ static void test_access_model_subs_get()
     access_model_subscriptions_get_IgnoreArg_p_count();
     access_model_subscriptions_get_IgnoreArg_p_address_handles();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_SUBS_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -240,14 +240,14 @@ static void test_access_model_app_bind()
     access_model_application_bind_IgnoreArg_handle();
     access_model_application_bind_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_BIND, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_BIND, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_application_bind_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_application_bind_IgnoreArg_handle();
     access_model_application_bind_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_BIND, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_BIND, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -261,14 +261,14 @@ static void test_access_model_app_unbind()
     access_model_application_unbind_IgnoreArg_handle();
     access_model_application_unbind_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_UNBIND, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_UNBIND, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_application_unbind_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_application_unbind_IgnoreArg_handle();
     access_model_application_unbind_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_UNBIND, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_UNBIND, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -283,7 +283,7 @@ static void test_access_model_app_get()
     access_model_applications_get_IgnoreArg_p_count();
     access_model_applications_get_IgnoreArg_p_appkey_handles();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_apps_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_apps_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -292,7 +292,7 @@ static void test_access_model_app_get()
     access_model_applications_get_IgnoreArg_p_count();
     access_model_applications_get_IgnoreArg_p_appkey_handles();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_INVALID_LENGTH, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_model_apps_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_model_apps_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -301,7 +301,7 @@ static void test_access_model_app_get()
     access_model_applications_get_IgnoreArg_p_count();
     access_model_applications_get_IgnoreArg_p_appkey_handles();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_APP_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -316,14 +316,14 @@ static void test_access_model_pub_app_set()
     access_model_publish_application_set_IgnoreArg_handle();
     access_model_publish_application_set_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_SET, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_SET, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_publish_application_set_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_publish_application_set_IgnoreArg_handle();
     access_model_publish_application_set_IgnoreArg_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -337,7 +337,7 @@ static void test_access_model_pub_app_get()
     access_model_publish_application_get_IgnoreArg_handle();
     access_model_publish_application_get_IgnoreArg_p_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_app_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_app_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -345,7 +345,7 @@ static void test_access_model_pub_app_get()
     access_model_publish_application_get_IgnoreArg_handle();
     access_model_publish_application_get_IgnoreArg_p_appkey_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_APP_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -360,14 +360,14 @@ static void test_access_model_pub_ttl_set()
     access_model_publish_ttl_set_IgnoreArg_handle();
     access_model_publish_ttl_set_IgnoreArg_ttl();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_SET, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_SET, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_model_publish_ttl_set_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_model_publish_ttl_set_IgnoreArg_handle();
     access_model_publish_ttl_set_IgnoreArg_ttl();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -381,7 +381,7 @@ static void test_access_model_pub_ttl_get()
     access_model_publish_ttl_get_IgnoreArg_handle();
     access_model_publish_ttl_get_IgnoreArg_p_ttl();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_ttl_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_pub_ttl_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -389,7 +389,7 @@ static void test_access_model_pub_ttl_get()
     access_model_publish_ttl_get_IgnoreArg_handle();
     access_model_publish_ttl_get_IgnoreArg_p_ttl();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_PUB_TTL_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -404,14 +404,14 @@ static void test_access_elem_loc_set()
     access_element_location_set_IgnoreArg_element_index();
     access_element_location_set_IgnoreArg_location();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_SET, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_SET, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 
     access_element_location_set_ExpectAndReturn(0, 0, NRF_ERROR_NO_MEM);
     access_element_location_set_IgnoreArg_element_index();
     access_element_location_set_IgnoreArg_location();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_SET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
@@ -425,7 +425,7 @@ static void test_access_elem_loc_get()
     access_element_location_get_IgnoreArg_element_index();
     access_element_location_get_IgnoreArg_p_location();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_loc_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_loc_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -433,7 +433,7 @@ static void test_access_elem_loc_get()
     access_element_location_get_IgnoreArg_element_index();
     access_element_location_get_IgnoreArg_p_location();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_LOC_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -448,7 +448,7 @@ static void test_access_elem_sig_model_count_get()
     access_element_sig_model_count_get_IgnoreArg_element_index();
     access_element_sig_model_count_get_IgnoreArg_p_sig_model_count();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_SIG_MODEL_COUNT_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_model_count_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_SIG_MODEL_COUNT_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_model_count_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -456,7 +456,7 @@ static void test_access_elem_sig_model_count_get()
     access_element_sig_model_count_get_IgnoreArg_element_index();
     access_element_sig_model_count_get_IgnoreArg_p_sig_model_count();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_SIG_MODEL_COUNT_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_SIG_MODEL_COUNT_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -471,7 +471,7 @@ static void test_access_elem_vendor_model_count_get()
     access_element_vendor_model_count_get_IgnoreArg_element_index();
     access_element_vendor_model_count_get_IgnoreArg_p_vendor_model_count();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_VENDOR_MODEL_COUNT_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_model_count_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_VENDOR_MODEL_COUNT_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_model_count_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -479,7 +479,7 @@ static void test_access_elem_vendor_model_count_get()
     access_element_vendor_model_count_get_IgnoreArg_element_index();
     access_element_vendor_model_count_get_IgnoreArg_p_vendor_model_count();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_VENDOR_MODEL_COUNT_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_VENDOR_MODEL_COUNT_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -494,7 +494,7 @@ static void test_access_model_id_get()
     access_model_id_get_IgnoreArg_handle();
     access_model_id_get_IgnoreArg_p_model_id();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_ID_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_id_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_ID_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_id_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -502,7 +502,7 @@ static void test_access_model_id_get()
     access_model_id_get_IgnoreArg_handle();
     access_model_id_get_IgnoreArg_p_model_id();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_MODEL_ID_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_MODEL_ID_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 }
@@ -511,7 +511,7 @@ static void test_access_handle_get()
 {
     serial_packet_t cmd;
     cmd.opcode = SERIAL_OPCODE_CMD_ACCESS_HANDLE_GET;
-    access_model_id_t dummy;
+    access_model_id_t dummy = {};
     RX_PACK_INVALID_PACK_LENGTH(cmd, SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_handle_get_t), SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_handle_get_t));
     cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_access_handle_get_t);
     access_handle_get_ExpectAndReturn(0, dummy, NULL, NRF_SUCCESS);
@@ -519,7 +519,7 @@ static void test_access_handle_get()
     access_handle_get_IgnoreArg_element_index();
     access_handle_get_IgnoreArg_p_handle();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_HANDLE_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_handle_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_HANDLE_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_model_handle_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -528,7 +528,7 @@ static void test_access_handle_get()
     access_handle_get_IgnoreArg_element_index();
     access_handle_get_IgnoreArg_p_handle();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_HANDLE_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_HANDLE_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -544,7 +544,7 @@ static void test_access_elem_models_get()
     access_element_models_get_IgnoreArg_p_count();
     access_element_models_get_IgnoreArg_p_models();
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_models_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_SUCCESS, NULL, sizeof(serial_evt_cmd_rsp_data_elem_models_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -553,7 +553,7 @@ static void test_access_elem_models_get()
     access_element_models_get_IgnoreArg_p_count();
     access_element_models_get_IgnoreArg_p_models();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_INVALID_LENGTH, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_elem_models_get_t), 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, sizeof(serial_evt_cmd_rsp_data_elem_models_get_t));
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -562,7 +562,7 @@ static void test_access_elem_models_get()
     access_element_models_get_IgnoreArg_p_count();
     access_element_models_get_IgnoreArg_p_models();
     serial_translate_error_ExpectAndReturn(NRF_ERROR_NO_MEM, SERIAL_STATUS_ERROR_REJECTED);
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ELEM_MODELS_GET, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
     serial_cmd_rsp_send_IgnoreArg_p_data();
     serial_handler_access_rx(&cmd);
 
@@ -575,15 +575,15 @@ static void test_access_flash_store()
     RX_PACK_INVALID_PACK_LENGTH(cmd, SERIAL_PACKET_LENGTH_OVERHEAD, SERIAL_PACKET_LENGTH_OVERHEAD);
     cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD;
     access_flash_config_store_Expect();
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_ACCESS_ACCESS_FLASH_STORE, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_ACCESS_ACCESS_FLASH_STORE, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_access_rx(&cmd);
 }
 
 void setUp(void)
 {
-    CMOCK_SETUP(serial);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(access);
+    serial_mock_Init();
+    access_config_mock_Init();
+    access_mock_Init();
     m_assertion_handler = assertion_handler;
 }
 
@@ -592,7 +592,12 @@ void tearDown(void)
     serial_mock_Verify();
     access_config_mock_Verify();
     access_mock_Verify();
-    CMOCK_TEARDOWN();
+    serial_mock_Verify();
+    serial_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    access_mock_Verify();
+    access_mock_Destroy();
 }
 
 static void (*opcode_test_fp[])() ={test_access_model_pub_addr_set, test_access_model_pub_addr_get,
@@ -614,7 +619,7 @@ void test_access_rx(void)
     for (uint32_t i = 0; i < SERIAL_OPCODE_CMD_RANGE_ACCESS_START; ++i)
     {
         cmd.opcode = i;
-        serial_cmd_rsp_send_ExpectAndReturn(i, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0, 0);
+        serial_cmd_rsp_send_Expect(i, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
         serial_handler_access_rx(&cmd);
     }
     /* > SERIAL_OPCODE_CMD_RANGE_ACCESS_END should cause an ASSERT */

@@ -45,7 +45,6 @@
 #include "aes.h"
 #include "aes_cmac.h"
 #include "ccm_soft.h"
-#include "log.h"
 #include "packet_mesh.h"
 
 #define ENC_K2_SALT_INPUT { 's', 'm', 'k', '2' }
@@ -55,8 +54,8 @@
 #define ENC_K3_KEY_DATA   { 'i', 'd', '6', '4', 0x01 }
 
 #define ENC_K4_SALT_INPUT  { 's', 'm', 'k', '4' }
-#define ENC_K4_KEY_DATA    { 'i', 'd', '5', 0x01 }
-#define ENC_K4_OUTPUT_MASK 0x1f
+#define ENC_K4_KEY_DATA    { 'i', 'd', '6', 0x01 }
+#define ENC_K4_OUTPUT_MASK 0x3f
 
 /********************/
 /* Public functions */
@@ -92,10 +91,11 @@ void enc_aes_ccm_decrypt(ccm_soft_data_t * const p_ccm_data, bool * const p_mic_
 /* Utility functions */
 /*********************/
 
-void enc_nonce_generate(packet_net_hdr_t const * const p_net_pkt_hdr,
+void enc_nonce_generate(const packet_net_hdr_t * p_net_pkt_hdr,
                         uint32_t iv_index,
                         enc_nonce_t type,
-                        uint8_t * const p_nonce)
+                        uint8_t aszmic,
+                        uint8_t * p_nonce)
 {
     switch (type)
     {
@@ -109,34 +109,23 @@ void enc_nonce_generate(packet_net_hdr_t const * const p_net_pkt_hdr,
             p_net_nonce->src      = p_net_pkt_hdr->src;
             p_net_nonce->padding  = 0;
             p_net_nonce->iv_index = iv_index;
-            __LOG_XB(LOG_SRC_NETWORK, LOG_LEVEL_INFO, "Nonce NET: ", p_nonce, 13);
             break;
         }
         case ENC_NONCE_APP:
+        case ENC_NONCE_DEV:
         {
             enc_nonce_app_t * p_app_nonce = (enc_nonce_app_t *) p_nonce;
-            p_app_nonce->type     = ENC_NONCE_APP;
-            p_app_nonce->zero1    = 0;
+            p_app_nonce->type     = type;
+            p_app_nonce->padding  = 0;
+            p_app_nonce->aszmic   = aszmic;
             p_app_nonce->seq      = p_net_pkt_hdr->seq;
             p_app_nonce->src      = p_net_pkt_hdr->src;
             p_app_nonce->dst      = p_net_pkt_hdr->dst;
             p_app_nonce->iv_index = iv_index;
-            __LOG_XB(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, "Nonce APP: ", p_nonce, 13);
-            break;
-        }
-        case ENC_NONCE_DEV:
-        {
-            enc_nonce_dev_t * p_dev_nonce = (enc_nonce_dev_t *) p_nonce;
-            p_dev_nonce->type     = ENC_NONCE_DEV;
-            p_dev_nonce->zero1    = 0;
-            p_dev_nonce->seq      = p_net_pkt_hdr->seq;
-            p_dev_nonce->src      = p_net_pkt_hdr->src;
-            p_dev_nonce->dst      = p_net_pkt_hdr->dst;
-            p_dev_nonce->iv_index = iv_index;
-            __LOG_XB(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, "Nonce DEV: ", p_nonce, 13);
             break;
         }
         default:
+            NRF_MESH_ASSERT(false);
             break;
     }
 }

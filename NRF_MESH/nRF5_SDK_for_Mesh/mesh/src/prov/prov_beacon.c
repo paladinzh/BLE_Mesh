@@ -56,6 +56,8 @@
 /*****************************************************************************
 * Local typedefs
 *****************************************************************************/
+/*lint -align_max(push) -align_max(1) */
+
 /** Unprovisioned Node Broadcast Beacon Format. */
 typedef struct __attribute((packed))
 {
@@ -64,6 +66,7 @@ typedef struct __attribute((packed))
     uint8_t  uri_hash[NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE]; /**< Optional hash of p_URI advertisement. */
 } prov_beacon_unprov_packet_t;
 
+/*lint -align_max(pop) */
 /*****************************************************************************
 * Static globals
 *****************************************************************************/
@@ -87,9 +90,7 @@ packet_t* prov_beacon_unprov_build(const char* p_uri, uint16_t oob_info)
         packet_len = UNPROV_BEACON_DATA_LEN;
         uint8_t uri_data_hash[NRF_MESH_KEY_SIZE];
         enc_s1((const uint8_t*) p_uri, strlen(p_uri), uri_data_hash);
-        memcpy(unprov_packet.uri_hash,
-               &uri_data_hash[NRF_MESH_KEY_SIZE - NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE],
-               NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE);
+        memcpy(unprov_packet.uri_hash, uri_data_hash, NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE);
     }
 
     unprov_packet.oob_info = LE2BE16(oob_info);

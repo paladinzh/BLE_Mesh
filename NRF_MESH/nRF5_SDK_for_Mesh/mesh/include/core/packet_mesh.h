@@ -34,8 +34,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef PACKET_MESH_H__
 #define PACKET_MESH_H__
+
+/*lint -align_max(push) -align_max(1) */
 
 /**
  * Generic mesh/advertising packet.
@@ -46,6 +49,7 @@ typedef struct __attribute((packed))
     uint8_t ad_type; /**< Advertising type. */
     uint8_t pdu[];   /**< Mesh PDU. */
 } packet_mesh_t;
+/*lint -align_max(pop) */
 
 #define PACKET_MESH_IVI_OFFSET   (0)       /**< Offset to the ivi field.*/
 #define PACKET_MESH_IVI_MASK     (0x80)    /**< Mask for ivi field. */
@@ -77,17 +81,13 @@ typedef struct __attribute((packed))
 #define PACKET_MESH_SEG_MASK     (0x80)    /**< Mask for seg field. */
 #define PACKET_MESH_SEG_MASK_INV (0x7F)    /**< Inverse mask for seg field. */
 
-#define PACKET_MESH_MD_OFFSET   (9)       /**< Offset to the md field.*/
-#define PACKET_MESH_MD_MASK     (0x40)    /**< Mask for md field. */
-#define PACKET_MESH_MD_MASK_INV (0xBF)    /**< Inverse mask for md field. */
-
 #define PACKET_MESH_AKF_OFFSET   (9)       /**< Offset to the akf field.*/
-#define PACKET_MESH_AKF_MASK     (0x20)    /**< Mask for akf field. */
-#define PACKET_MESH_AKF_MASK_INV (0xDF)    /**< Inverse mask for akf field. */
+#define PACKET_MESH_AKF_MASK     (0x40)    /**< Mask for akf field. */
+#define PACKET_MESH_AKF_MASK_INV (0xBF)    /**< Inverse mask for akf field. */
 
 #define PACKET_MESH_AID_OFFSET   (9)       /**< Offset to the aid field.*/
-#define PACKET_MESH_AID_MASK     (0x1F)    /**< Mask for aid field. */
-#define PACKET_MESH_AID_MASK_INV (0xE0)    /**< Inverse mask for aid field. */
+#define PACKET_MESH_AID_MASK     (0x3F)    /**< Mask for aid field. */
+#define PACKET_MESH_AID_MASK_INV (0xC0)    /**< Inverse mask for aid field. */
 
 #define PACKET_MESH_SZMIC_OFFSET   (10)      /**< Offset to the szmic field.*/
 #define PACKET_MESH_SZMIC_MASK     (0x80)    /**< Mask for szmic field. */
@@ -112,8 +112,8 @@ typedef struct __attribute((packed))
 #define PACKET_MESH_SEGN_MASK_INV (0xE0)    /**< Inverse mask for segn field. */
 
 #define PACKET_MESH_OPCODE_OFFSET   (9)       /**< Offset to the opcode field.*/
-#define PACKET_MESH_OPCODE_MASK     (0x3F)    /**< Mask for opcode field. */
-#define PACKET_MESH_OPCODE_MASK_INV (0xC0)    /**< Inverse mask for opcode field. */
+#define PACKET_MESH_OPCODE_MASK     (0x7F)    /**< Mask for opcode field. */
+#define PACKET_MESH_OPCODE_MASK_INV (0x80)    /**< Inverse mask for opcode field. */
 
 #define PACKET_MESH_OBO_OFFSET   (10)      /**< Offset to the obo field.*/
 #define PACKET_MESH_OBO_MASK     (0x80)    /**< Mask for obo field. */
@@ -124,33 +124,13 @@ typedef struct __attribute((packed))
 #define PACKET_MESH_BLOCK_ACK2_OFFSET   (14)      /**< Offset to the block_ack field (2).*/
 #define PACKET_MESH_BLOCK_ACK3_OFFSET   (15)      /**< Offset to the block_ack field (3).*/
 
+#define PACKET_MESH_UNSEG_PDU_OFFSET    (10)    /**< Offset to unseg payload. */
+#define PACKET_MESH_UNSEG_PDU_MAX_SIZE  (19)    /**< Max PDU size for unseg packets. */
+#define PACKET_MESH_UNSEG_OVERHEAD_SIZE (12)    /**< Header overhead size for unseg packets. */
 #define PACKET_MESH_SEG_PDU_OFFSET    (13)    /**< Offset to seg payload. */
 #define PACKET_MESH_SEG_PDU_MAX_SIZE  (16)    /**< Max PDU size for seg packets. */
 #define PACKET_MESH_SEG_OVERHEAD_SIZE (15)    /**< Header overhead size for seg packets. */
-#define PACKET_MESH_SEG_ACK_SIZE (26)    /**< Size of seg_ack packet. */
-#define PACKET_MESH_UNSEG_PDU_OFFSET    (10)    /**< Offset to unseg payload. */
-#define PACKET_MESH_UNSEG_PDU_MAX_SIZE  (19)    /**< Max PDU size for unseg packets. */
-#define PACKET_MESH_UNSEG_OVERHEAD_SIZE (12)    /**< Header overhead size for unseg packets. */ 
-
-/**
- * Gets the seg payload pointer.
- * @param[in,out] p_pkt Packet pointer.
- * @returns Pointer to the start of the upper transport PDU.
- */
-static inline uint8_t * packet_mesh_seg_payload_get(packet_mesh_t * p_pkt)
-{
-    return &p_pkt->pdu[PACKET_MESH_SEG_PDU_OFFSET];
-}
-
-/**
- * Gets the length of the upper transport PDU.
- * @param[in] p_pkt Packet pointer.
- * @returns Length of the upper transport PDU.
- */
-static inline uint8_t packet_mesh_seg_pdu_length_get(const packet_mesh_t * p_pkt)
-{
-    return p_pkt->length - sizeof(p_pkt->ad_type) - PACKET_MESH_SEG_PDU_OFFSET;
-}
+#define PACKET_MESH_SEG_ACK_SIZE (26)    /**< Size of seg_ack packet. */ 
 
 /**
  * Gets the unseg payload pointer.
@@ -170,6 +150,26 @@ static inline uint8_t * packet_mesh_unseg_payload_get(packet_mesh_t * p_pkt)
 static inline uint8_t packet_mesh_unseg_pdu_length_get(const packet_mesh_t * p_pkt)
 {
     return p_pkt->length - sizeof(p_pkt->ad_type) - PACKET_MESH_UNSEG_PDU_OFFSET;
+}
+
+/**
+ * Gets the seg payload pointer.
+ * @param[in,out] p_pkt Packet pointer.
+ * @returns Pointer to the start of the upper transport PDU.
+ */
+static inline uint8_t * packet_mesh_seg_payload_get(packet_mesh_t * p_pkt)
+{
+    return &p_pkt->pdu[PACKET_MESH_SEG_PDU_OFFSET];
+}
+
+/**
+ * Gets the length of the upper transport PDU.
+ * @param[in] p_pkt Packet pointer.
+ * @returns Length of the upper transport PDU.
+ */
+static inline uint8_t packet_mesh_seg_pdu_length_get(const packet_mesh_t * p_pkt)
+{
+    return p_pkt->length - sizeof(p_pkt->ad_type) - PACKET_MESH_SEG_PDU_OFFSET;
 }
 /**
  * Gets the IV index least significant bit.
@@ -345,27 +345,6 @@ static inline void packet_mesh_trs_seg_set(packet_mesh_t * p_pkt, uint8_t val)
 }
 
 /**
- * Gets the more data bit.
- * @param[in] p_pkt Packet pointer.
- * @returns Value of the more data bit.
- */
-static inline uint8_t packet_mesh_trs_md_get(const packet_mesh_t * p_pkt)
-{
-    return ((p_pkt->pdu[PACKET_MESH_MD_OFFSET] & PACKET_MESH_MD_MASK) > 0);
-}
-
-/**
- * Sets the more data bit.
- * @param[in,out] p_pkt Packet pointer.
- * @param[in]     val   Value of the more data bit.
- */
-static inline void packet_mesh_trs_md_set(packet_mesh_t * p_pkt, uint8_t val)
-{
-    p_pkt->pdu[PACKET_MESH_MD_OFFSET] &= PACKET_MESH_MD_MASK_INV;
-    p_pkt->pdu[PACKET_MESH_MD_OFFSET] |= (val << 6) & PACKET_MESH_MD_MASK;
-}
-
-/**
  * Gets the application key flag.
  * @param[in] p_pkt Packet pointer.
  * @returns Value of the application key flag.
@@ -383,7 +362,7 @@ static inline uint8_t packet_mesh_trs_akf_get(const packet_mesh_t * p_pkt)
 static inline void packet_mesh_trs_akf_set(packet_mesh_t * p_pkt, uint8_t val)
 {
     p_pkt->pdu[PACKET_MESH_AKF_OFFSET] &= PACKET_MESH_AKF_MASK_INV;
-    p_pkt->pdu[PACKET_MESH_AKF_OFFSET] |= (val << 5) & PACKET_MESH_AKF_MASK;
+    p_pkt->pdu[PACKET_MESH_AKF_OFFSET] |= (val << 6) & PACKET_MESH_AKF_MASK;
 }
 
 /**

@@ -35,32 +35,27 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NRF_MESH_HW_H
-#define NRF_MESH_HW_H
+#ifndef NRF_H
+#define NRF_H
 
-#if HOST
-/** BEWARE: The order of the includes below matters due to defining and undefining of macros involved.
- *  If nrf5*.h file is included directly (or via another file) before this header, this will cause
- *  errors; most likely with declaration of already defined NVIC_* functions. */
-    #if defined (NRF51)
-        #define __CMSIS_GENERIC
-        #include "nrf_mesh_cmsis_mock.h"
-        #include "nrf51.h"
-        #include "nrf51_bitfields.h"
-        #include "nrf51_deprecated.h"
-        #include "nrf_mesh_hw_mock.h"
-    #elif defined (NRF52)
-        #define __CMSIS_GENERIC
-        #include "nrf_mesh_cmsis_mock.h"
-        #include "nrf52.h"
-        #include "nrf52_bitfields.h"
-        #include "nrf51_to_nrf52.h"
-        #include "nrf52_name_change.h"
-        #include "nrf_mesh_hw_mock.h"
-    #endif
-#else
-    #include "nrf.h"
-#endif /* HOST */
+#if !HOST
+#error "Included host side implementation of header file in target build! Remove the path of this file from your include paths."
+#endif
 
-#endif /* NRF_MESH_HW_H */
+/* MDK version */
+#define MDK_MAJOR_VERSION   8
+#define MDK_MINOR_VERSION   9
+#define MDK_MICRO_VERSION   0
+
+/* Override CMSIS declaration, to remove constness of registers */
+#define __CMSIS_GENERIC
+#include "nrf_mesh_cmsis_mock.h"
+
+#include "nrf51.h"
+#include "nrf51_bitfields.h"
+#include "nrf51_deprecated.h"
+
+#include "compiler_abstraction.h"
+
+#endif /* NRF_H */
 

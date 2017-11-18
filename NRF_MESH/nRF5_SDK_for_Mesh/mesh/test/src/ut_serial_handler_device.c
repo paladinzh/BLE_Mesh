@@ -47,45 +47,43 @@
 #include "packet_mgr_mock.h"
 #include "hal_mock.h"
 
-#define CMD_LENGTH_CHECK(_opcode, _intended_length)                                                             \
-    do {                                                                                                        \
-        serial_packet_t _cmd;                                                                                   \
-        _cmd.opcode = _opcode;                                                                                  \
-        _cmd.length = _intended_length + 1;                                                                     \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0, NRF_SUCCESS); \
-        serial_handler_device_rx(&_cmd);                                                                                  \
-        _cmd.length = _intended_length + 1;                                                                     \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0, NRF_SUCCESS); \
-        serial_handler_device_rx(&_cmd);                                                                                  \
+#define CMD_LENGTH_CHECK(_opcode, _intended_length)                                                   \
+    do {                                                                                              \
+        serial_packet_t _cmd;                                                                         \
+        _cmd.opcode = _opcode;                                                                        \
+        _cmd.length = _intended_length + 1;                                                           \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0); \
+        serial_handler_device_rx(&_cmd);                                                              \
+        _cmd.length = _intended_length + 1;                                                           \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0); \
+        serial_handler_device_rx(&_cmd);                                                              \
     } while (0)
 
 #define EXPECT_PACKET()                                 \
     do {                                                \
         m_tx_cb_count++;                                \
-        m_serial_packet_set_line = __LINE__;            \
         serial_tx_StubWithCallback(serial_tx_cb);       \
     } while (0)
 
 #define EXPECT_ACK(_opcode, _error_code)                                \
     do {                                                                \
         serial_translate_error_ExpectAndReturn(_error_code, 0xAA);      \
-        serial_cmd_rsp_send_ExpectAndReturn(_opcode, 0xAA, NULL, 0, NRF_SUCCESS); \
+        serial_cmd_rsp_send_Expect(_opcode, 0xAA, NULL, 0); \
     } while (0)
 
 #define EXPECT_ACK_NO_TRANSLATE(_opcode, _serial_status)                            \
     do {                                                                \
-        serial_cmd_rsp_send_ExpectAndReturn(_opcode, _serial_status, NULL, 0, NRF_SUCCESS); \
+        serial_cmd_rsp_send_Expect(_opcode, _serial_status, NULL, 0); \
     } while (0)
 
 #define EXPECT_ACK_WITH_PAYLOAD(_opcode, _data, _len)                   \
     do { \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, 0, (uint8_t *) (_data), _len, _len, NRF_SUCCESS); \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, 0, (uint8_t *) (_data), _len, _len); \
     } while (0)
 
 
 nrf_mesh_assertion_handler_t                  m_assertion_handler;
 static serial_packet_t                        m_expected_packet;
-static uint16_t                               m_serial_packet_set_line;
 static uint32_t                               m_tx_cb_count;
 static uint32_t                               m_tx_cb_count_actual;
 
@@ -100,7 +98,7 @@ static void assertion_handler(uint32_t pc)
     TEST_FAIL_MESSAGE("ASSERT");
 }
 
-static uint32_t serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_calls)
+static void serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_calls)
 {
     m_tx_cb_count_actual = cmock_num_calls + 1;
     if (m_tx_cb_count != (uint32_t) cmock_num_calls + 1)
@@ -112,17 +110,16 @@ static uint32_t serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_call
     TEST_ASSERT_EQUAL_HEX8_ARRAY((uint8_t *) &m_expected_packet,
             (uint8_t *) p_packet,
             p_packet->length + SERIAL_PACKET_LENGTH_OVERHEAD);
-    return NRF_SUCCESS;
 }
 
 
 void setUp(void)
 {
-    CMOCK_SETUP(serial);
-    CMOCK_SETUP(hal);
-    CMOCK_SETUP(radio);
-    CMOCK_SETUP(bearer_adv);
-    CMOCK_SETUP(packet_mgr);
+    serial_mock_Init();
+    hal_mock_Init();
+    radio_mock_Init();
+    bearer_adv_mock_Init();
+    packet_mgr_mock_Init();
 
     m_assertion_handler = assertion_handler;
     m_tx_cb_count = 0;
@@ -131,7 +128,16 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    serial_mock_Verify();
+    serial_mock_Destroy();
+    hal_mock_Verify();
+    hal_mock_Destroy();
+    radio_mock_Verify();
+    radio_mock_Destroy();
+    bearer_adv_mock_Verify();
+    bearer_adv_mock_Destroy();
+    packet_mgr_mock_Verify();
+    packet_mgr_mock_Destroy();
 }
 
 /*****************************************************************************
@@ -197,7 +203,7 @@ void test_beacon(void)
 {
     for (uint32_t i = 0; i < NRF_MESH_SERIAL_BEACON_SLOTS; i++)
     {
-        bearer_adv_advertiser_init_ExpectAndReturn(NULL, NRF_SUCCESS);
+        bearer_adv_advertiser_init_Expect(NULL);
         bearer_adv_advertiser_init_IgnoreArg_p_adv();
     }
     serial_handler_device_init();
@@ -211,7 +217,7 @@ void test_beacon(void)
     {
         cmd.payload.cmd.device.beacon_params_get.beacon_slot = i;
 
-        radio_tx_power_get_ExpectAndReturn(0x43);
+        radio_tx_power_get_ExpectAndReturn((radio_tx_power_t) 0x43);
 
         serial_evt_cmd_rsp_data_beacon_params_t rsp;
         rsp.beacon_slot = i;
@@ -223,7 +229,7 @@ void test_beacon(void)
     }
     /* out-of-bounds beacon slot */
     cmd.payload.cmd.device.beacon_params_get.beacon_slot = NRF_MESH_SERIAL_BEACON_SLOTS;
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_PARAMETER, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_PARAMETER, NULL, 0);
     serial_handler_device_rx(&cmd);
 
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
@@ -237,7 +243,7 @@ void test_beacon(void)
         cmd.payload.cmd.device.beacon_params_set.tx_power = 0x12;
         cmd.payload.cmd.device.beacon_params_set.interval_ms = 100 * (i + 1);
         cmd.payload.cmd.device.beacon_params_set.channel_map = 0x05;
-        bearer_adv_interval_reset_Expect(NULL);
+        bearer_adv_interval_reset_ExpectAndReturn(NULL, NRF_SUCCESS);
         bearer_adv_interval_reset_IgnoreArg_p_adv();
         EXPECT_ACK(cmd.opcode, NRF_SUCCESS);
         serial_handler_device_rx(&cmd);
@@ -256,7 +262,7 @@ void test_beacon(void)
     {
         cmd.payload.cmd.device.beacon_params_get.beacon_slot = i;
 
-        radio_tx_power_get_ExpectAndReturn(0x43);
+        radio_tx_power_get_ExpectAndReturn((radio_tx_power_t) 0x43);
 
         serial_evt_cmd_rsp_data_beacon_params_t rsp;
         rsp.beacon_slot = i;
@@ -328,7 +334,7 @@ void test_beacon(void)
     packet_mgr_alloc_ReturnThruPtr_pp_buffer(&p_packet);
     bearer_adv_tx_ExpectAndReturn(NULL, &packet, BEARER_ADV_REPEAT_INFINITE, 0x12345678);
     bearer_adv_tx_IgnoreArg_p_adv();
-    packet_mgr_decref_Expect(p_packet);
+    packet_mgr_free_Expect(p_packet);
     EXPECT_ACK(cmd.opcode, 0x12345678);
     serial_handler_device_rx(&cmd);
 

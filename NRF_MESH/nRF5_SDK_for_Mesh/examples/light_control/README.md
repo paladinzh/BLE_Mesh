@@ -5,7 +5,7 @@
 This demo project consists of two applications, the light control client and server.
 Its main purpose is to show how to develop applications with both provisioner and
 provisionee roles. In addition, it demonstrates how to use custom models by using
-the custom [Simple On/Off model](@ref md_examples_models_simple_on_off_README) in
+the custom [Simple OnOff model](@ref md_examples_models_simple_on_off_README) in
 a real application.
 
 
@@ -36,7 +36,7 @@ The LEDs on the client will mirror the state of the servers' LEDs.
 
 If any of the devices are powered off and back on, they will remember their configuration
 in flash and rejoin the network. More information about the flash manager can be found
-in the [Flash manager documentation](@ref md_doc_libraries_flash_manager).
+in the [flash manager documentation](@ref md_doc_libraries_flash_manager).
 
 ## Details
 
@@ -50,7 +50,7 @@ The following diagram shows the state transitions of the implementation.
 
 ![Light control client state diagram](img/light_control_client_state_diagram.png "Light control client state diagram")
 
-For more information on how a provisioner works, see the [Provisioning Guide](@ref md_doc_getting_started_provisioning).
+For more information on how a provisioner works, see the [Mesh provisioning Guide](@ref md_doc_getting_started_provisioning).
 
 ### Light control server
 
@@ -64,7 +64,7 @@ The Simple OnOff Client/Server is a simple proprietary model for manipulating an
 on/off state. Note that when the server has a publish address set (as in this example),
 the server will publish any operation of its state to its publish address.
 
-More information about the Simple On/Off model can be found in the
-[Simple On/Off model README](@ref md_examples_models_simple_on_off_README)
+More information about the Simple OnOff model can be found in the
+[Simple OnOff model README](@ref md_examples_models_simple_on_off_README)
 and in [Creating Custom Models](@ref md_doc_getting_started_how_to_models).
 

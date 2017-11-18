@@ -187,7 +187,7 @@ void test_packet_mic(void)
     p_net->ad_type = AD_TYPE_MESH;
     packet_net_payload_size_set(p_net, 11);
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, packet_net_mic_set(p_net, 0xAABBCCDD));
+    packet_net_mic_set(p_net, 0xAABBCCDD);
     TEST_ASSERT_EQUAL_HEX8(0xDD, packet.payload[18]);
     TEST_ASSERT_EQUAL_HEX8(0xCC, packet.payload[19]);
     TEST_ASSERT_EQUAL_HEX8(0xBB, packet.payload[20]);
@@ -197,20 +197,11 @@ void test_packet_mic(void)
     memset(p_net->payload, 0, 10);
     packet_net_payload_size_set(p_net, 5);
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, packet_net_mic_set(p_net, 0xAABBCCDD));
+    packet_net_mic_set(p_net, 0xAABBCCDD);
     TEST_ASSERT_EQUAL_HEX8(0xDD, packet.payload[12]);
     TEST_ASSERT_EQUAL_HEX8(0xCC, packet.payload[13]);
     TEST_ASSERT_EQUAL_HEX8(0xBB, packet.payload[14]);
     TEST_ASSERT_EQUAL_HEX8(0xAA, packet.payload[15]);
     TEST_ASSERT_EQUAL_HEX32(0xAABBCCDD, packet_net_mic_get(p_net));
-
-    memset(p_net->payload, 0, 10);
-    packet_net_payload_size_set(p_net, 3); /* too short */
-
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, packet_net_mic_set(p_net, 0xAABBCCDD));
-    TEST_ASSERT_EQUAL_HEX8(0x00, packet.payload[12]);
-    TEST_ASSERT_EQUAL_HEX8(0x00, packet.payload[13]);
-    TEST_ASSERT_EQUAL_HEX8(0x00, packet.payload[14]);
-    TEST_ASSERT_EQUAL_HEX32(0, packet_net_mic_get(p_net));
 }
 

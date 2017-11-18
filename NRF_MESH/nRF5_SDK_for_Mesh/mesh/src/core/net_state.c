@@ -82,9 +82,9 @@
 #define SEQNUM_MASK                 (NETWORK_SEQNUM_MAX)
 
 #if PERSISTENT_STORAGE
-    #define RESET_SEQNUM_MAX() m_net_state.seqnum_max_available = 0
+    #define RESET_SEQNUM_MAX() (m_net_state.seqnum_max_available = 0)
 #else
-    #define RESET_SEQNUM_MAX() m_net_state.seqnum_max_available = NETWORK_SEQNUM_MAX + 1
+    #define RESET_SEQNUM_MAX() (m_net_state.seqnum_max_available = NETWORK_SEQNUM_MAX + 1)
 #endif
 
 /*****************************************************************************
@@ -182,7 +182,7 @@ static void iv_update_timer_handler(timestamp_t timestamp, void * p_context)
             {
                 /* We've spent enough time in normal state, may transition to
                  * in progress at any time. */
-                iv_update_trigger_if_pending();
+                (void) iv_update_trigger_if_pending();
                 increment_counter = false;
             }
             break;
@@ -198,7 +198,7 @@ static void iv_update_timer_handler(timestamp_t timestamp, void * p_context)
                     m_net_state.iv_update.pending = true;
                     increment_counter = false;
                 }
-                iv_update_trigger_if_pending();
+                (void) iv_update_trigger_if_pending();
             }
             break;
         default:
@@ -237,7 +237,7 @@ typedef void (*flash_op_func_t)(void);
 static void flash_mem_available(void * p_args)
 {
     NRF_MESH_ASSERT(p_args != NULL);
-    flash_op_func_t func = (flash_op_func_t) p_args;
+    flash_op_func_t func = (flash_op_func_t) p_args; /*lint !e611 Suspicious cast */
     func();
 }
 
@@ -544,7 +544,7 @@ void net_state_iv_index_lock(bool lock)
         if (lock_count == 0)
         {
             m_net_state.iv_update.locked = false;
-            iv_update_trigger_if_pending();
+            (void) iv_update_trigger_if_pending();
         }
     }
 }
@@ -580,7 +580,7 @@ void net_state_beacon_received(uint32_t iv_index, bool iv_update, bool key_refre
         else if (iv_update && iv_index == m_net_state.iv_index + 1)
         {
             m_net_state.iv_update.pending = true;
-            iv_update_trigger_if_pending();
+            (void) iv_update_trigger_if_pending();
         }
     }
     else if (m_net_state.iv_update.state == NET_STATE_IV_UPDATE_IN_PROGRESS)
@@ -588,7 +588,7 @@ void net_state_beacon_received(uint32_t iv_index, bool iv_update, bool key_refre
         if (!iv_update && iv_index == m_net_state.iv_index)
         {
             m_net_state.iv_update.pending = true;
-            iv_update_trigger_if_pending();
+            (void) iv_update_trigger_if_pending();
         }
     }
 

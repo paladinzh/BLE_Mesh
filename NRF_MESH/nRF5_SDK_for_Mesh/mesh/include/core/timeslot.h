@@ -40,7 +40,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "timer.h"
 #include "nrf_sdm.h"
 #include "nrf_mesh.h"

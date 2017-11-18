@@ -149,6 +149,7 @@ NRF_MESH_STATIC_ASSERT(PROV_BEARER_ADV_PACKET_CONTINUATION_PAYLOAD_MAXLEN == 23)
 /*****************************************************************************
 * Local type declarations
 *****************************************************************************/
+/*lint -align_max(push) -align_max(1) */
 
 /** Payload of a generic control packet. */
 typedef union __attribute((packed))
@@ -198,6 +199,8 @@ typedef struct __attribute((packed))
 } pb_adv_pdu_t;
 
 NRF_MESH_STATIC_ASSERT(PROV_BEARER_ADV_UNACKED_REPEAT_COUNT >= 3);
+
+/*lint -align_max(pop) */
 /*****************************************************************************
 * Static globals
 *****************************************************************************/
@@ -209,7 +212,7 @@ static void tx_retry_cb(timestamp_t timestamp, void * p_context);
 static void adv_queue_empty_cb(advertiser_t * p_adv);
 static void close_link(prov_bearer_adv_t * p_pb_adv, nrf_mesh_prov_link_close_reason_t reason);
 
-static uint32_t prov_bearer_adv_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
+static void prov_bearer_adv_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
 
 /**
  * Calculates the FCS CRC based on 3GPP TS 27.010, as required by mesh core spec.
@@ -246,7 +249,7 @@ uint8_t calculate_3GPP_CRC(const uint8_t * p_input, uint16_t size)
 
     uint8_t fcs = 0xff;
 
-    for(int i = 0; i < size; ++i)
+    for (int i = 0; i < size; ++i)
     {
         fcs = crctable[fcs ^ p_input[i]];
     }
@@ -275,9 +278,9 @@ static prov_bearer_adv_t * get_bearer_from_state(prov_bearer_adv_state_t state)
     uint32_t was_masked;
     _DISABLE_IRQS(was_masked);
     prov_bearer_adv_t * p_pb_adv = mp_bearer_head;
-    while(p_pb_adv != NULL)
+    while (p_pb_adv != NULL)
     {
-        if(p_pb_adv->state == state)
+        if (p_pb_adv->state == state)
         {
             break;
         }
@@ -292,9 +295,9 @@ static prov_bearer_adv_t * get_bearer_from_link_id(uint32_t link_id)
     uint32_t was_masked;
     _DISABLE_IRQS(was_masked);
     prov_bearer_adv_t * p_pb_adv = mp_bearer_head;
-    while(p_pb_adv != NULL)
+    while (p_pb_adv != NULL)
     {
-        if(p_pb_adv->link_id == link_id)
+        if (p_pb_adv->link_id == link_id)
         {
             break;
         }
@@ -320,10 +323,10 @@ static inline void reset_adv_int(prov_bearer_adv_t * p_pb_adv)
     p_pb_adv->advertiser.adv_int_min_ms = BEARER_ADV_INT_MIN_MS_DEFAULT;
     /* If this fails, our next advertisement will be delayed. Don't bother
      * handling this, as we'll recover. */
-    bearer_adv_interval_reset(&p_pb_adv->advertiser);
+    (void)bearer_adv_interval_reset(&p_pb_adv->advertiser);
 }
 
-static uint32_t init_bearer_structure(prov_bearer_adv_t * p_pb_adv, uint32_t link_timeout_us)
+static void init_bearer_structure(prov_bearer_adv_t * p_pb_adv, uint32_t link_timeout_us)
 {
     p_pb_adv->buffer.state = PROV_BEARER_ADV_BUF_STATE_UNUSED;
     p_pb_adv->transaction_out = 0;
@@ -344,7 +347,7 @@ static uint32_t init_bearer_structure(prov_bearer_adv_t * p_pb_adv, uint32_t lin
     p_pb_adv->advertiser.adv_int_min_ms = BEARER_ADV_INT_MIN_MS_DEFAULT;
     p_pb_adv->advertiser.adv_packet_type = BLE_PACKET_TYPE_ADV_NONCONN_IND;
     p_pb_adv->advertiser.queue_empty_cb = adv_queue_empty_cb;
-    return bearer_adv_advertiser_init(&p_pb_adv->advertiser);
+    bearer_adv_advertiser_init(&p_pb_adv->advertiser);
 }
 
 /**** Link list managment ****/
@@ -372,20 +375,20 @@ static void add_active_bearer(prov_bearer_adv_t * p_pb_adv)
  *          it has already been added to the active list via @ref add_active_bearer.
  *
  */
-static void remove_active_bearer(prov_bearer_adv_t * p_pb_adv)
+static void remove_active_bearer(const prov_bearer_adv_t * p_pb_adv)
 {
     NRF_MESH_ASSERT(mp_bearer_head != NULL);
     uint32_t was_masked;
     _DISABLE_IRQS(was_masked);
 
-    if(p_pb_adv == mp_bearer_head)
+    if (p_pb_adv == mp_bearer_head)
     {
         mp_bearer_head = p_pb_adv->p_next;
     }
     else
     {
         prov_bearer_adv_t * p_prev = mp_bearer_head;
-        while(p_prev->p_next != p_pb_adv)
+        while (p_prev->p_next != p_pb_adv)
         {
             /* This should never happen, otherwise it indicates an internal error. */
             NRF_MESH_ASSERT(p_prev->p_next != NULL);
@@ -414,7 +417,7 @@ static uint32_t send_unprov_beacon(prov_bearer_adv_t * p_pb_adv, const char * UR
     uint32_t status = bearer_adv_tx(&p_pb_adv->advertiser, p_packet, BEARER_ADV_REPEAT_INFINITE);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
     return status;
 }
@@ -433,7 +436,7 @@ static packet_t* pb_adv_packet_alloc(uint32_t payload_size)
     return p_packet;
 }
 
-static uint32_t send_packet(prov_bearer_adv_t * p_pb_adv, pb_adv_pdu_t * p_pdu, uint32_t length, uint8_t repeats)
+static uint32_t send_packet(prov_bearer_adv_t * p_pb_adv, const pb_adv_pdu_t * p_pdu, uint32_t length, uint8_t repeats)
 {
     packet_t * p_packet = pb_adv_packet_alloc(length);
     if (p_packet == NULL)
@@ -450,7 +453,7 @@ static uint32_t send_packet(prov_bearer_adv_t * p_pb_adv, pb_adv_pdu_t * p_pdu, 
     uint32_t status = bearer_adv_tx(&p_pb_adv->advertiser, p_packet, repeats);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
     return status;
 }
@@ -498,7 +501,7 @@ static uint32_t send_link_close(prov_bearer_adv_t * p_pb_adv, nrf_mesh_prov_link
     return send_packet(p_pb_adv, &pb_adv_pdu, PB_ADV_PACKET_OVERHEAD + PROV_BEARER_PACKET_LINK_CLOSE_LEN, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT);
 }
 
-static uint32_t send_transaction_ack(prov_bearer_adv_t * p_pb_adv, uint8_t transaction_number)
+static void send_transaction_ack(prov_bearer_adv_t * p_pb_adv, uint8_t transaction_number)
 {
     pb_adv_pdu_t pb_adv_pdu;
     pb_adv_pdu.link_id = LE2BE32(p_pb_adv->link_id);
@@ -506,7 +509,7 @@ static uint32_t send_transaction_ack(prov_bearer_adv_t * p_pb_adv, uint8_t trans
     pb_adv_pdu.pdu.control = PB_ADV_PACKET_C_TRANSACTION_ACK;
     pb_adv_pdu.pdu.id = 0;
 
-    return send_packet(p_pb_adv, &pb_adv_pdu, PB_ADV_PACKET_OVERHEAD + PROV_BEARER_PACKET_TRANSACTION_ACK_LEN, 1);
+    (void) send_packet(p_pb_adv, &pb_adv_pdu, PB_ADV_PACKET_OVERHEAD + PROV_BEARER_PACKET_TRANSACTION_ACK_LEN, 1);
 }
 
 static uint32_t send_transaction_start(prov_bearer_adv_t * p_pb_adv)
@@ -516,7 +519,7 @@ static uint32_t send_transaction_start(prov_bearer_adv_t * p_pb_adv)
     NRF_MESH_ASSERT(p_pb_adv->buffer.state == PROV_BEARER_ADV_BUF_STATE_TX);
 
     uint16_t payload_length;
-    if(p_pb_adv->buffer.length > PROV_BEARER_ADV_PACKET_START_PAYLOAD_MAXLEN)
+    if (p_pb_adv->buffer.length > PROV_BEARER_ADV_PACKET_START_PAYLOAD_MAXLEN)
     {
         payload_length = PROV_BEARER_ADV_PACKET_START_PAYLOAD_MAXLEN;
     }
@@ -534,7 +537,7 @@ static uint32_t send_transaction_start(prov_bearer_adv_t * p_pb_adv)
      * send in this transaction. */
     pb_adv_pdu.pdu.id = transaction_total_segment_count_get(p_pb_adv->buffer.length) - 1;
     pb_adv_pdu.pdu.payload.transaction.start.fcs = p_pb_adv->buffer.fcs;
-    pb_adv_pdu.pdu.payload.transaction.start.total_length = LE2BE16(p_pb_adv->buffer.length);
+    pb_adv_pdu.pdu.payload.transaction.start.total_length = LE2BE16(p_pb_adv->buffer.length); /*lint !e572 Excessive shift of value. */
     memcpy(pb_adv_pdu.pdu.payload.transaction.start.payload, &p_pb_adv->buffer.payload[0], payload_length);
 
     uint32_t status = send_packet(p_pb_adv, &pb_adv_pdu, PB_ADV_PACKET_OVERHEAD + PROV_BEARER_PACKET_TRANSACTION_START_OVERHEAD + payload_length, 1);
@@ -551,7 +554,7 @@ static uint32_t send_transaction_continuation(prov_bearer_adv_t * p_pb_adv, uint
     const uint16_t remaining = p_pb_adv->buffer.length - data_offset;
 
     uint16_t payload_length;
-    if(remaining > PROV_BEARER_ADV_PACKET_CONTINUATION_PAYLOAD_MAXLEN)
+    if (remaining > PROV_BEARER_ADV_PACKET_CONTINUATION_PAYLOAD_MAXLEN)
     {
         payload_length = PROV_BEARER_ADV_PACKET_CONTINUATION_PAYLOAD_MAXLEN;
     }
@@ -598,7 +601,7 @@ static void prov_buffer_tx(prov_bearer_adv_t * p_pb_adv)
             segment++)
     {
         status = send_transaction_continuation(p_pb_adv, segment);
-        if(status != NRF_SUCCESS)
+        if (status != NRF_SUCCESS)
         {
             /* Wait for advertiser queue empty or retry timeout */
             break;
@@ -829,7 +832,7 @@ static void handle_control_packet(prov_bearer_adv_t * p_pb_adv, pb_adv_pdu_t * p
                             p_pb_adv->buffer.state == PROV_BEARER_ADV_BUF_STATE_UNUSED)
                     {
                             /* Most likely, the other side missed our first ack, send another. */
-                            send_link_ack(p_pb_adv);
+                            (void) send_link_ack(p_pb_adv);
                     }
                 }
             }
@@ -840,9 +843,8 @@ static void handle_control_packet(prov_bearer_adv_t * p_pb_adv, pb_adv_pdu_t * p
             {
                 if (p_pb_adv->state == PROV_BEARER_ADV_STATE_LINK_OPENING)
                 {
-                    /* Disable the link open transmits and reset advertisement interval. */
+                    /* Disable the link open transmits. */
                     bearer_adv_flush_tx(&p_pb_adv->advertiser);
-                    reset_adv_int(p_pb_adv);
                     __LOG(LOG_SRC_PROV, LOG_LEVEL_INFO, "PB-ADV: Link opened.\n");
 
                     p_pb_adv->state = PROV_BEARER_ADV_STATE_LINK_OPEN;
@@ -976,7 +978,7 @@ static void close_link(prov_bearer_adv_t * p_pb_adv, nrf_mesh_prov_link_close_re
 
 /**** Interface functions ****/
 
-uint32_t prov_bearer_adv_listen(prov_bearer_t * p_bearer, const char * URI, uint16_t oob_info, uint32_t link_timeout_us)
+static uint32_t prov_bearer_adv_listen(prov_bearer_t * p_bearer, const char * URI, uint16_t oob_info, uint32_t link_timeout_us)
 {
     NRF_MESH_ASSERT(p_bearer != NULL);
     prov_bearer_adv_t * p_pb_adv = &p_bearer->bearer.pb_adv;
@@ -987,18 +989,14 @@ uint32_t prov_bearer_adv_listen(prov_bearer_t * p_bearer, const char * URI, uint
         return NRF_ERROR_INVALID_STATE;
     }
 
-    uint32_t status = init_bearer_structure(p_pb_adv, link_timeout_us);
-    if (status != NRF_SUCCESS)
-    {
-        return NRF_ERROR_INTERNAL;
-    }
+    init_bearer_structure(p_pb_adv, link_timeout_us);
 
     /* Set initial link values */
     p_pb_adv->link_id = 0;
     p_pb_adv->transaction_out = PB_ADV_TRANSACTION_NUMBER_PROVISIONEE_START;
     p_pb_adv->transaction_in  = PB_ADV_TRANSACTION_NUMBER_PROVISIONER_START;
 
-    status = send_unprov_beacon(p_pb_adv, URI, oob_info);
+    uint32_t status = send_unprov_beacon(p_pb_adv, URI, oob_info);
 
     if (status == NRF_SUCCESS)
     {
@@ -1008,7 +1006,7 @@ uint32_t prov_bearer_adv_listen(prov_bearer_t * p_bearer, const char * URI, uint
     return status;
 }
 
-uint32_t prov_bearer_adv_listen_stop(prov_bearer_t * p_bearer)
+static uint32_t prov_bearer_adv_listen_stop(prov_bearer_t * p_bearer)
 {
     NRF_MESH_ASSERT(p_bearer != NULL);
     prov_bearer_adv_t * p_pb_adv = &p_bearer->bearer.pb_adv;
@@ -1024,7 +1022,7 @@ uint32_t prov_bearer_adv_listen_stop(prov_bearer_t * p_bearer)
     return NRF_SUCCESS;
 }
 
-uint32_t prov_bearer_adv_link_open(prov_bearer_t * p_bearer, const uint8_t * p_peer_uuid, uint32_t link_timeout_us)
+static uint32_t prov_bearer_adv_link_open(prov_bearer_t * p_bearer, const uint8_t * p_peer_uuid, uint32_t link_timeout_us)
 {
     NRF_MESH_ASSERT(p_bearer != NULL);
     prov_bearer_adv_t * p_pb_adv = &p_bearer->bearer.pb_adv;
@@ -1035,11 +1033,7 @@ uint32_t prov_bearer_adv_link_open(prov_bearer_t * p_bearer, const uint8_t * p_p
         return NRF_ERROR_INVALID_STATE;
     }
 
-    uint32_t status = init_bearer_structure(p_pb_adv, link_timeout_us);
-    if (status != NRF_SUCCESS)
-    {
-        return NRF_ERROR_INTERNAL;
-    }
+    init_bearer_structure(p_pb_adv, link_timeout_us);
 
     /* Set initial link values */
     rand_hw_rng_get((uint8_t*) &p_pb_adv->link_id, sizeof(p_pb_adv->link_id));
@@ -1048,7 +1042,7 @@ uint32_t prov_bearer_adv_link_open(prov_bearer_t * p_bearer, const uint8_t * p_p
     p_pb_adv->transaction_in  = PB_ADV_TRANSACTION_NUMBER_PROVISIONEE_START;
 
     /* Send packet */
-    status = send_link_open(p_pb_adv, p_peer_uuid);
+    uint32_t status = send_link_open(p_pb_adv, p_peer_uuid);
 
     if (status == NRF_SUCCESS)
     {
@@ -1063,18 +1057,26 @@ uint32_t prov_bearer_adv_link_open(prov_bearer_t * p_bearer, const uint8_t * p_p
     return status;
 }
 
-uint32_t prov_bearer_adv_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
+static void prov_bearer_adv_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
 {
     NRF_MESH_ASSERT(p_bearer != NULL);
     prov_bearer_adv_t * p_pb_adv = &p_bearer->bearer.pb_adv;
 
     /* We do not expect a close reason that is not defined by the enum */
     NRF_MESH_ASSERT(NRF_MESH_PROV_LINK_CLOSE_REASON_LAST >= close_reason);
-    if (p_pb_adv->state != PROV_BEARER_ADV_STATE_LINK_OPEN &&
-        p_pb_adv->state != PROV_BEARER_ADV_STATE_LINK_OPENING)
+
+
+    /* PB-remote does not track the link state. */
+    if (p_pb_adv->state == PROV_BEARER_ADV_STATE_IDLE ||
+        p_pb_adv->state == PROV_BEARER_ADV_STATE_LINK_CLOSING)
     {
-        return NRF_ERROR_INVALID_STATE;
+        return;
     }
+
+    /* Ensure the correct state: */
+    NRF_MESH_ASSERT(p_pb_adv->state == PROV_BEARER_ADV_STATE_LINK_OPEN ||
+                    p_pb_adv->state == PROV_BEARER_ADV_STATE_LINK_OPENING);
+
     if (send_link_close(p_pb_adv, close_reason) == NRF_SUCCESS)
     {
         p_pb_adv->state = PROV_BEARER_ADV_STATE_LINK_CLOSING;
@@ -1086,10 +1088,9 @@ uint32_t prov_bearer_adv_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link
          * for the adv queue empty callback. */
         close_link(p_pb_adv, close_reason);
     }
-    return NRF_SUCCESS;
 }
 
-uint32_t prov_bearer_adv_tx(prov_bearer_t * p_bearer, const uint8_t * p_data, uint16_t length)
+static uint32_t prov_bearer_adv_tx(prov_bearer_t * p_bearer, const uint8_t * p_data, uint16_t length)
 {
     prov_bearer_adv_t * p_pb_adv = &p_bearer->bearer.pb_adv;
 

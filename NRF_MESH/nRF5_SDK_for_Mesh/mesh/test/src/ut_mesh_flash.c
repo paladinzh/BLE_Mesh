@@ -37,13 +37,13 @@
 
 #include <unity.h>
 #include <cmock.h>
+
 #include "mesh_flash.h"
 #include "nrf_flash_mock.h"
 #include "bearer_event.h"
 #include "timer_mock.h"
 #include "bl_if.h"
 
-nrf_mesh_assertion_handler_t m_assertion_handler;
 typedef struct
 {
     mesh_flash_user_t user;
@@ -58,27 +58,31 @@ static bool m_delayed_flag_event;
 
 extern void mesh_flash_reset(void);
 
-void mesh_assert(uint32_t pc)
+static void mesh_assert(uint32_t pc)
 {
     printf("ASSERT AT PC %u", pc);
     TEST_FAIL();
 }
+nrf_mesh_assertion_handler_t m_assertion_handler = mesh_assert;
 
 void setUp(void)
 {
     m_event_cb = NULL;
-    memset(&m_end_expect_users, 0, sizeof(m_end_expect_users));
+    memset(m_end_expect_users, 0, sizeof(m_end_expect_users));
     m_end_expect_users[0].user = MESH_FLASH_USER_TEST;
     m_end_expect_users[1].user = MESH_FLASH_USER_DFU;
     m_delayed_flag_event = false;
-    CMOCK_SETUP(nrf_flash);
-    CMOCK_SETUP(timer);
+    nrf_flash_mock_Init();
+    timer_mock_Init();
 }
 
 void tearDown(void)
 {
     mesh_flash_reset();
-    CMOCK_TEARDOWN();
+    nrf_flash_mock_Verify();
+    nrf_flash_mock_Destroy();
+    timer_mock_Verify();
+    timer_mock_Destroy();
 }
 
 static void mesh_flash_op_cb(mesh_flash_user_t user, const flash_operation_t * p_op, uint16_t token)
@@ -288,7 +292,6 @@ void test_execute_write(void)
     flash_op.type = FLASH_OP_TYPE_WRITE;
     TEST_ASSERT_EQUAL_HEX32(NRF_SUCCESS, mesh_flash_op_push(MESH_FLASH_USER_TEST, &flash_op, &token));
     TEST_ASSERT_EQUAL(expected_token, token);
-    expected_token++;
     m_end_expect_users[0].cb_all_count = 0;
     m_end_expect_users[0].expected_cb_count = 1;
     memcpy(&m_end_expect_users[0].expected_op, &flash_op, sizeof(m_end_expect_users[0].expected_op));

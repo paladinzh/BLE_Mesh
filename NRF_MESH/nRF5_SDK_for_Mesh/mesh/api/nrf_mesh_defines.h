@@ -92,6 +92,9 @@
 /** 64-bit MIC size. */
 #define MIC_SIZE_64BIT (8)
 
+/** Maximum global key index allowed, according to specification, Section 3.8.6.4. */
+#define NRF_MESH_GLOBAL_KEY_INDEX_MAX  (0xFFF)
+
 /** Size (in octets) of the unprovisioned beacon URI hash. */
 #define NRF_MESH_BEACON_UNPROV_URI_HASH_SIZE    (4)
 
@@ -157,8 +160,11 @@
  * @{
  */
 
+/** Number of bits in the sequence number. */
+#define NETWORK_SEQNUM_BITS         24
+
 /** Maximum allowed sequence number. */
-#define NETWORK_SEQNUM_MAX          ((1 << 24) - 1)
+#define NETWORK_SEQNUM_MAX          ((1 << NETWORK_SEQNUM_BITS) - 1)
 
 /** Maximum allowed number of retransmissions for relayed packets. */
 #define NETWORK_RELAY_RETRANSMITS_MAX   ((1 << 3) - 1)

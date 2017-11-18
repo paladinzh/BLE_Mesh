@@ -56,7 +56,7 @@
  ************************/
 
 /** Generic beacon packet */
-typedef struct __attribute((packed))
+typedef struct
 {
     uint8_t beacon_type;  /**< Beacon type, see @ref BEACON_TYPE */
     uint8_t payload[];    /**< Beacon payload. */
@@ -69,18 +69,15 @@ static advertiser_t m_advertiser; /**< Advertiser instance used to transmit beac
 /**************/
 /* Public API */
 /**************/
-uint32_t beacon_init(uint32_t interval_ms)
+void beacon_init(uint32_t interval_ms)
 {
-    if (interval_ms < BEACON_INTERVAL_MS_MIN || interval_ms > BEACON_INTERVAL_MS_MAX)
-    {
-        return NRF_ERROR_INVALID_PARAM;
-    }
+    NRF_MESH_ASSERT(interval_ms >= BEACON_INTERVAL_MS_MIN && interval_ms <= BEACON_INTERVAL_MS_MAX);
     m_advertiser.adv_channel_map = 0x07;
     m_advertiser.adv_int_min_ms = interval_ms;
     m_advertiser.adv_int_max_ms = interval_ms + 10;
     m_advertiser.adv_packet_type = BLE_PACKET_TYPE_ADV_NONCONN_IND;
     m_advertiser.queue_empty_cb = NULL;
-    return bearer_adv_advertiser_init(&m_advertiser);
+    bearer_adv_advertiser_init(&m_advertiser);
 }
 
 uint32_t beacon_tx(uint8_t beacon_type, const void* p_payload, uint8_t payload_len, uint8_t count)
@@ -104,7 +101,7 @@ uint32_t beacon_tx(uint8_t beacon_type, const void* p_payload, uint8_t payload_l
         status = bearer_adv_tx(&m_advertiser, p_packet, count);
         if (status != NRF_SUCCESS)
         {
-            packet_mgr_decref(p_packet);
+            packet_mgr_free(p_packet);
         }
     }
     return status;

@@ -245,7 +245,7 @@ static void handle_cmd_addr_get(const serial_packet_t * p_cmd)
 {
     nrf_mesh_address_t addr;
     uint32_t status = dsm_address_get(p_cmd->payload.cmd.mesh.addr_get.address_handle, &addr);
-    serial_evt_cmd_rsp_data_raw_addr_t rsp;
+    serial_evt_cmd_rsp_data_raw_addr_t rsp = {0};
     uint32_t rsp_size = 0;
 
     if (status == NRF_SUCCESS)

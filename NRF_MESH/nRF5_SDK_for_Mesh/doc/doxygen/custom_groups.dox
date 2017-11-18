@@ -25,17 +25,6 @@
  * The configuration model provides functionality that allows nodes to be configured
  * or configure other nodes.
  *
- * @page doc_getting_started Getting started
- * @{
- * - @subpage md_doc_getting_started_how_to_build
- * - @subpage md_doc_getting_started_basic_concepts
- * - @subpage md_doc_getting_started_basic_architecture
- * - @subpage md_doc_getting_started_provisioning
- * - @subpage md_doc_getting_started_how_to_build_your_network
- * - @subpage md_doc_getting_started_how_to_models
- * - @subpage md_doc_getting_started_dfu_quick_start
- * @}
- *
  * @page LIBRARIES Libraries
  * @{
  * - @subpage md_doc_libraries_flash_manager

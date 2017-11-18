@@ -36,7 +36,7 @@
  */
 
 #include "hal.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_sdm.h"
 #include "nrf_mesh_assert.h"
 #if defined(S130) || defined(S132)
@@ -58,15 +58,13 @@
 void hal_device_reset(uint8_t gpregret_value)
 {
 #if defined(SOFTDEVICE_PRESENT)
+    (void) sd_power_reset_reason_clr(RESET_REASON_MASK); /* avoid wrongful state-readout on reboot */
 #if defined(S130) || defined(S110)
-    sd_power_reset_reason_clr(RESET_REASON_MASK); /* avoid wrongful state-readout on reboot */
-    sd_power_gpregret_set(gpregret_value);
-    sd_nvic_SystemReset();
+    (void) sd_power_gpregret_set(gpregret_value);
 #elif defined(S132)
-    sd_power_reset_reason_clr(RESET_REASON_MASK); /* avoid wrongful state-readout on reboot */
-    sd_power_gpregret_set(gpregret_value, RESET_REASON_MASK);
-    sd_nvic_SystemReset();
+    (void) sd_power_gpregret_set(gpregret_value, RESET_REASON_MASK);
 #endif
+    (void) sd_nvic_SystemReset();
 #else
     NRF_POWER->RESETREAS = RESET_REASON_MASK; /* avoid wrongful state-readout on reboot */
     NRF_POWER->GPREGRET = gpregret_value;

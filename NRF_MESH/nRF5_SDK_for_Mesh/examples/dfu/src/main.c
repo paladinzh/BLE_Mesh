@@ -52,13 +52,6 @@
 #include "nrf_mesh_dfu.h"
 #include "nrf_mesh_serial.h"
 
-#define NETWORK_COUNT                   (8)
-#define APPLICATION_COUNT               (8)
-#define DEVICE_KEY_COUNT                (8)
-#define UNICAST_AND_GROUP_ADDRESS_COUNT (8)
-#define VIRTUAL_ADDRESS_COUNT           (4)
-#define RX_ADDRESS_COUNT  (UNICAST_AND_GROUP_ADDRESS_COUNT + VIRTUAL_ADDRESS_COUNT)
-
 #if defined(NRF51)
 #define FLASH_PAGE_SIZE                 ( 0x400)
 #define FLASH_PAGE_MASK             (0xFFFFFC00)
@@ -204,7 +197,7 @@ int main(void)
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Initialization complete!\n");
     NRF_GPIO->OUTCLR = BSP_LED_0_MASK;
 
-    while(true)
+    while (true)
     {
         nrf_mesh_process();
     }

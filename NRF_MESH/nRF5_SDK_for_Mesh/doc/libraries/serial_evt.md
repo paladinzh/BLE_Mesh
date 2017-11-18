@@ -1,15 +1,15 @@
 
-# Serial Events
+# Serial events
 
 # Serial Event Overview {#serial-events}
 
-Serial Events are messages sent from the nRF5x to the host controller. Messages
-are either sent asynchronously as a result of some interaction in the mesh, or
+Serial Events are messages sent from the nRF5 to the host controller. Messages
+are either sent asynchronously as a result of some interaction in the mesh or
 as a response to a command.
 
-See the table below for an overiew over the various events pushed by the nRF5x
+See the table below for an overview over the various events pushed by the nRF5
 to the host. Each entry links to their respective "Details" section, where the
-parameters and reason for each event will be described.
+parameters and reason for each event are described.
 
 
 Event                                                                    | Opcode
@@ -40,6 +40,7 @@ Event                                                                    | Opcod
 [Prov Auth Request](#prov-auth-request)                                  | 0xc6
 [Prov ECDH Request](#prov-ecdh-request)                                  | 0xc7
 [Prov Output Request](#prov-output-request)                              | 0xc8
+[Prov Failed](#prov-failed)                                              | 0xc9
 [Mesh Message Received Unicast](#mesh-message-received-unicast)          | 0xd0
 [Mesh Message Received Subscription](#mesh-message-received-subscription)| 0xd1
 [Mesh TX Complete](#mesh-tx-complete)                                    | 0xd2
@@ -373,7 +374,7 @@ Type              | Name                                    | Size  | Offset | D
 
 _Opcode:_ `0xc5`
 
-_Total length: 42 bytes_
+_Total length: 44 bytes_
 
 The provisioning process was successfully completed.
 
@@ -385,8 +386,10 @@ Type              | Name                                    | Size  | Offset | D
 `uint32_t`        | Iv Index                                | 4     | 1      | IV index for the network.
 `uint16_t`        | Net Key Index                           | 2     | 5      | Network key index.
 `uint16_t`        | Address                                 | 2     | 7      | Unicast address for the device.
-`uint8_t[16]`     | Device Key                              | 16    | 9      | The device key of the provisioned device.
-`uint8_t[16]`     | Net Key                                 | 16    | 25     | The network key of the provisioned device.
+`uint8_t`         | Iv Update Flag                          | 1     | 9      | IV update in progress flag.
+`uint8_t`         | Key Refresh Flag                        | 1     | 10     | Key refresh in progress flag.
+`uint8_t[16]`     | Device Key                              | 16    | 11     | The device key of the provisioned device.
+`uint8_t[16]`     | Net Key                                 | 16    | 27     | The network key of the provisioned device.
 
 ### Prov Auth Request          {#prov-auth-request}
 
@@ -436,6 +439,21 @@ Type              | Name                                    | Size  | Offset | D
 `uint8_t`         | Context ID                              | 1     | 0      | Context ID of the link the output request appeared on.
 `uint8_t`         | Output Action                           | 1     | 1      | Output action requested.
 `uint8_t[16]`     | Data                                    | 0..16 | 2      | Data for the output request.
+
+### Prov Failed          {#prov-failed}
+
+_Opcode:_ `0xc9`
+
+_Total length: 3 bytes_
+
+The provisioning procedure failed.
+
+_Prov Failed Parameters_
+
+Type              | Name                                    | Size  | Offset | Description
+------------------|-----------------------------------------|-------|--------|------------
+`uint8_t`         | Context ID                              | 1     | 0      | Context ID of the link the error happened on.
+`uint8_t`         | Error Code                              | 1     | 1      | Provisioning error code.
 
 ### Mesh Message Received Unicast          {#mesh-message-received-unicast}
 

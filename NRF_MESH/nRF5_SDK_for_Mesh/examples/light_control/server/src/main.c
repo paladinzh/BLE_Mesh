@@ -62,6 +62,7 @@
  *****************************************************************************/
 
 #define LED_PIN_NUMBER (BSP_LED_0)
+#define LED_PIN_MASK   (1u << LED_PIN_NUMBER)
 #define STATIC_AUTH_DATA {0}
 
 /*****************************************************************************
@@ -90,7 +91,7 @@ static void configuration_setup(void * p_unused)
 static void configuration_complete(void * p_unused)
 {
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Successfully provisioned\n");
-    hal_led_blink_ms(LED_PIN_NUMBER, 200, 4);
+    hal_led_blink_ms(LED_PIN_MASK, 200, 4);
 }
 
 /*****************************************************************************
@@ -134,7 +135,7 @@ int main(void)
 
     ERROR_CHECK(nrf_mesh_node_config(&config_params));
 
-    while(true)
+    while (true)
     {
         nrf_mesh_process();
     }

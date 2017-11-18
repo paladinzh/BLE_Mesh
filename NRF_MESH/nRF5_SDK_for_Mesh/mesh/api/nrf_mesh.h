@@ -47,7 +47,7 @@
 #include "nrf_mesh_defines.h"
 #include "nrf_mesh_config_core.h"
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_sdm.h"
 #include "nrf_mesh_prov.h"
 
@@ -295,7 +295,7 @@ typedef struct
     /** Points to the payload to be sent. */
     const uint8_t * p_data;
     /** Length of the payload being sent. */
-    uint32_t data_len;
+    uint16_t data_len;
     /** Required for encryption @see nrf_mesh_secmat_t. */
     nrf_mesh_secmat_t security_material;
 } nrf_mesh_tx_params_t;
@@ -340,6 +340,7 @@ typedef struct
  * @retval NRF_SUCCESS                      The mesh system was successfully initialized.
  * @retval NRF_ERROR_SOFTDEVICE_NOT_ENABLED The SoftDevice has not been enabled.
  * @retval NRF_ERROR_INVALID_STATE          The mesh stack has already been initialized.
+ * @retval NRF_ERROR_NULL                   The @c p_init_params parameter was @c NULL.
  */
 uint32_t nrf_mesh_init(const nrf_mesh_init_params_t * p_init_params);
 

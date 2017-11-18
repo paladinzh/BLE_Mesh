@@ -82,7 +82,7 @@ uint32_t nrf_mesh_opt_get(nrf_mesh_opt_id_t id, nrf_mesh_opt_t * const p_opt)
     {
         return transport_opt_get(id, p_opt);
     }
-    else if(NRF_MESH_OPT_NET_START <= id)
+    else if (NRF_MESH_OPT_NET_START <= id)
     {
         return network_opt_get(id, p_opt);
     }

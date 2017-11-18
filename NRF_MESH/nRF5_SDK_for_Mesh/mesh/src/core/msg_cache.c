@@ -67,7 +67,7 @@ static uint32_t m_msg_cache_head = 0;
 /*****************************************************************************
 * Interface functions
 *****************************************************************************/
-uint32_t msg_cache_init(void)
+void msg_cache_init(void)
 {
     for (uint32_t i = 0; i < MSG_CACHE_ENTRY_COUNT; ++i)
     {
@@ -77,8 +77,6 @@ uint32_t msg_cache_init(void)
     }
 
     m_msg_cache_head = 0;
-
-    return NRF_SUCCESS;
 }
 
 bool msg_cache_entry_exists(const packet_net_t* p_packet)
@@ -121,7 +119,7 @@ void msg_cache_entry_add(uint16_t src, uint32_t seq)
 
 void msg_cache_clear(void)
 {
-    for(uint32_t i = 0; i < MSG_CACHE_ENTRY_COUNT; ++i)
+    for (uint32_t i = 0; i < MSG_CACHE_ENTRY_COUNT; ++i)
     {
         m_msg_cache[i].allocated = 0;
     }

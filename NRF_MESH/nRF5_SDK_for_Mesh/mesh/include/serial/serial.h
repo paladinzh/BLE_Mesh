@@ -56,7 +56,7 @@
  */
 
 /** Serial API version. */
-#define SERIAL_API_VERSION  3
+#define SERIAL_API_VERSION  4
 
 /**
  * Initializes the serial interface abstraction layer.
@@ -97,12 +97,8 @@ uint32_t serial_packet_buffer_get(uint16_t packet_len, serial_packet_t ** pp_pac
  * Queues a packet for transmission on the serial interface.
  *
  * @param[in] p_packet Pointer to the packet to transmit.
- *
- * @retval NRF_SUCCESS The packet was successfully scheduled for transmission.
- * @retval NRF_ERROR_INVALID_STATE The serial module has not been started.
- * @retval NRF_ERROR_NO_MEM The packet queue is full.
  */
-uint32_t serial_tx(const serial_packet_t * p_packet);
+void serial_tx(const serial_packet_t * p_packet);
 
 /**
  * Schedule processing for serial RX/TX.
@@ -130,12 +126,8 @@ nrf_mesh_serial_state_t serial_state_get(void);
  * @param[in] status Reply status code.
  * @param[in] p_data Additional data to be added to the reply (optional).
  * @param[in] length Length of additional data.
- *
- * @retval NRF_SUCCESS The packet was successfully scheduled for transmission.
- * @retval NRF_ERROR_INVALID_STATE The serial module has not been started.
- * @retval NRF_ERROR_NO_MEM The packet queue is full.
  */
-uint32_t serial_cmd_rsp_send(uint8_t opcode, uint8_t status, const uint8_t * p_data, uint16_t length);
+void serial_cmd_rsp_send(uint8_t opcode, uint8_t status, const uint8_t * p_data, uint16_t length);
 
 /** @} end of SERIAL_INTERFACE */
 

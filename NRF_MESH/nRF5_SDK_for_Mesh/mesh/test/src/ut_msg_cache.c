@@ -168,7 +168,7 @@ void test_msg_cache_entry_overflow(void)
     for (uint32_t i = 0; i < MSG_CACHE_ENTRY_COUNT; ++i)
     {
         p_packet->header.src++;
-        p_packet->header.seq = LE2BE32(BE2LE32(p_packet->header.seq) + 1);
+        p_packet->header.seq = LE2BE24(BE2LE24(p_packet->header.seq) + 1);
         packet_net_mic_set(p_packet, mic++);
         TEST_ASSERT_FALSE(msg_cache_entry_exists(p_packet));
         msg_cache_entry_add(p_packet->header.src, BE2LE24(p_packet->header.seq));
@@ -182,14 +182,14 @@ void test_msg_cache_entry_overflow(void)
     for (uint32_t i = 0; i < MSG_CACHE_ENTRY_COUNT; ++i)
     {
         p_packet->header.src++;
-        p_packet->header.seq = LE2BE32(BE2LE32(p_packet->header.seq) + 1);
+        p_packet->header.seq = LE2BE24(BE2LE24(p_packet->header.seq) + 1);
         packet_net_mic_set(p_packet, mic++);
         TEST_ASSERT_TRUE(msg_cache_entry_exists(p_packet));
     }
 
     /* overflow */
     p_packet->header.src++;
-    p_packet->header.seq = LE2BE32(BE2LE32(p_packet->header.seq) + 1);
+    p_packet->header.seq = LE2BE24(BE2LE24(p_packet->header.seq) + 1);
     packet_net_mic_set(p_packet, mic++);
     TEST_ASSERT_FALSE(msg_cache_entry_exists(p_packet));
     msg_cache_entry_add(p_packet->header.src, BE2LE24(p_packet->header.seq));

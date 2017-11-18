@@ -19,5 +19,5 @@ The client is controlled over RTT with a few simple commands:
 - Send `5N`, where `N` is the device number, to start remote provisioning of the first unprovisioned
   device known to the current provisioning server.
 
-**Note:** These commands must happen in order.
+> **Important:** These commands must happen in order.
 

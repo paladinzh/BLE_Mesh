@@ -5,8 +5,8 @@ msc {
 
     app [label = "Application"], access [label = "Access layer"], provisioner [label = "Provisioner"];
 
-    provisioner -> access [ label = "Set publish address" ];
-    provisioner -> access [ label = "Set publish interval" ];
+    provisioner -> access [ label = "Set publication state (address, interval, ...)" ];
+    ...;
     access =>> app [ label = "publish_timeout_cb(handle, args)" ];
     app => access [ label = "access_model_publish(handle, message)" ];
     ...;

@@ -41,7 +41,7 @@
 
 #include "nrf_mesh_defines.h"
 #include "nrf_mesh_configure.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 NRF_FICR_Type m_ficr;
 NRF_FICR_Type * NRF_FICR;

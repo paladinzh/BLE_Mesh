@@ -37,7 +37,7 @@
 #include <stddef.h>
 
 #include "rand.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_assert.h"
 
 #if !HOST
@@ -98,7 +98,7 @@ void rand_hw_rng_get(uint8_t* p_result, uint16_t len)
     {
         do
         {
-            sd_rand_application_bytes_available_get(&bytes_available);
+            (void) sd_rand_application_bytes_available_get(&bytes_available);
         } while (bytes_available == 0);
 
         if (bytes_available > len - count)
@@ -106,7 +106,7 @@ void rand_hw_rng_get(uint8_t* p_result, uint16_t len)
             bytes_available = len - count;
         }
 
-        sd_rand_application_vector_get(&p_result[count],
+        (void) sd_rand_application_vector_get(&p_result[count],
             bytes_available);
 
         count += bytes_available;

@@ -62,6 +62,8 @@
 #include "flash_manager.h"
 #endif
 
+/*lint -e415 -e416 Lint fails to understand the boundary checking used for handles in this module (MBTLE-1831). */
+
 /** Access model pool. @ref ACCESS_MODEL_COUNT is set by user at compile time. */
 static access_common_t m_model_pool[ACCESS_MODEL_COUNT];
 
@@ -133,7 +135,7 @@ static bool element_has_model_id(uint16_t element_index, access_model_id_t model
 
 static access_opcode_t access_opcode_get(const uint8_t * p_buffer)
 {
-    access_opcode_t opcode;
+    access_opcode_t opcode = {0};
     switch (p_buffer[0] & ACCESS_PACKET_OPCODE_FORMAT_MASK)
     {
         case ACCESS_PACKET_OPCODE_FORMAT_1BYTE0:
@@ -223,7 +225,7 @@ static bool is_opcode_of_model(access_common_t * p_model, access_opcode_t opcode
 
 static inline bool model_handle_valid_and_allocated(access_model_handle_t handle)
 {
-    return (ACCESS_MODEL_COUNT > handle && ACCESS_INTERNAL_STATE_IS_ALLOCATED(m_model_pool[handle].internal_state));
+    return (handle < ACCESS_MODEL_COUNT && ACCESS_INTERNAL_STATE_IS_ALLOCATED(m_model_pool[handle].internal_state));
 }
 
 static void mesh_msg_handle(nrf_mesh_evt_message_t * p_evt)
@@ -236,6 +238,7 @@ static void mesh_msg_handle(nrf_mesh_evt_message_t * p_evt)
     }
     __LOG(LOG_SRC_ACCESS, LOG_LEVEL_DBG1, "RX: [aop: 0x%04x]\n", opcode.opcode);
 
+    /*lint -save -e64 -e446 Side effects and type mismatches in initializer */
     dsm_handle_t appkey_handle = dsm_appkey_handle_get(p_evt->secmat.p_app);
     access_message_rx_t message =
         {
@@ -252,6 +255,8 @@ static void mesh_msg_handle(nrf_mesh_evt_message_t * p_evt)
             .meta_data.ttl = p_evt->ttl,
             .meta_data.appkey_handle = appkey_handle
         };
+    /*lint -restore */
+
     if (p_evt->dst.type == NRF_MESH_ADDRESS_TYPE_UNICAST)
     {
         dsm_local_unicast_address_t local_addresses;
@@ -485,7 +490,7 @@ static void flash_invalidate_complete(const flash_manager_t * p_manager, fm_hand
 typedef void (*flash_op_func_t) (void);
 static void flash_manager_mem_available(void * p_args)
 {
-    ((flash_op_func_t)p_args)();
+    ((flash_op_func_t) p_args)(); /*lint !e611 Suspicious cast */
 }
 
 static void add_flash_manager(void);
@@ -905,7 +910,7 @@ uint32_t access_model_add(const access_model_add_params_t * p_model_params,
     {
         return NRF_ERROR_INVALID_LENGTH;
     }
-    else if (ACCESS_ELEMENT_COUNT <= p_model_params->element_index)
+    else if (p_model_params->element_index >= ACCESS_ELEMENT_COUNT)
     {
         return NRF_ERROR_NOT_FOUND;
     }
@@ -1027,7 +1032,7 @@ uint32_t access_model_publish_period_set(access_model_handle_t handle,
         return NRF_ERROR_NOT_SUPPORTED;
     }
     else if (step_number > ACCESS_PUBLISH_PERIOD_STEP_MAX ||
-             resolution > ACCESS_PUBLISH_RESOLUTION_MAX)
+             resolution > ACCESS_PUBLISH_RESOLUTION_MAX) /*lint !e685 */
     {
         return NRF_ERROR_INVALID_PARAM;
     }

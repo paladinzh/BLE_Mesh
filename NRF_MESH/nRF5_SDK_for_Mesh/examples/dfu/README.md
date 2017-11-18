@@ -1,4 +1,4 @@
-# DFU Example
+# DFU example
 
 This Device Firmware Update (DFU) example illustrates how to create an application that can be updated
 over the mesh. It shows the general setup and how to handle the relevant events.
@@ -12,5 +12,5 @@ The mesh DFU supports two modes: side-by-side DFU and bootloader DFU. The side-b
 
 This DFU application requires a bootloader and a valid device page to function correctly. Precompiled bootloaders are included in the _bin_ directory at the project root directory, and the device page must be generated with the *device_page.py* script located in *tools/dfu/device_page.py*.
 
-See the [DFU Quick Start Guide](@ref md_doc_getting_started_dfu_quick_start) for detailed instructions on how to perform a DFU operation using this example application.
+See the [DFU quick start guide](@ref md_doc_getting_started_dfu_quick_start) for detailed instructions on how to perform a DFU operation using this example application.
 

@@ -58,7 +58,7 @@ void assert_handler(uint32_t pc)
 
 void setUp(void)
 {
-    CMOCK_SETUP(flash_manager_defrag);
+    flash_manager_defrag_mock_Init();
     flash_manager_test_util_setup();
     m_assertion_handler = assert_handler;
 
@@ -66,7 +66,8 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    flash_manager_defrag_mock_Verify();
+    flash_manager_defrag_mock_Destroy();
 }
 
 static void mem_listener_cb(void * p_args)
@@ -1338,7 +1339,7 @@ void test_mem_listener(void)
     /* register a ton of listeners */
 
     fm_mem_listener_t listeners[10];
-    memset(&listeners, 0, sizeof(listeners));
+    memset(listeners, 0, sizeof(listeners));
     for (uint32_t i = 0; i < 10; ++i)
     {
         listeners[i].callback = mem_listener_cb;

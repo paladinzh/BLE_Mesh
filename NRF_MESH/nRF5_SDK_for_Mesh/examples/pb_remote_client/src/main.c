@@ -209,7 +209,7 @@ static void start_provisioning(const uint8_t * p_uuid)
 
 static void mesh_evt_handler(nrf_mesh_evt_t * p_evt)
 {
-    switch(p_evt->type)
+    switch (p_evt->type)
     {
         case NRF_MESH_EVT_MESSAGE_RECEIVED:
             break;
@@ -387,7 +387,7 @@ int main(void)
 
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, USAGE_STRING);
 
-    while(true)
+    while (true)
     {
         user_input_get();
         nrf_mesh_process();

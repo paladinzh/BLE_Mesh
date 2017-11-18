@@ -38,7 +38,7 @@
 #include "radio_config.h"
 #include "fifo.h"
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_error.h"
 #include "toolchain.h"
 #include "nrf_mesh_assert.h"
@@ -97,10 +97,10 @@ static bool purge_preemptable(void)
     if (preemptable)
     {
         /* event is preemptable, stop it */
-        fifo_pop(&m_radio_fifo, NULL);
+        NRF_MESH_ASSERT(fifo_pop(&m_radio_fifo, NULL) == NRF_SUCCESS);
 
         radio_stop();
-        while (NRF_RADIO->STATE != RADIO_STATE_STATE_Disabled);
+        while (NRF_RADIO->STATE != RADIO_STATE_STATE_Disabled); /*lint !e722 Suspicious use of semi-colon */
         NRF_RADIO->EVENTS_END = 0;
 
         /* propagate failed rx event */
@@ -144,7 +144,7 @@ void radio_init(const radio_init_params_t * p_init_params)
     m_radio_config.access_addr = p_init_params->access_address;
     m_radio_config.tx_power = RADIO_POWER_NRF_0DBM;
     m_radio_config.payload_maxlen = RADIO_PACKET_MAXLEN;
-    m_radio_config.datarate = (radio_mode_t) p_init_params->radio_mode;
+    m_radio_config.datarate = p_init_params->radio_mode;
 
     m_rx_cb       = p_init_params->rx_cb;
     m_tx_cb       = p_init_params->tx_cb;
@@ -302,7 +302,7 @@ void radio_preemptable_cancel(void)
     _DISABLE_IRQS(was_masked);
     if (m_radio_state == RADIO_STATE_RX)
     {
-        while (purge_preemptable());
+        while (purge_preemptable()); /*lint !e722 Suspicious use of semicolon */
     }
     m_radio_state = RADIO_STATE_DISABLED;
     _ENABLE_IRQS(was_masked);
@@ -319,7 +319,7 @@ void radio_event_handler(void)
         if (NRF_RADIO->EVENTS_RSSIEND)
         {
             NRF_RADIO->EVENTS_RSSIEND = 0;
-            rssi = NRF_RADIO->RSSISAMPLE;
+            rssi = NRF_RADIO->RSSISAMPLE & 0xff;
         }
 
         radio_event_t prev_evt;

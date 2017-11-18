@@ -53,7 +53,7 @@ static void sleep_forever(uint32_t pc)
     NRF_GPIO->OUTCLR = LEDS_MASK;
     uint32_t irqs_masked __attribute__((unused));
     _DISABLE_IRQS(irqs_masked);
-    while(pc)
+    while (pc)
     {
         /* Sleep forever */
     }
@@ -141,7 +141,7 @@ uint32_t mesh_softdevice_setup(nrf_clock_lf_cfg_t lfc_cfg)
 void softdevice_assert_handler(uint32_t pc, uint16_t line_number, const uint8_t * p_filename)
 {
     __LOG(LOG_SRC_APP, LOG_LEVEL_ERROR, "SD ASSERT: %s:%hu at 0x%.08lx\n", p_filename, line_number, pc);
-    sleep_forever();
+    sleep_forever(pc);
 }
 
 uint32_t mesh_softdevice_setup(nrf_clock_lfclksrc_t lfccfg)

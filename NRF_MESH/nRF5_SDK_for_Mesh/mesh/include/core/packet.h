@@ -80,6 +80,8 @@
  */
 typedef void packet_generic_t;
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * BLE advertisement packet types.
  */
@@ -92,7 +94,7 @@ typedef enum
     BLE_PACKET_TYPE_SCAN_RSP,           /**< Scan response type */
     BLE_PACKET_TYPE_CONN_REQ,           /**< Connection request type */
     BLE_PACKET_TYPE_ADV_DISCOVER_IND    /**< Discoverable advertisement type */
-} __attribute((packed)) ble_packet_type_t ;
+} ble_packet_type_t ;
 
 /**
  * BLE standard adv header.
@@ -260,6 +262,8 @@ typedef struct __attribute((packed))
     uint8_t  addr_type;         /**< Advertisement address type in the packet. */
     uint8_t* p_addr;            /**< Pointer to the advertisement address field in the packet. */
 } packet_meta_t;
+
+/*lint -align_max(pop) */
 
 /**
  * Gets pointer to the start of the AD structure of a specified type.
@@ -430,19 +434,14 @@ static inline uint32_t packet_net_mic_get(const packet_net_t* p_packet)
  * @retval NRF_ERROR_INVALID_LENGTH Invalid length of network packet (len < 4).
  * @retval NRF_SUCCESS              MIC field successfully set.
  */
-static inline uint32_t packet_net_mic_set(packet_net_t* p_packet, uint32_t net_mic)
+static inline void packet_net_mic_set(packet_net_t* p_packet, uint32_t net_mic)
 {
     const uint8_t length = packet_net_payload_size_get(p_packet);
-    if (length >= 4)
-    {
-        p_packet->payload[length - 1] = ((net_mic >> 24) & 0xFF);
-        p_packet->payload[length - 2] = ((net_mic >> 16) & 0xFF);
-        p_packet->payload[length - 3] = ((net_mic >> 8) & 0xFF);
-        p_packet->payload[length - 4] = ((net_mic >> 0) & 0xFF);
-        return NRF_SUCCESS;
-    }
-
-    return NRF_ERROR_INVALID_LENGTH;
+    NRF_MESH_ASSERT(length >= 4);
+    p_packet->payload[length - 1] = ((net_mic >> 24) & 0xFF);
+    p_packet->payload[length - 2] = ((net_mic >> 16) & 0xFF);
+    p_packet->payload[length - 3] = ((net_mic >> 8) & 0xFF);
+    p_packet->payload[length - 4] = ((net_mic >> 0) & 0xFF);
 }
 
 /**

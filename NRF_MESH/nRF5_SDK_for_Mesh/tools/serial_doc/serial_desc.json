@@ -92,7 +92,7 @@
         {
             "name": "Application",
             "shorthand": "APP",
-            "description": "A single opcode made available to the application.",
+            "description": "Single opcode made available to the application",
             "commands": [
                 {
                     "name": "Application",
@@ -109,7 +109,7 @@
         {
             "name": "Segmentation And Reassembly",
             "shorthand": "SAR",
-            "description": "Segmentation and Reassembly of serial packets, to allow packets larger than the largest serial packet size.",
+            "description": "Segmentation and reassembly of serial packets, to allow packets larger than the largest serial packet size",
             "commands": [
                 {
                     "name": "Start",
@@ -136,7 +136,7 @@
         {
             "name": "Configuration",
             "shorthand": "CONFIG",
-            "description": "Configuration of various device parameter, like addresses and radio properties.",
+            "description": "Configuration of various device parameter, like addresses and radio properties",
             "commands": [
                 {
                     "name": "Adv Addr Set",
@@ -223,18 +223,8 @@
         {
             "name": "Provisioning",
             "shorthand": "PROV",
-            "description": "Provisioning specific commands and operations",
+            "description": "Provisioning-specific commands and operations",
             "commands": [
-                {
-                    "name": "Init Context",
-                    "description": "Reset a provisioning context so it can be used for provisioning a device.",
-                    "response": {
-                        "status": [
-                            "SUCCESS", "ERROR_INVALID_PARAMETER"
-                        ],
-                        "params": ""
-                    }
-                },
                 {
                     "name": "Scan Start",
                     "description": "Start reporting of incoming unprovisioned beacons.",
@@ -260,7 +250,7 @@
                     "description": "Start provisioning of a device. When a provisioning link has been successfully established, a _Provisioning Link Established_ event is received. If an error occurs, a _Provisioning Link Closed_ event is received. After a link has been established, a _Provisioning Capabilities Received_ event will be emitted upon receiving the peer node's OOB capabilities. To continue the provisioning process, a _Provisioning OOB Use_ command must be sent to select which kind of OOB authentication to use.",
                     "response": {
                         "status": [
-                            "SUCCESS", "ERROR_INVALID_STATE", "ERROR_REJECTED"
+                            "SUCCESS", "ERROR_INVALID_STATE", "ERROR_REJECTED", "ERROR_INVALID_DATA"
                         ],
                         "params": "cmd_rsp_data_prov_ctx"
                     }
@@ -330,7 +320,7 @@
         {
             "name": "nRF Open Mesh",
             "shorthand": "OPENMESH",
-            "description": "The set of commands used by the nRF Open Mesh.",
+            "description": "Set of commands used by the nRF Open Mesh",
             "commands": [
                 {
                     "name": "Init",
@@ -477,7 +467,7 @@
         {
             "name": "Bluetooth Mesh",
             "shorthand": "MESH",
-            "description": "Bluetooth Mesh commands for controlling a device's behavior on the mesh.",
+            "description": "Bluetooth Mesh commands for controlling a device's behavior on the mesh",
             "commands": [
                 {
                     "name": "Enable",
@@ -772,7 +762,7 @@
         {
             "name": "Direct Firmware Upgrade",
             "shorthand": "DFU",
-            "description": "Commands controlling the behavior of the Device Firmware Upgrade part of the mesh stack.",
+            "description": "Commands controlling the behavior of the Device Firmware Update part of the mesh stack",
             "commands": [
                 {
                     "name": "Jump To Bootloader",
@@ -849,7 +839,7 @@
         {
             "name": "Access Layer",
             "shorthand": "ACCESS",
-            "description": "Commands to interface the access layer on mesh.",
+            "description": "Commands to interface the access layer on mesh",
             "commands": [
                 {
                     "name": "Model Pub Addr Set",
@@ -1075,7 +1065,7 @@
         {
             "name": "Model Specific",
             "shorthand": "MODEL_SPECIFIC",
-            "description": "Commands for initializing and commanding specific models.",
+            "description": "Commands for initializing and commanding specific models",
             "commands": [
                 {
                     "name": "Models Get",
@@ -1214,6 +1204,10 @@
         {
             "name": "Prov Output Request",
             "description": "The device is required to do an action the user can recognize and use for authentication."
+        },
+        {
+            "name": "Prov Failed",
+            "description": "The provisioning procedure failed."
         },
         {
             "name": "Mesh Message Received Unicast",

@@ -211,7 +211,7 @@ static fifo_t m_pbr_client_event_queue;
 static bool m_is_interrupting;
 
 static uint32_t pb_if_tx_cb(prov_bearer_t * p_bearer, const uint8_t * p_data, uint16_t length);
-static uint32_t pb_if_link_close_cb(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
+static void pb_if_link_close_cb(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
 static uint32_t pb_if_link_open_cb(prov_bearer_t * p_bearer, const uint8_t * p_uuid, uint32_t link_timeout_us);
 static uint32_t pb_if_listen_start_cb(prov_bearer_t * p_bearer, const char * p_uri, uint16_t oob_info, uint32_t link_timeout_us);
 static uint32_t pb_if_listen_stop_cb(prov_bearer_t * p_bearer);
@@ -340,7 +340,7 @@ static pb_remote_client_state_t pb_remote_client_event_unprov_uuid_cb(pb_remote_
             return p_ctx->state;
         }
         default:
-            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Unexpected UUID report in state %u\n", p_ctx->state);
+            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_INFO, "Unexpected UUID report in state %u\n", p_ctx->state);
             scan_report_status.status = PB_REMOTE_REPORT_STATUS_REJECTED;
             scan_report_status.unprov_device_id = p_scan_report->unprov_device_id;
             send_reply(p_ctx, p_evt->evt.p_message, &reply);
@@ -662,7 +662,7 @@ static pb_remote_client_state_t pb_remote_client_event_transfer_status_cb(pb_rem
             }
 
         default:
-            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Got transfer status %u in state %u.\n", p_msg->status, p_ctx->state);
+            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_INFO, "Got transfer status %u in state %u.\n", p_msg->status, p_ctx->state);
             return p_ctx->state;
     }
 }
@@ -952,12 +952,9 @@ static uint32_t pb_if_tx_cb(prov_bearer_t * p_bearer, const uint8_t * p_data, ui
 }
 
 
-static uint32_t pb_if_link_close_cb(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
+static void pb_if_link_close_cb(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
 {
-    if (p_bearer == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
+    NRF_MESH_ASSERT(p_bearer != NULL);
 
     pb_remote_client_event_t evt =
         {
@@ -965,14 +962,8 @@ static uint32_t pb_if_link_close_cb(prov_bearer_t * p_bearer, nrf_mesh_prov_link
             .evt.link_close_reason = close_reason
         };
 
-    uint32_t status = fifo_push(&m_pbr_client_event_queue, &evt);
-    if (status != NRF_SUCCESS)
-    {
-        return status;
-    }
+    (void) fifo_push(&m_pbr_client_event_queue, &evt);
     pb_remote_client_process(mp_pb_remote_client_model);
-
-    return NRF_SUCCESS;
 }
 
 /* Unused */
@@ -1015,11 +1006,7 @@ uint32_t pb_remote_client_init(pb_remote_client_t * p_client,
     m_pbr_client_event_queue.array_len  = PB_REMOTE_CLIENT_EVENT_QUEUE_SIZE;
     m_pbr_client_event_queue.elem_array = &m_pbr_client_event_queue_buffer[0];
     m_pbr_client_event_queue.elem_size  = sizeof(pb_remote_client_event_t);
-    uint32_t status = fifo_init(&m_pbr_client_event_queue);
-    if (status != NRF_SUCCESS)
-    {
-        return status;
-    }
+    fifo_init(&m_pbr_client_event_queue);
 
     /* Setup model */
     access_model_add_params_t init_params;
@@ -1031,7 +1018,7 @@ uint32_t pb_remote_client_init(pb_remote_client_t * p_client,
     init_params.p_args = p_client;
     init_params.publish_timeout_cb = NULL;
 
-    status = access_model_add(&init_params, &p_client->model_handle);
+    uint32_t status = access_model_add(&init_params, &p_client->model_handle);
     if (status != NRF_SUCCESS)
     {
         return status;

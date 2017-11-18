@@ -145,7 +145,7 @@ static void add_to_publication_list(access_model_publication_state_t * p_pubstat
 
 static timestamp_t calculate_next_timestamp(void)
 {
-    timestamp_t new_timestamp;
+    timestamp_t new_timestamp = 0;
 
     /*
      * If the next publication event has a lower resolution than the current one, we may need to wait
@@ -258,7 +258,7 @@ static void trigger_publication_timers(void)
         mp_publication_list = mp_publication_list->p_next;
 
         void * p_args = NULL;
-        NRF_MESH_ERROR_CHECK(access_model_p_args_get(handle, p_args));
+        NRF_MESH_ERROR_CHECK(access_model_p_args_get(handle, &p_args));
         p_pubstate->publish_timeout_cb(handle, p_args);
         add_to_publication_list(p_pubstate);
     }

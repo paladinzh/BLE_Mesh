@@ -39,7 +39,7 @@
 #define NRF_MESH_NODE_CONFIG_H__
 
 #include <stdint.h>
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include <nrf_sdm.h>
 
 #include "nrf_mesh.h"

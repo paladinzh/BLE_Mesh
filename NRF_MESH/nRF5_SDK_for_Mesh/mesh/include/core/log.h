@@ -44,11 +44,14 @@
 #include "nrf_mesh_defines.h"
 #include "nrf_mesh_config_core.h"
 
-#include "nrf_mesh_hw.h"
 
-#if HOST && defined(__linux__)
-#include <time.h>
-#endif
+#if HOST
+    #ifdef __linux__
+        #include <time.h>
+    #endif /* __linux__ */
+#else /* HOST */
+    #include "nrf.h"
+#endif /* HOST */
 
 /**
  * @defgroup LOG Logging functions
@@ -83,20 +86,24 @@ extern uint32_t g_log_debug_msk;
 extern uint32_t g_log_debug_level;
 
 /** Callback function used for printing log strings. */
-typedef uint32_t (*log_callback_t)(uint32_t dbg_level, const char * p_filename, uint16_t line,
+typedef void (*log_callback_t)(uint32_t dbg_level, const char * p_filename, uint16_t line,
                                    uint32_t timestamp, const char * format, va_list arguments);
 
+#if (LOG_ENABLE_RTT && !HOST)
 /** Callback function for printing debug information over RTT. */
-uint32_t log_callback_rtt(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_rtt(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments);
 
 /** Callback function for printing debug information over RTT in the format required by LogViewer. */
-uint32_t log_callback_logview(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_logview(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments);
+#endif
 
+#if HOST
 /** Callback function for printing debug information on stdout. */
-uint32_t log_callback_stdout(uint32_t dbg_level, const char * p_filename, uint16_t line,
+void log_callback_stdout(uint32_t dbg_level, const char * p_filename, uint16_t line,
     uint32_t timestamp, const char * format, va_list arguments);
+#endif
 
 /**
  * Initializes the logging module.
@@ -104,10 +111,8 @@ uint32_t log_callback_stdout(uint32_t dbg_level, const char * p_filename, uint16
  * @param[in] mask     Mask specifying which modules to log information from.
  * @param[in] level    Maximum log level to print messages from.
  * @param[in] callback Callback function for printing log strings.
- *
- * @retval NRF_SUCCESS The log module was successfully initialized.
  */
-uint32_t log_init(uint32_t mask, uint32_t level, log_callback_t callback);
+void log_init(uint32_t mask, uint32_t level, log_callback_t callback);
 
 /**
  * Sets the log callback function.
@@ -156,11 +161,9 @@ static inline uint32_t log_timestamp_get(void)
  * @param[in] timestamp    Timestamp for when the log function was called.
  * @param[in] format       Format string, printf()-compatible.
  *
- * @retval NRF_SUCCESS The log string was successfully printed.
- *
  * @see log_vprintf()
  */
-uint32_t __attribute((format(printf, 5, 6))) log_printf(
+void __attribute((format(printf, 5, 6))) log_printf(
     uint32_t dbg_level, const char * p_filename, uint16_t line, uint32_t timestamp, const char * format, ...);
 
 /**
@@ -175,11 +178,9 @@ uint32_t __attribute((format(printf, 5, 6))) log_printf(
  * @param[in] format       Format string, printf()-compatible.
  * @param[in] arguments    Arguments according to the @c format string.
  *
- * @retval NRF_SUCCESS The log string was successfully printed.
- *
  * @see log_printf()
  */
-uint32_t log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line, uint32_t timestamp,
+void log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line, uint32_t timestamp,
     const char * format, va_list arguments);
 
 /**
@@ -199,7 +200,7 @@ uint32_t log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line,
 #define __LOG(source, level, ...)                                       \
     if ((source & g_log_debug_msk) && level <= g_log_debug_level)       \
     {                                                                   \
-        (void)log_printf(level, __FILENAME__, __LINE__, log_timestamp_get(), __VA_ARGS__); \
+        log_printf(level, __FILENAME__, __LINE__, log_timestamp_get(), __VA_ARGS__); \
     }
 
 /**
@@ -210,19 +211,20 @@ uint32_t log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line,
  * @param[in] array  Pointer to array
  * @param[in] len    Length of array (in bytes)
  */
-#define __LOG_XB(source, level, msg, array, array_len)                  \
-    if ((source & g_log_debug_msk) && (level <= g_log_debug_level))     \
-    {                                                                   \
-        unsigned _array_len = (array_len);                              \
-        char array_text[_array_len * 2 + 1];                            \
-        for(unsigned _i = 0; _i < _array_len; ++_i)                        \
-        {                                                               \
-            extern const char * g_log_hex_digits;                       \
-            array_text[_i * 2] = g_log_hex_digits[((array)[_i] >> 4) & 0xf]; \
-            array_text[_i * 2 + 1] = g_log_hex_digits[(array)[_i] & 0xf]; \
-        }                                                               \
-        array_text[_array_len * 2] = 0;                                 \
-        (void)log_printf(level, __FILENAME__, __LINE__, log_timestamp_get(), "%s: %s\n", msg, array_text); \
+#define __LOG_XB(source, level, msg, array, array_len)                      \
+    if ((source & g_log_debug_msk) && (level <= g_log_debug_level))         \
+    {                                                                       \
+        unsigned _array_len = (array_len);                                  \
+        char array_text[_array_len * 2 + 1];                                \
+        for(unsigned _i = 0; _i < _array_len; ++_i)                         \
+        {                                                                   \
+            extern const char * g_log_hex_digits;                           \
+            const uint8_t array_elem = (array)[_i];                         \
+            array_text[_i * 2] = g_log_hex_digits[(array_elem >> 4) & 0xf]; \
+            array_text[_i * 2 + 1] = g_log_hex_digits[array_elem & 0xf];    \
+        }                                                                   \
+        array_text[_array_len * 2] = 0;                                     \
+        log_printf(level, __FILENAME__, __LINE__, log_timestamp_get(), "%s: %s\n", msg, array_text); \
     }
 
 #else
@@ -232,7 +234,7 @@ uint32_t log_vprintf(uint32_t dbg_level, const char * p_filename, uint16_t line,
 
 #ifndef LOG_CALLBACK_DEFAULT
 /** Default log callback. */
-#define LOG_CALLBACK_DEFAULT
+#define LOG_CALLBACK_DEFAULT NULL
 #endif
 
 #endif  /* NRF_MESH_LOG_ENABLE */

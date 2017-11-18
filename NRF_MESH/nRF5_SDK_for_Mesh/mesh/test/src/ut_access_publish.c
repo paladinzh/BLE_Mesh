@@ -69,7 +69,7 @@ timestamp_t timer_now()
 
 static void timer_sch_schedule_mock(timer_event_t * p_event, int num_calls)
 {
-    if(mp_scheduled_event != NULL)
+    if (mp_scheduled_event != NULL)
     {
         TEST_FAIL_MESSAGE("trying to schedule a new timer scheduler event while one is already scheduled");
     }
@@ -81,7 +81,7 @@ static void timer_sch_reschedule_mock(timer_event_t * p_event, timestamp_t new_t
 {
     ++timer_sch_reschedule_mock_called;
 
-    if(mp_scheduled_event == NULL)
+    if (mp_scheduled_event == NULL)
     {
         mp_scheduled_event = p_event;
     }
@@ -92,7 +92,7 @@ static void timer_sch_reschedule_mock(timer_event_t * p_event, timestamp_t new_t
 
 static void timer_sch_schedule_mock_trigger(void)
 {
-    if(!mp_scheduled_event)
+    if (!mp_scheduled_event)
     {
         TEST_FAIL_MESSAGE("cannot trigger timer scheduler event when none is scheduled");
     }
@@ -127,8 +127,8 @@ void nrf_mesh_assertion_handler(uint32_t pc)
 
 void setUp(void)
 {
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(bearer_event);
+    timer_scheduler_mock_Init();
+    bearer_event_mock_Init();
 
     m_assertion_handler = nrf_mesh_assertion_handler;
 
@@ -143,7 +143,10 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
 }
 
 
@@ -163,9 +166,9 @@ void test_periodic_publishing_singlemodel(void)
     const access_publish_resolution_t resolutions[] =
         { ACCESS_PUBLISH_RESOLUTION_100MS, ACCESS_PUBLISH_RESOLUTION_1S, ACCESS_PUBLISH_RESOLUTION_10S, ACCESS_PUBLISH_RESOLUTION_10MIN };
 
-    for(uint8_t res_index = 0; res_index < sizeof(resolutions) / sizeof(access_publish_resolution_t); ++res_index)
+    for (uint8_t res_index = 0; res_index < sizeof(resolutions) / sizeof(access_publish_resolution_t); ++res_index)
     {
-        for(uint8_t steps = 1; steps <= 0x3f; ++steps)
+        for (uint8_t steps = 1; steps <= 0x3f; ++steps)
         {
             /* Reset mocks for the iteration: */
             m_publish_timeout_cb_called = 0;
@@ -179,7 +182,7 @@ void test_periodic_publishing_singlemodel(void)
             access_publish_period_set(&test_pubstate, resolutions[res_index], steps);
 
             /* Trigger the timer scheduler interrupt for the required number of steps until the event fires: */
-            for(uint8_t i = 1; i < steps; ++i)
+            for (uint8_t i = 1; i < steps; ++i)
             {
                 timer_sch_schedule_mock_trigger();
                 TEST_ASSERT_EQUAL(0, m_publish_timeout_cb_called);
@@ -216,9 +219,9 @@ void test_periodic_publishing_multimodel(void)
     /* Test scheduling two models to publish at the same time: */
     const access_publish_resolution_t resolutions[] =
         { ACCESS_PUBLISH_RESOLUTION_100MS, ACCESS_PUBLISH_RESOLUTION_1S, ACCESS_PUBLISH_RESOLUTION_10S, ACCESS_PUBLISH_RESOLUTION_10MIN };
-    for(uint8_t res_index = 0; res_index < sizeof(resolutions) / sizeof(access_publish_resolution_t); ++res_index)
+    for (uint8_t res_index = 0; res_index < sizeof(resolutions) / sizeof(access_publish_resolution_t); ++res_index)
     {
-        for(uint8_t steps = 1; steps <= 0x3f; ++steps)
+        for (uint8_t steps = 1; steps <= 0x3f; ++steps)
         {
             /* Reset mocks and the publication module for the iteration: */
             m_publish_timeout_cb_called = 0;
@@ -231,7 +234,7 @@ void test_periodic_publishing_multimodel(void)
             access_publish_period_set(&test_pubstate_2, resolutions[res_index], steps);
 
             /* Trigger the timer scheduler interrupt for the required number of steps until the event fires: */
-            for(uint8_t i = 1; i < steps; ++i)
+            for (uint8_t i = 1; i < steps; ++i)
             {
                 timer_sch_schedule_mock_trigger();
                 TEST_ASSERT_EQUAL(0, m_publish_timeout_cb_called);
@@ -266,7 +269,7 @@ void test_periodic_publishing_multimodel(void)
     /* Wait until the first event is ready to trigger: */
     m_publish_timeout_cb_called = 0;
     m_publish_timeout_cb_handle = 0;
-    for(uint8_t i = 0; i < 8; ++i)
+    for (uint8_t i = 0; i < 8; ++i)
     {
         timer_sch_schedule_mock_trigger();
         TEST_ASSERT_EQUAL(0, m_publish_timeout_cb_called);
@@ -289,7 +292,7 @@ void test_periodic_publishing_multimodel(void)
     /* Check that they are both rescheduled correctly by doing another cycle: */
     m_publish_timeout_cb_called = 0;
     m_publish_timeout_cb_handle = 0;
-    for(uint8_t i = 0; i < 7; ++i)
+    for (uint8_t i = 0; i < 7; ++i)
     {
         timer_sch_schedule_mock_trigger();
         TEST_ASSERT_EQUAL(0, m_publish_timeout_cb_called);
@@ -319,7 +322,7 @@ void test_periodic_publishing_rescheduling(void)
 {
     access_model_publication_state_t test_pubstate[3];
 
-    for(int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i)
     {
         memset(&test_pubstate[i], 0, sizeof(access_model_publication_state_t));
         test_pubstate[i].publish_timeout_cb = publish_timeout_cb;

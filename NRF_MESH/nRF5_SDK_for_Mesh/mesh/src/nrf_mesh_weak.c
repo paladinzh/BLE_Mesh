@@ -46,6 +46,8 @@
 #include "provisioning.h"
 #include "uECC.h"
 
+/*lint -e762 Redundantly declared symbol; these are all declared elsewhere. */
+
 uint32_t _weak_handler()
 {
     return NRF_ERROR_NOT_SUPPORTED;

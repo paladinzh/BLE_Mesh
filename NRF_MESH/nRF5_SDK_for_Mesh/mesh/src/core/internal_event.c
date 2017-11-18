@@ -48,9 +48,8 @@ static fifo_t           m_internal_event_fifo;
 static internal_event_t m_internal_event_fifo_buffer[INTERNAL_EVENT_BUFFER_SIZE];
 static bool m_internal_event_initialized = false;
 
-uint32_t internal_event_init(internal_event_report_cb_t report_cb)
+void internal_event_init(internal_event_report_cb_t report_cb)
 {
-    uint32_t status = NRF_SUCCESS;
     m_report_cb = report_cb;
     if (NULL == report_cb)
     {
@@ -60,10 +59,9 @@ uint32_t internal_event_init(internal_event_report_cb_t report_cb)
         m_internal_event_fifo.elem_size   = sizeof(internal_event_t);
         m_internal_event_fifo.array_len   = INTERNAL_EVENT_BUFFER_SIZE;
 
-        status = fifo_init(&m_internal_event_fifo);
+        fifo_init(&m_internal_event_fifo);
     }
     m_internal_event_initialized = true;
-    return status;
 }
 
 uint32_t internal_event_push(internal_event_t * p_event)

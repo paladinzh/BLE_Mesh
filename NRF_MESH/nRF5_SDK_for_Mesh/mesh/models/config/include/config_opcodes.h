@@ -46,13 +46,7 @@
  */
 
 /**
- * Opcode list
- * This list was generated from the Mesh assigned numbers spreadsheet, exported as a CSV file.
- *
- * To regenerate this list, first export the assigned numbers spreadsheet as a CSV file. You might
- * need to export several CSV files, because the spreadsheet contains multiple "sheets" with opcodes.
- * Then prepare the CSV files by removing the headers and concatenating the files. This can be done
- * by running `tail -n+3 opcodes.csv >> opcode_list.csv` for each of the exported files.
+ * Configuration model opcodes.
  */
 typedef enum
 {
@@ -100,6 +94,12 @@ typedef enum
     CONFIG_OPCODE_GATT_PROXY_SET = 0x8013,
     /** Opcode for the "Config GATT Proxy Status" message. */
     CONFIG_OPCODE_GATT_PROXY_STATUS = 0x8014,
+    /** Opcode for the "Config Key Refresh Phase Get" message. */
+    CONFIG_OPCODE_KEY_REFRESH_PHASE_GET = 0x8015,
+    /** Opcode for the "Config Key Refresh Phase Set" message. */
+    CONFIG_OPCODE_KEY_REFRESH_PHASE_SET = 0x8016,
+    /** Opcode for the "Config Key Refresh Phase Status" message. */
+    CONFIG_OPCODE_KEY_REFRESH_PHASE_STATUS = 0x8017,
     /** Opcode for the "Config Model Publication Get" message. */
     CONFIG_OPCODE_MODEL_PUBLICATION_GET = 0x8018,
     /** Opcode for the "Config Model Publication Status" message. */
@@ -122,6 +122,12 @@ typedef enum
     CONFIG_OPCODE_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE = 0x8021,
     /** Opcode for the "Config Model Subscription Virtual Address Overwrite" message. */
     CONFIG_OPCODE_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE = 0x8022,
+    /** Opcode for the "Config Network Transmit Get" message. */
+    CONFIG_OPCODE_NETWORK_TRANSMIT_GET = 0x8023,
+    /** Opcode for the "Config Network Transmit Set" message. */
+    CONFIG_OPCODE_NETWORK_TRANSMIT_SET = 0x8024,
+    /** Opcode for the "Config Network Transmit Status" message. */
+    CONFIG_OPCODE_NETWORK_TRANSMIT_STATUS = 0x8025,
     /** Opcode for the "Config Relay Get" message. */
     CONFIG_OPCODE_RELAY_GET = 0x8026,
     /** Opcode for the "Config Relay Set" message. */
@@ -136,6 +142,10 @@ typedef enum
     CONFIG_OPCODE_VENDOR_MODEL_SUBSCRIPTION_GET = 0x802B,
     /** Opcode for the "Config Vendor Model Subscription List" message. */
     CONFIG_OPCODE_VENDOR_MODEL_SUBSCRIPTION_LIST = 0x802C,
+    /** Opcode for the "Config Low Power Node PollTimeout Get" message. */
+    CONFIG_OPCODE_LOW_POWER_NODE_POLLTIMEOUT_GET = 0x802D,
+    /** Opcode for the "Config Low Power Node PollTimeout Status" message. */
+    CONFIG_OPCODE_LOW_POWER_NODE_POLLTIMEOUT_SET = 0x802E,
     /** Opcode for the "Heartbeat Publication Get" message. */
     CONFIG_OPCODE_HEARTBEAT_PUBLICATION_GET = 0x8038,
     /** Opcode for the "Heartbeat Publication Set" message. */

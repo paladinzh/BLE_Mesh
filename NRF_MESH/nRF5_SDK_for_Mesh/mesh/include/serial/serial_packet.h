@@ -54,6 +54,8 @@
 /** Overhead for each packet: length and opcode. */
 #define SERIAL_PACKET_OVERHEAD (2)
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * Serial packet structure.
  */
@@ -69,6 +71,8 @@ typedef struct __attribute((packed))
         serial_evt_t evt; /**< Event packet parameters. */
     } payload;
 } serial_packet_t;
+
+/*lint -align_max(pop) */
 
 /** @} */
 

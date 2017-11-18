@@ -140,11 +140,8 @@ uint32_t bearer_adv_init(bearer_scan_config_t* p_config);
  * Initialize an advertiser instance.
  *
  * @param[in,out] p_adv Advertiser structure to initialize. All fields will be initialized.
- *
- * @retval NRF_SUCCESS The given advertiser structure was successfully initialized.
- * @retval NRF_ERROR_NULL The given advertiser was NULL.
  */
-uint32_t bearer_adv_advertiser_init(advertiser_t* p_adv);
+void bearer_adv_advertiser_init(advertiser_t* p_adv);
 
 /**
  * Reconfigure advertisement bearer module.
@@ -267,8 +264,13 @@ void bearer_adv_flush_tx(advertiser_t* p_adv);
  * adv_int_min_ms ms from now.
  *
  * @param[in,out] p_adv Advertiser to reset interval of.
+ *
+ * @retval NRF_SUCCESS Successfully reset the advertisement interval.
+ * @retval NRF_ERROR_NULL The @c p_adv pointer was @c NULL.
+ * @retval NRF_ERROR_INVALID_STATE Tried to reset advertisement interval of an advertiser not
+ * currently running. If advertising is stopped, the interval will be reset on the next TX.
  */
-void bearer_adv_interval_reset(advertiser_t * p_adv);
+uint32_t bearer_adv_interval_reset(advertiser_t * p_adv);
 
 /** Start periodic scanning according to config-parameters. */
 void bearer_adv_scan_start(void);
@@ -281,23 +283,16 @@ void bearer_adv_scan_stop(void);
  *
  * @param[out] p_addr Pointer to advertiser structure to store
  *  advertisement address into.
- *
- * @retval NRF_SUCCESS The address was successfully fetched from the HW.
- * @return BLE_ERROR_NOT_ENABLED The Softdevice has not been enabled correctly.
  */
-uint32_t bearer_adv_addr_get(ble_gap_addr_t* p_addr);
+void bearer_adv_addr_get(ble_gap_addr_t* p_addr);
 
 
 /**
  * Sets the two most significant bits of the advertisement address according to the BLE address type.
  *
  * @param[in,out] p_addr BLE advertisement address to edit.
- *
- * @retval NRF_SUCCESS The address type bits was successfully set.
- * @retval NRF_ERROR_NULL Null pointer supplied to function.
- * @retval NRF_ERROR_INVALID_PARAM Invalid address type specified.
  */
-uint32_t bearer_adv_gap_type_set(ble_gap_addr_t* p_addr);
+void bearer_adv_gap_type_set(ble_gap_addr_t* p_addr);
 
 /**
  * Sets the default advertising address.

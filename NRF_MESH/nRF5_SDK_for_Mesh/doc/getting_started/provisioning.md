@@ -1,4 +1,4 @@
-# Mesh Provisioning
+# Mesh provisioning
 
 ## Introduction
 
@@ -107,7 +107,7 @@ must take are as follows:
 4. If static authentication is enabled, an `NRF_MESH_EVT_PROV_STATIC_REQUEST` event is
    passed to the application. The application should respond with the static authentication
    data by passing it to the stack via the `nrf_mesh_prov_auth_data_provide()` function.
-   **NOTE:** Static authentication data is always 16 bytes long.
+   Note that static authentication data is always 16 bytes long.
 5. The provisioning can be considered successful when an `NRF_MESH_EVT_PROV_COMPLETE` event
    is received. This event provides the provisioning data and the device key for the device.
    The received provisioning data must be entered into the device state manager to be used

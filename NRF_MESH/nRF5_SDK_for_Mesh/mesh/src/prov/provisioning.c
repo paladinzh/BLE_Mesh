@@ -120,9 +120,9 @@ uint32_t prov_link_open(prov_bearer_t * p_bearer, const uint8_t * p_target_uuid)
     return p_bearer->p_interface->link_open(p_bearer, p_target_uuid, p_bearer->timeout);
 }
 
-uint32_t prov_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
+void prov_link_close(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
 {
-    return p_bearer->p_interface->link_close(p_bearer, close_reason);
+    p_bearer->p_interface->link_close(p_bearer, close_reason);
 }
 
 uint32_t prov_tx_invite(prov_bearer_t * p_bearer, uint8_t attention_duration, uint8_t * p_confirmation_inputs)

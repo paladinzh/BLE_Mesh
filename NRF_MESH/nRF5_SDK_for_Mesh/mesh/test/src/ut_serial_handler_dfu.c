@@ -37,71 +37,54 @@
 
 #include <unity.h>
 #include <cmock.h>
-#include <string.h>
-#include "nrf_error.h"
 
-#include "serial_handler.h"
-#include "serial_packet.h"
+#include "serial_handler_dfu.h"
 #include "serial_status.h"
-#include "serial_mock.h"
-#include "nrf_mesh_mock.h"
+
 #include "nrf_mesh_dfu_mock.h"
 #include "nrf_mesh_events_mock.h"
-#include "hal_mock.h"
-#include "nrf_mesh_configure_mock.h"
-#include "bearer_adv_mock.h"
-//#include "pb_remote.h"
-
-#define TEST_ARRAY_LEN  (4)
+#include "serial_mock.h"
 
 #define EXPECT_PACKET()                                 \
     do {                                                \
         m_tx_cb_count++;                                \
-        m_serial_packet_set_line = __LINE__;            \
         serial_tx_StubWithCallback(serial_tx_cb);       \
     } while (0)
 
-#define EXPECT_ACK(_opcode, _error_code)                                \
-    do {                                                                \
-        serial_translate_error_ExpectAndReturn(_error_code, 0xAA);      \
-        serial_cmd_rsp_send_ExpectAndReturn(_opcode, 0xAA, NULL, 0, NRF_SUCCESS); \
+#define EXPECT_ACK(_opcode, _error_code)                           \
+    do {                                                           \
+        serial_translate_error_ExpectAndReturn(_error_code, 0xAA); \
+        serial_cmd_rsp_send_Expect(_opcode, 0xAA, NULL, 0);        \
     } while (0)
 
-#define EXPECT_ACK_NO_TRANSLATE(_opcode, _serial_status)                \
-    do {                                                                \
-        serial_cmd_rsp_send_ExpectAndReturn(_opcode, _serial_status, NULL, 0, NRF_SUCCESS); \
-    } while (0)
-
-#define EXPECT_NACK(_opcode, _serial_status)                            \
-    do {                                                                \
-        serial_translate_error_IgnoreAndReturn(_serial_status);         \
-        serial_cmd_rsp_send_ExpectAndReturn(_opcode, _serial_status, NULL, 0, NRF_SUCCESS); \
+#define EXPECT_ACK_NO_TRANSLATE(_opcode, _serial_status)              \
+    do {                                                              \
+        serial_cmd_rsp_send_Expect(_opcode, _serial_status, NULL, 0); \
     } while (0)
 
 #define EXPECT_ACK_WITH_PAYLOAD(_opcode, _data, _len)                   \
     do { \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, 0, (uint8_t *) (_data), _len, _len, NRF_SUCCESS); \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, 0, (uint8_t *) (_data), _len, _len); \
     } while (0)
 
+/*****************************************************************************
+ * Mock functions
+ *****************************************************************************/
 
+static uint32_t m_beacon_enable_calls_expected;
+static uint32_t m_beacon_enable_calls_actual;
+static uint32_t m_tx_cb_count;
+static uint32_t m_tx_cb_count_actual;
 
-nrf_mesh_assertion_handler_t                  m_assertion_handler;
-nrf_mesh_evt_handler_t *                      mp_evt_handler;
-static serial_packet_t                        m_expected_packet;
-static uint16_t                               m_serial_packet_set_line;
-static uint32_t                               m_beacon_enable_calls_expected;
-static uint32_t                               m_beacon_enable_calls_actual;
-static uint32_t                               m_tx_cb_count;
-static uint32_t                               m_tx_cb_count_actual;
-static uint8_t *                              mp_app_data;
-static uint32_t                               m_app_data_len;
+static serial_packet_t m_expected_packet;
+static nrf_mesh_evt_handler_t * mp_evt_handler;
 
 static void assertion_handler(uint32_t pc)
 {
     TEST_FAIL_MESSAGE("ASSERT");
 }
 
-static uint32_t serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_calls)
+static void serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_calls)
 {
     m_tx_cb_count_actual = cmock_num_calls + 1;
     if (m_tx_cb_count != (uint32_t) cmock_num_calls + 1)
@@ -113,7 +96,11 @@ static uint32_t serial_tx_cb(const serial_packet_t* p_packet, int cmock_num_call
     TEST_ASSERT_EQUAL_HEX8_ARRAY((uint8_t *) &m_expected_packet,
             (uint8_t *) p_packet,
             p_packet->length + SERIAL_PACKET_LENGTH_OVERHEAD);
-    return NRF_SUCCESS;
+}
+
+static void nrf_mesh_evt_handler_add_cb(nrf_mesh_evt_handler_t * p_handler, int count)
+{
+    mp_evt_handler = p_handler;
 }
 
 static void callbacks_verify(void)
@@ -122,105 +109,35 @@ static void callbacks_verify(void)
     TEST_ASSERT_EQUAL_MESSAGE(m_beacon_enable_calls_expected, m_beacon_enable_calls_actual, "Beacon enable called too few times.");
 }
 
-static void nrf_mesh_evt_handler_add_cb(nrf_mesh_evt_handler_t * p_handler, int count)
-{
-    mp_evt_handler = p_handler;
-}
-
-static void serial_app_rx_cb(const uint8_t * p_data, uint32_t length)
-{
-    TEST_ASSERT_NOT_NULL(p_data);
-    TEST_ASSERT_NOT_NULL(mp_app_data);
-    TEST_ASSERT_EQUAL(m_app_data_len, length);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(mp_app_data, p_data, length);
-}
+/*****************************************************************************
+ * Test initialization and finalization
+ *****************************************************************************/
 
 void setUp(void)
 {
-    CMOCK_SETUP(serial);
-    CMOCK_SETUP(nrf_mesh);
-    CMOCK_SETUP(bearer_adv);
+    nrf_mesh_dfu_mock_Init();
+    nrf_mesh_events_mock_Init();
+    serial_mock_Init();
 
     m_assertion_handler = assertion_handler;
-    m_tx_cb_count = 0;
-    m_tx_cb_count_actual = 0;
-    m_beacon_enable_calls_expected = 0;
-    m_beacon_enable_calls_actual = 0;
 
     nrf_mesh_evt_handler_add_StubWithCallback(nrf_mesh_evt_handler_add_cb);
-    serial_handler_init();
+    serial_handler_dfu_init();
 }
 
 void tearDown(void)
 {
-    callbacks_verify();
-    CMOCK_TEARDOWN();
+    nrf_mesh_dfu_mock_Verify();
+    nrf_mesh_dfu_mock_Destroy();
+    nrf_mesh_events_mock_Verify();
+    nrf_mesh_events_mock_Destroy();
+    serial_mock_Verify();
+    serial_mock_Destroy();
 }
 
-
-/******** Tests ********/
-void test_config_rx(void)
-{
-    serial_packet_t cmd;
-    cmd.opcode = SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_GET;
-    cmd.length = 1;
-    ble_gap_addr_t addr;
-    for (uint32_t i = 0; i < BLE_GAP_ADDR_LEN; i++)
-    {
-        addr.addr[i] = i;
-    }
-    addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
-    bearer_adv_addr_get_ExpectAndReturn(NULL, NRF_SUCCESS);
-    bearer_adv_addr_get_IgnoreArg_p_addr();
-    bearer_adv_addr_get_ReturnMemThruPtr_p_addr(&addr, sizeof(addr));
-    serial_evt_cmd_rsp_data_adv_addr_t adv_addr_rsp;
-    adv_addr_rsp.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
-    memcpy(adv_addr_rsp.addr, addr.addr, BLE_GAP_ADDR_LEN);
-    EXPECT_ACK_WITH_PAYLOAD(SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_GET, &adv_addr_rsp, 7);
-    serial_handler_config_rx(&cmd);
-
-    bearer_adv_addr_get_IgnoreAndReturn(NRF_ERROR_INVALID_STATE);
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_GET, SERIAL_STATUS_ERROR_INVALID_STATE);
-    serial_handler_config_rx(&cmd);
-
-    cmd.length = 2;
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_handler_config_rx(&cmd);
-
-    cmd.opcode = SERIAL_OPCODE_CMD_CONFIG_UUID_SET;
-    cmd.length = 17;
-    for (uint32_t i = 0; i < 16; i++)
-        cmd.payload.cmd.config.uuid.uuid[i] = i;
-    nrf_mesh_configure_device_uuid_set_Expect(cmd.payload.cmd.config.uuid.uuid);
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_UUID_SET, SERIAL_STATUS_SUCCESS);
-    serial_handler_config_rx(&cmd);
-    cmd.length = 16;
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_UUID_SET, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_handler_config_rx(&cmd);
-    cmd.length = 18;
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_UUID_SET, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_handler_config_rx(&cmd);
-
-    cmd.opcode = SERIAL_OPCODE_CMD_CONFIG_UUID_GET;
-    cmd.length = 1;
-    nrf_mesh_configure_device_uuid_get_ExpectAndReturn(cmd.payload.cmd.config.uuid.uuid);
-    EXPECT_ACK_WITH_PAYLOAD(SERIAL_OPCODE_CMD_CONFIG_UUID_GET, cmd.payload.cmd.config.uuid.uuid, 16);
-    serial_handler_config_rx(&cmd);
-    cmd.length = 2;
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_UUID_GET, SERIAL_STATUS_ERROR_INVALID_LENGTH);
-    serial_handler_config_rx(&cmd);
-
-    TEST_IGNORE_MESSAGE("Config not fully implemented.");
-
-    cmd.length = 8;
-    cmd.opcode = SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_SET;
-    cmd.payload.cmd.config.adv_addr.addr_type = 1;
-    for (uint32_t i = 0; i < 6; i++)
-        cmd.payload.cmd.config.adv_addr.adv_addr[i] = i;
-
-    EXPECT_NACK(SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_SET, SERIAL_STATUS_SUCCESS);
-    serial_handler_config_rx(&cmd);
-}
+/*****************************************************************************
+ * Tests
+ *****************************************************************************/
 
 void test_dfu_rx(void)
 {
@@ -391,43 +308,6 @@ void test_dfu_rx(void)
     cmd.length -= 2;
     EXPECT_ACK_NO_TRANSLATE(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH);
     serial_handler_dfu_rx(&cmd);
-
-}
-
-void test_openmesh_rx(void)
-{
-    serial_packet_t cmd;
-    cmd.opcode = SERIAL_OPCODE_CMD_OPENMESH_DFU_DATA;
-    cmd.length = SERIAL_PACKET_LENGTH_OVERHEAD + 43;
-    memset(&cmd.payload.cmd.openmesh.dfu_data.dfu_packet, 0xAB, sizeof(nrf_mesh_dfu_packet_t));
-    nrf_mesh_dfu_rx_ExpectAndReturn(&cmd.payload.cmd.openmesh.dfu_data.dfu_packet, 43, NRF_SUCCESS);
-    EXPECT_ACK(cmd.opcode, NRF_SUCCESS);
-    serial_handler_openmesh_rx(&cmd);
-    nrf_mesh_dfu_rx_ExpectAndReturn(&cmd.payload.cmd.openmesh.dfu_data.dfu_packet, 43, 0x895);
-    EXPECT_ACK(cmd.opcode, 0x895);
-    serial_handler_openmesh_rx(&cmd);
-}
-
-void test_app_rx(void)
-{
-    serial_packet_t cmd;
-    cmd.opcode = SERIAL_OPCODE_CMD_APP_APPLICATION;
-    cmd.length = 18;
-    memset(cmd.payload.cmd.application.data, 0xAB, sizeof(cmd.payload.cmd.application.data));
-
-    EXPECT_ACK_NO_TRANSLATE(cmd.opcode, SERIAL_STATUS_ERROR_REJECTED);
-    serial_handler_app_rx(&cmd);
-
-    mp_app_data = cmd.payload.cmd.application.data;
-    m_app_data_len = 17;
-    serial_handler_app_cb_set(serial_app_rx_cb);
-    EXPECT_ACK_NO_TRANSLATE(cmd.opcode, SERIAL_STATUS_SUCCESS);
-    serial_handler_app_rx(&cmd);
-
-    mp_app_data = NULL;
-    serial_handler_app_cb_set(NULL);
-    EXPECT_ACK_NO_TRANSLATE(cmd.opcode, SERIAL_STATUS_ERROR_REJECTED);
-    serial_handler_app_rx(&cmd);
 }
 
 void test_event_rx(void)
@@ -587,3 +467,4 @@ void test_event_rx(void)
     mp_evt_handler->evt_cb(&evt);
     callbacks_verify();
 }
+

@@ -55,6 +55,8 @@
 /** Maximum number of re-transmit interval steps. */
 #define CONFIG_RETRANSMIT_INTERVAL_STEPS_MAX ((1 << 5) - 1)
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * 24-bit key index type.
  * Provides two 12-bit key indexes in three bytes. Use the dedicated functions
@@ -492,6 +494,7 @@ typedef struct __attribute((packed))
     uint16_t subscriptions[];   /**< Subscription list. */
 } config_msg_vendor_model_subscription_list_t;
 
+/*lint -align_max(pop) */
 /** @} */
 
 #endif

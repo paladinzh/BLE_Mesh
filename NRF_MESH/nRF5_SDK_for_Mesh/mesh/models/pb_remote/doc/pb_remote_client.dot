@@ -20,7 +20,7 @@ digraph PBRemoteClient {
         idle -> link_opening [label=" Link Open"];
 
 
-        #link_established -> wait_for_ack [label=" Provisioning\n complete"];
+        //link_established -> wait_for_ack [label=" Provisioning\n complete"];
         link_established -> idle [label=" Timeout"];
         link_established -> idle [label=" Link closed"];
 

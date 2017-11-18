@@ -48,6 +48,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "nrf_mesh_config_core.h"
+
 /**
  * @brief Specialized function pointer type for copying memory between two elements in the FIFO.
  *        Used to replace memcpy in case the elements require more complex copy mechanisms
@@ -84,15 +86,8 @@ typedef struct
  *             init is called on the structure.
  *
  * @param[in]  p_fifo                    Pointer to a FIFO-structure
- *
- * @retval     NRF_SUCCESS               The FIFO structure was successfully initialized.
- * @retval     NRF_ERROR_INVALID_LENGTH  The array_len member of the p_fifo structure was not in the
- *                                       power of two, and cannot be used.
- * @retval     NRF_ERROR_NULL            Parameter cannot be NULL.
- * @retval     NRF_ERROR_INVALID_PARAM   Expected parameter values cannot be 0 or NULL.
- *
  */
-uint32_t fifo_init(fifo_t* p_fifo);
+void fifo_init(fifo_t* p_fifo);
 
 /**
  * Copy the given element to the head of the FIFO.
@@ -138,7 +133,7 @@ uint32_t fifo_pop(fifo_t* p_fifo, void* p_elem);
  * @retval NRF_ERROR_NOT_FOUND The given offset is larger than the number of
  *         enqueued elements, and the element can't be peeked at.
  */
-uint32_t fifo_peek_at(fifo_t* p_fifo, void* p_elem, uint32_t elem);
+uint32_t fifo_peek_at(const fifo_t* p_fifo, void* p_elem, uint32_t elem);
 
 /**
  * Peek at the tail of the given FIFO, but don't remove any elements.
@@ -153,7 +148,7 @@ uint32_t fifo_peek_at(fifo_t* p_fifo, void* p_elem, uint32_t elem);
  * @retval NRF_ERROR_NOT_FOUND The FIFO is empty, and the element can't be
  *         peeked at.
  */
-uint32_t fifo_peek(fifo_t* p_fifo, void* p_elem);
+uint32_t fifo_peek(const fifo_t* p_fifo, void* p_elem);
 
 /**
  * Remove all elements from the given FIFO.
@@ -169,7 +164,7 @@ void fifo_flush(fifo_t* p_fifo);
  *
  * @return The number of enqueued elements in the given FIFO.
  */
-uint32_t fifo_get_len(fifo_t* p_fifo);
+uint32_t fifo_get_len(const fifo_t* p_fifo);
 
 /**
  * Return whether the given FIFO is full.
@@ -178,7 +173,7 @@ uint32_t fifo_get_len(fifo_t* p_fifo);
  *
  * @return Whether or not the given FIFO is full.
  */
-bool fifo_is_full(fifo_t* p_fifo);
+bool fifo_is_full(const fifo_t* p_fifo);
 
 /**
  * Return whether the given FIFO is empty.
@@ -187,7 +182,7 @@ bool fifo_is_full(fifo_t* p_fifo);
  *
  * @return Whether or not the given FIFO is empty.
  */
-bool fifo_is_empty(fifo_t* p_fifo);
+bool fifo_is_empty(const fifo_t* p_fifo);
 
 /** @} */
 

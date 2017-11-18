@@ -3,3 +3,4 @@ traitlets
 DateTime
 ipython
 pyserial
+cryptography

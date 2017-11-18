@@ -265,42 +265,6 @@ static void do_state_change(pb_remote_server_t * p_ctx, pb_remote_server_state_t
 }
 
 /**
- * Close the PB-ADV link to the unprovisioned device.
- *
- * @param[in] p_ctx PB Mesh server whose link to close.
- * @param[in] reason Reason for closing the link.
- * @param[in] notify_client If true, the client will be notified of the link closing.
- *
- * @returns true if the link close call was successfull.
- */
-static bool close_prov_link(pb_remote_server_t* p_ctx, nrf_mesh_prov_link_close_reason_t reason, bool notify_client)
-{
-    if (prov_link_close(&p_ctx->prov_bearer, reason) == NRF_SUCCESS)
-    {
-        return true;
-    }
-    else
-    {
-        __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Unable to close prov bearer link.\n");
-        if (notify_client)
-        {
-            pb_remote_packet_t close_notification;
-            access_message_tx_t message;
-            message.opcode.opcode = PB_REMOTE_OP_LINK_STATUS;
-            message.opcode.company_id = ACCESS_COMPANY_ID_NONE;
-            message.p_buffer = (uint8_t *) &close_notification;
-            message.length = sizeof(close_notification);
-
-            close_notification.link_status.status = PB_REMOTE_REMOTE_LINK_STATUS_CANNOT_CLOSE;
-            close_notification.link_status.bearer_type = NRF_MESH_PROV_BEARER_ADV;
-
-            send_msg(p_ctx, &message);
-        }
-        return false;
-    }
-}
-
-/**
  *  Relays a message from the client over the local PB-ADV link.
  *
  *  If unsuccessful, an attempt to close the link is made.
@@ -325,19 +289,14 @@ static pb_remote_server_state_t relay_to_pb_adv_with_ack(pb_remote_server_t * p_
         send_reply(p_ctx, p_evt->evt.p_message, p_reply);
         return PB_REMOTE_SERVER_STATE_WAIT_FOR_LOCAL_ACK;
     }
-    else if (close_prov_link(p_ctx, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR, false))
+    else
     {
+        prov_link_close(&p_ctx->prov_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
         p_transfer_status->status = PB_REMOTE_PACKET_TRANSFER_STATUS_CANNOT_ACCEPT_BUFFER;
         send_reply(p_ctx, p_evt->evt.p_message, p_reply);
         /* The link is closing. When the link_closed callback is called, we will notify the client
          * of the closed link with a LINK_STATUS_REPORT and return to IDLE/SCANNING. */
         return PB_REMOTE_SERVER_STATE_WAIT_LINK_CLOSING;
-    }
-    else
-    {
-        p_transfer_status->status = PB_REMOTE_PACKET_TRANSFER_STATUS_CANNOT_ACCEPT_BUFFER;
-        send_reply(p_ctx, p_evt->evt.p_message, p_reply);
-        return PB_REMOTE_SERVER_STATE_IDLE;
     }
 }
 
@@ -378,10 +337,9 @@ static pb_remote_server_state_t pb_remote_server_event_tx_failed_cb(pb_remote_se
             /* We couldn't send the reliable message. */
             /** @todo Should we give an event to the application here? */
 
-            /* Try to close the link and ignore the potential NRF_ERROR_INVALID_STATE return. */
-            (void) close_prov_link(p_ctx,
-                                   NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR,
-                                   false);
+            /* Close the link: */
+            prov_link_close(&p_ctx->prov_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
+
             /* Re-init the fifo to flush all enqueued PB-ADV packets. No reason to try to send them
              * if TX failed. */
             fifo_flush(&m_pbr_server_alt_event_queue);
@@ -513,10 +471,16 @@ static pb_remote_server_state_t pb_remote_server_event_scan_report_status_cb(pb_
     switch (p_ctx->state)
     {
         case PB_REMOTE_SERVER_STATE_WAIT_FOR_REMOTE_ACK:
-            return p_ctx->prev_state;
-
+            if (p_ctx->reliable.reply_opcode.opcode == PB_REMOTE_OP_SCAN_REPORT_STATUS)
+            {
+                return p_ctx->prev_state;
+            }
+            else
+            {
+                return p_ctx->state;
+            }
         default:
-            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Unknown event %u in state %u\n", p_evt->type, p_ctx->state);
+            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_INFO, "Unknown event %u in state %u\n", p_evt->type, p_ctx->state);
             return p_ctx->state;
     }
 }
@@ -666,24 +630,11 @@ static pb_remote_server_state_t pb_remote_server_event_link_close_cb(pb_remote_s
         case PB_REMOTE_SERVER_STATE_WAIT_FOR_LOCAL_ACK:
             /* fall through */
         case PB_REMOTE_SERVER_STATE_LINK_ESTABLISHED:
-            if (close_prov_link(p_ctx, close_reason, true))
-            {
-                link_status.status = PB_REMOTE_REMOTE_LINK_STATUS_ACCEPTED;
-                send_reply(p_ctx, p_evt->evt.p_message, &reply);
-                /* Wait for the closed callback.  */
-                return PB_REMOTE_SERVER_STATE_WAIT_LINK_CLOSING;
-            }
-            else
-            {
-                /* No link open(ing), could be closed/not active or closing. */
-                /* @todo If the link is closing, we will ignore the closed event that will come. */
-                link_status.status = PB_REMOTE_REMOTE_LINK_STATUS_CANNOT_CLOSE;
-                send_reply(p_ctx, p_evt->evt.p_message, &reply);
-
-                __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "The close command failed unexpectedly.\n");
-                fifo_flush(&m_pbr_server_alt_event_queue);
-                return PB_REMOTE_SERVER_STATE_IDLE;
-            }
+            prov_link_close(&p_ctx->prov_bearer, close_reason);
+            link_status.status = PB_REMOTE_REMOTE_LINK_STATUS_ACCEPTED;
+            send_reply(p_ctx, p_evt->evt.p_message, &reply);
+            /* Wait for the closed callback.  */
+            return PB_REMOTE_SERVER_STATE_WAIT_LINK_CLOSING;
         default:
             __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Got link close in state: %u\n", p_ctx->state);
             link_status.status = PB_REMOTE_REMOTE_LINK_STATUS_LINK_NOT_ACTIVE;
@@ -776,15 +727,9 @@ static pb_remote_server_state_t pb_remote_server_event_link_status_cb(pb_remote_
             else
             {
                 __LOG(LOG_SRC_ACCESS, LOG_LEVEL_DBG1, "Client rejected the open %u.\n", p_link_status->status);
-                if (close_prov_link(p_ctx, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR, true))
-                {
-                    /* Wait for the closed callback to send the link status report. */
-                    return PB_REMOTE_SERVER_STATE_LINK_ESTABLISHED;
-                }
-                else
-                {
-                    return PB_REMOTE_SERVER_STATE_IDLE;
-                }
+                prov_link_close(&p_ctx->prov_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
+                /* Wait for the closed callback to send the link status report. */
+                return PB_REMOTE_SERVER_STATE_LINK_ESTABLISHED;
             }
         default:
         {
@@ -987,7 +932,7 @@ static pb_remote_server_state_t pb_remote_server_event_transfer_status_cb(pb_rem
 
                     case PB_REMOTE_PACKET_TRANSFER_STATUS_CANNOT_ACCEPT_BUFFER:
                     case PB_REMOTE_PACKET_TRANSFER_STATUS_LINK_NOT_ACTIVE:
-                        (void)close_prov_link(p_ctx, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR, true);
+                        prov_link_close(&p_ctx->prov_bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_ERROR);
                         /* Go to IDLE in all cases and ignore the LINK_CLOSED event. */
                         return PB_REMOTE_SERVER_STATE_IDLE;
 
@@ -1002,7 +947,7 @@ static pb_remote_server_state_t pb_remote_server_event_transfer_status_cb(pb_rem
             }
         }
         default:
-            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_WARN, "Got transfer status %u in state %u.\n", p_msg->status, p_ctx->state);
+            __LOG(LOG_SRC_ACCESS, LOG_LEVEL_INFO, "Got transfer status %u in state %u.\n", p_msg->status, p_ctx->state);
             return p_ctx->state;
     }
 }
@@ -1309,24 +1254,16 @@ uint32_t pb_remote_server_init(pb_remote_server_t * p_remote_server, uint16_t el
     m_pbr_server_event_queue.elem_size  = sizeof(pb_remote_server_event_t);
     m_pbr_server_event_queue.array_len  = PB_REMOTE_SERVER_EVENT_QUEUE_SIZE;
 
-    uint32_t status = fifo_init(&m_pbr_server_event_queue);
-    if (status != NRF_SUCCESS)
-    {
-        return status;
-    }
+    fifo_init(&m_pbr_server_event_queue);
 
     m_pbr_server_alt_event_queue.array_len  = PB_REMOTE_SERVER_ALT_EVENT_QUEUE_SIZE;
     m_pbr_server_alt_event_queue.elem_array = &m_pbr_server_alt_event_queue_buffer[0];
     m_pbr_server_alt_event_queue.elem_size  = sizeof(pb_remote_server_event_t);
-    status = fifo_init(&m_pbr_server_alt_event_queue);
-    if (status != NRF_SUCCESS)
-    {
-        return status;
-    }
+    fifo_init(&m_pbr_server_alt_event_queue);
 
     m_is_interrupting = false;
 
-    status = prov_init(&p_remote_server->prov_bearer,
+    uint32_t status = prov_init(&p_remote_server->prov_bearer,
                        prov_bearer_adv_interface_get(),
                        &m_prov_callbacks,
                        PROV_PROVISIONING_LINK_TIMEOUT_MIN_US);

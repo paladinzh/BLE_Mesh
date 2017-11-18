@@ -158,17 +158,39 @@ def paramify(params):
         return ", " + ", ".join(snakeify(p.name) for p in params)
 
 
-def description_fmt(text):
-    INDENT = 8
-    COL_MAX = 79 - 6  # Minus len("""""")
+def indent_wrapped_region(text, indent):
+    return ("\n" + " "*indent).join(text.splitlines()).rstrip()
+
+def description_fmt(text, params):
+    INDENT = 4
+    COL_MAX = 100 - 6  # Minus len("""""")
 
     first_period = text.find(".")
     if first_period < (COL_MAX - INDENT) and first_period < len(text)-1:
         text = text[:first_period+1] + "\n"
-        return (text +
-                textwrap.fill(text[first_period+1:], COL_MAX-INDENT)).rstrip()
+        text += indent_wrapped_region(textwrap.fill(text[first_period+1:], COL_MAX-INDENT),
+                                      INDENT)
     else:
-        return textwrap.fill(text, COL_MAX - INDENT).rstrip()
+        text = indent_wrapped_region(textwrap.fill(text, COL_MAX - INDENT), INDENT)
+
+    text = text.rstrip()
+    COL_MAX = 100               # Reset column with
+
+    if len(params) > 0:
+        paramlist = ["\n\nParameters\n----------"]
+        for param in params:
+            param_fmt = "{} : {}".format(snakeify(param.name), param.typerepr())
+            desc = textwrap.fill(param.description, COL_MAX - INDENT*3)
+            param_fmt = " "*INDENT + param_fmt + "\n" + " "*INDENT*2 +  indent_wrapped_region(desc, INDENT*3)
+            paramlist.append(param_fmt)
+        text = text + indent_wrapped_region("\n".join(paramlist), INDENT)
+
+    # Remove whitespace
+    text = "\n".join([t.rstrip() for t in text.splitlines()])
+    if "\n" in text:
+        # Fix multi-line prettyness
+        text += "\n"  + " "*INDENT
+    return text
 
 
 def build_data(params):
@@ -223,7 +245,7 @@ class AciCommand(object):
 
     def __str__(self):
         return CMD_CLASS_FMT.format(camel_name=camelify(self.name),
-                                    description=description_fmt(self.description),
+                                    description=description_fmt(self.description, self.params),
                                     param_list=paramify(self.params),
                                     param_inits=build_data(self.params),
                                     opcode=self.opcode)
@@ -250,7 +272,7 @@ class AciEvent(object):
 
     def __str__(self):
         return EVT_CLASS_FMT.format(camel_name=camelify(self.name),
-                                    description=description_fmt(self.description),
+                                    description=description_fmt(self.description, self.params),
                                     deserialize=deserialize(self.params),
                                     opcode=self.opcode)
 

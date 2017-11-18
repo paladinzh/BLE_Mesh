@@ -113,14 +113,17 @@ set(MBTLE_SRCS_SERIAL
     # ${MBTLE_SOURCE_DIR}/mesh/models/pb_remote/src/serial_pb_remote_client.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/nrf_mesh_serial.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial.c
-    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_bearer.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_common.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_access.c
-    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_models.c
-    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_mesh.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_app.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_config.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_device.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_dfu.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_mesh.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_models.c
+    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_openmesh.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_handler_prov.c
-    ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_bearer.c
     ${MBTLE_SOURCE_DIR}/mesh/src/serial/serial_uart.c
     )
 

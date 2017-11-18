@@ -7,13 +7,10 @@ msc {
     app [label="Application"], access[label="Access layer"];
 
     |||;
-    --- [label="Allocate model slot in the access layer" ];
-    app => access [label="access_model_alloc(...)" ];
-    app << access [label="handle" ];
+    --- [label="Allocate a model in the access layer and bind to an element" ];
+    app => access [label="access_model_add(&model_params, &model_handle)" ];
+    app << access [label="NRF_SUCCESS" ];
 
-    |||;
-    --- [label="Bind model to an element" ];
-    app => access [label="access_model_add(handle, element)" ];
     |||;
     ...[label="Device is provisioned and configured..."];
 
@@ -21,6 +18,6 @@ msc {
     --- [label="Send message to another device (client to server)" ];
     app => access [label="access_model_publish(handle, &message)" ];
     ...;
-    app <<= access [label="opcode_cb(handle, p_message)"];
+    app <<= access [label="opcode_cb(handle, p_message, p_args)"];
     app => access [label="access_model_reply(handle, p_message, &reply)"];
 }

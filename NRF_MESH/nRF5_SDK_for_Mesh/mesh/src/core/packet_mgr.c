@@ -139,7 +139,7 @@ static uint32_t buffer_get_available_space()
         }
         NRF_MESH_ASSERT(p_iter->seal == PACKET_MGR_MEM_SEAL);
         p_iter = buffer_header_get_next(p_iter);
-   } while ((uint8_t *) p_iter < ((uint8_t *) mp_memory_block) + PACKET_MGR_MEMORY_POOL_SIZE);
+    } while ((uint8_t *) p_iter < ((uint8_t *) mp_memory_block) + PACKET_MGR_MEMORY_POOL_SIZE);
 
    size -= sizeof(buffer_header_t);
 
@@ -163,7 +163,7 @@ static inline bool buffer_is_last(buffer_header_t * p_header)
  * @param p_buffer Pointer to a memory location.
  * @return @c true if the memory location is within the packet pool.
  */
-static inline bool buffer_pointer_is_valid(packet_generic_t * p_buffer)
+static inline bool buffer_pointer_is_valid(const packet_generic_t * p_buffer)
 {
     return (((uint8_t *) p_buffer >=  (uint8_t *) mp_memory_block) ||
             ((uint8_t *) p_buffer <  ((uint8_t *) mp_memory_block + PACKET_MGR_MEMORY_POOL_SIZE)));
@@ -171,11 +171,11 @@ static inline bool buffer_pointer_is_valid(packet_generic_t * p_buffer)
 }
 
 
-static buffer_header_t * buffer_find_preceding_free_block(buffer_header_t * buf)
+static buffer_header_t * buffer_find_preceding_free_block(const buffer_header_t * buf)
 {
     buffer_header_t * p_cur = mp_free_head;
     /* The function is called with mp_free_head */
-    if(p_cur == buf)
+    if (p_cur == buf)
     {
         return NULL;
     }
@@ -302,7 +302,7 @@ static uint32_t buffer_shrink(buffer_header_t * header, uint16_t new_size)
 /*
 * Populate a given header with default values, used for newly created memory blocks.
 */
-static void buffer_populate_new_header(buffer_header_t * p_header, uint32_t block_size, buffer_header_t * p_next_free)
+static void buffer_populate_new_header(buffer_header_t * p_header, uint16_t block_size, buffer_header_t * p_next_free)
 {
     p_header->size = block_size;
     p_header->ref_count = 0;
@@ -354,7 +354,7 @@ static inline bool buffer_merge_with_next_block(buffer_header_t * p_current, buf
  * Public interface functions *
  ******************************/
 
-uint32_t packet_mgr_init(const nrf_mesh_init_params_t * p_init_params)
+void packet_mgr_init(const nrf_mesh_init_params_t * p_init_params)
 {
     uint32_t unpartitioned_pool_size = PACKET_MGR_MEMORY_POOL_SIZE;
     memset(mp_memory_block, 0, PACKET_MGR_MEMORY_POOL_SIZE);
@@ -391,7 +391,6 @@ uint32_t packet_mgr_init(const nrf_mesh_init_params_t * p_init_params)
     __LOG_PACMAN("\tdefault buffer size: %d\n", PACKET_MGR_DEFAULT_PACKET_LEN);
     __LOG_PACMAN("\ttotal number of buffers: %d\n", buf_no);
     __LOG_PACMAN("\tmaximum buffer size: %d\n", PACKET_MGR_PACKET_MAXLEN);
-    return NRF_SUCCESS;
 }
 
 uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size)
@@ -433,15 +432,8 @@ uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size)
         {
             p_prev = p_current;
             p_current = p_current->p_next_free;
-            if (p_current == NULL)
-            {
-                DEBUG_PACKET_MGR_ALLOC_END();
-                DEBUG_PACKET_MGR_ALLOC_FAIL();
-                _ENABLE_IRQS(was_masked);
-                return NRF_ERROR_NO_MEM;
-            }
         }
-    }while (p_current != NULL);
+    } while (p_current != NULL);
 
     /* If no free block was found, we are out of memory: */
     if (p_current == NULL)
@@ -493,16 +485,14 @@ uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size)
 #endif
 
 #if PACKET_MGR_BLAME_MODE
-    /* lint -e26 lint doesn't parse incline function call correctly */
     _GET_LR(p_current->last_allocer);
 #endif
 
     return NRF_SUCCESS;
 }
 
-void packet_mgr_decref(packet_generic_t * p_buffer)
+void packet_mgr_free(packet_generic_t * p_buffer)
 {
-
     if (!buffer_pointer_is_valid(p_buffer))
     {
         NRF_MESH_ASSERT(false);
@@ -511,64 +501,24 @@ void packet_mgr_decref(packet_generic_t * p_buffer)
     buffer_header_t * p_header = buffer_header_get(p_buffer);
     uint32_t was_masked;
     _DISABLE_IRQS(was_masked);
-    /* Check if the padding bits has been messed with */
-    if (p_header->ref_count == 0)
-    {
-        NRF_MESH_ASSERT(false);
-    }
 
-    p_header->ref_count--;
-    if (p_header->ref_count != 0)
-    {
-        __LOG_PACMAN("Decreased refcount for buffer at offset %d to %d\n", buffer_offset_get(p_header), p_header->ref_count);
-    }
-    else
-    {
-        memset(p_buffer, 0, p_header->size);
-        __LOG_PACMAN("Decreased refcount for buffer at offset %d to 0, attempting to merge with free neighbours\n", buffer_offset_get(p_header));
-        /* We need to slot the released memory in to the free list*/
-        p_header->p_next_free = mp_free_head;
-        mp_free_head = p_header;
-    }
+    /* Check if the padding bits have been messed with */
+    NRF_MESH_ASSERT(p_header->ref_count == 1);
+    p_header->ref_count = 0;
+
+    memset(p_buffer, 0, p_header->size);
+    /* We need to slot the released memory in to the free list*/
+    p_header->p_next_free = mp_free_head;
+    mp_free_head = p_header;
+
 #if PACKET_MGR_DEBUG_MODE
     NRF_MESH_ASSERT(p_header->seal == PACKET_MGR_MEM_SEAL);
 #endif
 
 #if PACKET_MGR_BLAME_MODE
-    _GET_LR(p_header->last_decreffer);  /* lint -e26 lint doesn't parse incline function call correctly */
+    _GET_LR(p_header->last_decreffer);
 #endif
     _ENABLE_IRQS(was_masked);
-}
-
-uint32_t packet_mgr_bufstart_get(packet_generic_t * p_buffer, packet_generic_t ** pp_start)
-{
-    buffer_header_t * p_last    = (buffer_header_t *) ((uint8_t *) mp_memory_block + PACKET_MGR_MEMORY_POOL_SIZE);
-    buffer_header_t * p_current = (buffer_header_t *) mp_memory_block;
-
-    if (!buffer_pointer_is_valid(p_buffer))
-    {
-        /* TODO: Assert? */
-        return NRF_ERROR_INVALID_ADDR;
-    }
-
-    uint32_t was_masked;
-    _DISABLE_IRQS(was_masked);
-
-    /* Look for my block.. */
-    while (
-        (p_buffer > (packet_generic_t *) ((uint8_t*) p_current + p_current->size + sizeof(buffer_header_t)))
-        &&
-        (p_current < p_last))
-    {
-        p_current = (buffer_header_t *) (((uint8_t *) p_current) + p_current->size + sizeof(buffer_header_t));
-    }
-
-    /* Last should have been caught by first if-test! */
-
-    _ENABLE_IRQS(was_masked);
-    *pp_start = buffer_get_mem(p_current);
-
-    return NRF_SUCCESS;
 }
 
 uint32_t packet_mgr_get_free_space(void)
@@ -584,7 +534,7 @@ uint32_t packet_mgr_get_free_space(void)
 #endif
         p_current = p_current->p_next_free;
 
-    }while (p_current != NULL);
+    } while (p_current != NULL);
 
     /* Even with best case scenario we need to reserve for one header*/
     available_memory -= sizeof(buffer_header_t);

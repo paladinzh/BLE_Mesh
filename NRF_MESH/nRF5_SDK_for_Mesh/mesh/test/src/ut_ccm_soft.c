@@ -39,35 +39,22 @@
 #include <string.h>
 #include <unity.h>
 
-#include "packet.h"
 #include "ccm_soft.h"
+#include "nrf_mesh_assert.h"
 
-#define NET_PAYLOAD_INDEX 7
-#define NET_MSG_LEN       4+2+2
-#define MIC_INDEX NET_PAYLOAD_INDEX + NET_MSG_LEN
 #define MIC_LEN 4
 
-/* Bluetooth mesh test vectors */
-static uint8_t net_unenc_packet[] = {0x4a, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xa1, 0x01, 0x3f, 0x5e, 0x05, 0xd2, 0xbc, 0x8c, 0x26, 0x03};
-static uint8_t net_enc_packet[]   = {0x4a, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x21, 0x31, 0x93, 0xf0, 0x4f, 0xba, 0x43, 0xee, 0xbc, 0x8c, 0x26, 0x03};
-static uint8_t enc_key[] = {0xac, 0x16, 0x1f, 0x58, 0x9e, 0x5d, 0xe7, 0x45, 0x6d, 0x2c, 0x1a, 0x5f, 0x49, 0x72, 0x12, 0x6b};
+/* Test vectors: */
+static const uint8_t m_unencrypted[] = { 0x06, 0x07, 0xa1, 0x01, 0x3f, 0x5e, 0x05, 0xd2, 0xbc, 0x8c, 0x26, 0x03 };
+static const uint8_t m_encrypted[]   = { 0x21, 0x31, 0x93, 0xf0, 0x4f, 0xba, 0x43, 0xee, 0xbc, 0x8c, 0x26, 0x03 };
+static const uint8_t m_key[]         = { 0xac, 0x16, 0x1f, 0x58, 0x9e, 0x5d, 0xe7, 0x45, 0x6d, 0x2c, 0x1a, 0x5f, 0x49, 0x72, 0x12, 0x6b };
+static const uint8_t m_nonce[]       = { 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x26, 0xd2, 0xa6, 0x9d, 0xa0, 0x82, 0xe0 };
 
-static uint8_t net_nonce[] = {0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x26, 0xd2, 0xa6, 0x9d, 0xa0, 0x82, 0xe0};
-
-/* RFC test vectors */
-
-
-/* Static variables */
-static uint8_t out1[16];
-static uint8_t mic[MIC_LEN];
-
-static ccm_soft_data_t  enc_data = {.mic_len = MIC_LEN};
-static ccm_soft_data_t  dec_data = {.mic_len = MIC_LEN};
+NRF_MESH_STATIC_ASSERT(sizeof(m_unencrypted) == sizeof(m_encrypted));
+NRF_MESH_STATIC_ASSERT(sizeof(m_key) == NRF_MESH_KEY_SIZE);
 
 void setUp(void)
 {
-    memset(out1, 0x00, 16);
-    memset(mic, 0x00, MIC_LEN);
 }
 
 void tearDown(void)
@@ -77,32 +64,43 @@ void tearDown(void)
 
 void test_ccm_soft_encrypt(void)
 {
-    memcpy(out1, &net_unenc_packet[NET_PAYLOAD_INDEX], NET_MSG_LEN);
+    uint8_t output[sizeof(m_unencrypted)] = {0};
+    uint8_t mic[MIC_LEN] = {0};
 
-    enc_data.p_key   = enc_key;
-    enc_data.p_nonce = net_nonce;
-    enc_data.p_m     = out1;
-    enc_data.m_len   = NET_MSG_LEN;
-    enc_data.p_mic   = mic;
-    enc_data.p_out   = out1;
+    ccm_soft_data_t enc_data =
+    {
+        .p_key   = m_key,
+        .p_nonce = m_nonce,
+        .p_m     = m_unencrypted,
+        .m_len   = sizeof(m_unencrypted) - MIC_LEN,
+        .mic_len = MIC_LEN,
+        .p_mic   = mic,
+        .p_out   = output
+    };
 
     ccm_soft_encrypt(&enc_data);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(&net_enc_packet[MIC_INDEX], mic, MIC_LEN);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(&net_enc_packet[NET_PAYLOAD_INDEX], out1, NET_MSG_LEN);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(&m_encrypted[sizeof(m_encrypted) - MIC_LEN], mic, MIC_LEN);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(m_encrypted, output, sizeof(m_encrypted) - MIC_LEN);
 }
 
 void test_ccm_soft_decrypt(void)
 {
-    dec_data.p_key   = enc_key;
-    dec_data.p_nonce = net_nonce;
-    dec_data.p_m     = &net_enc_packet[NET_PAYLOAD_INDEX];
-    dec_data.m_len   = NET_MSG_LEN;
-    dec_data.p_mic   = &net_enc_packet[MIC_INDEX];
-    dec_data.p_out   = out1;
+    uint8_t output[sizeof(m_encrypted) - MIC_LEN] = {0};
+
+    ccm_soft_data_t dec_data =
+    {
+        .p_key   = m_key,
+        .p_nonce = m_nonce,
+        .p_m     = m_encrypted,
+        .m_len   = sizeof(m_encrypted) - MIC_LEN,
+        .mic_len = MIC_LEN,
+        .p_mic   = (uint8_t *) &m_encrypted[sizeof(m_encrypted) - MIC_LEN],
+        .p_out   = output
+    };
 
     bool mic_passed = false;
     ccm_soft_decrypt(&dec_data, &mic_passed);
 
     TEST_ASSERT_EQUAL(true, mic_passed);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(&net_unenc_packet[NET_PAYLOAD_INDEX], out1, NET_MSG_LEN);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(m_unencrypted, output, sizeof(m_encrypted) - MIC_LEN);
 }

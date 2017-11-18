@@ -57,12 +57,6 @@
 /** Length of nonce. */
 #define CCM_NONCE_LENGTH (13)
 
-/** Set to 1 if CCM should use additional data. */
-#define CCM_USE_ADDITIONAL_DATA (1)
-
-/** Define to 1 if CCM is used with long additional data values (> UINT16_MAX). */
-#define CCM_SUPPORT_FULL_ADDITIONAL_DATA (1)
-
 /**
  * Struct for passing AES-CCM encryption data.
  *
@@ -73,19 +67,15 @@ typedef struct
     const uint8_t * p_key;                  /**< Block cipher key. */
     const uint8_t * p_nonce;                /**< Nonce. */
     const uint8_t * p_m;                    /**< Message to authenticate and encrypt/decrypt. */
+
     uint16_t  m_len;                        /**< Message size (in octets). */
 
-#if CCM_USE_ADDITIONAL_DATA
     const uint8_t * p_a;                    /**< Additional authenticated data. */
-#if CCM_SUPPORT_FULL_ADDITIONAL_DATA
-    uint64_t a_len;                         /**< Additional data size (in octets). */
-#else
     uint16_t a_len;                         /**< Additional data size (in octets). */
-#endif /* CCM_SUPPORT_FULL_ADDITIONAL_DATA */
-#endif /* CCM_USE_ADDITIONAL_DATA */
+
+    uint8_t * p_out;                        /**< (Out) Encrypted/decrypted output. */
 
     uint8_t * p_mic;                        /**< (Out) Message Integrety Check value */
-    uint8_t * p_out;                        /**< (Out) Encrypted/decrypted output. */
     uint8_t   mic_len;                      /**< Length of the message integrity check value. */
 } ccm_soft_data_t;
 

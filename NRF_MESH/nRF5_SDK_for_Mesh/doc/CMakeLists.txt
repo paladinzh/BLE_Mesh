@@ -7,7 +7,7 @@ set(HAVE_DOT "YES")
 if (DOXYGEN_FOUND)
 
     string(TIMESTAMP TODAY "%Y-%m-%d")
-    set(PROJECT_DOC_NAME "Bluetooth Mesh SDK")
+    set(PROJECT_DOC_NAME "nRF5 SDK for Bluetooth Mesh v${VERSION_STRING}")
 
     # Get latest commit hash for the working branch
     execute_process(
@@ -20,6 +20,10 @@ if (DOXYGEN_FOUND)
     set(PROJECT_REPO_PATH "ssh://git@stash.nordicsemi.no:7999/mesh/mesh-btle.git")
     set(CURRENT_USER $ENV{USER})
     set(DOCUMENTATION_DIR offline)
+    set(ONLY_OFFLINE YES)
+    set(ONLY_ONLINE NO)
+    set(ONLINE_DOC "")
+    set(INFOCENTER "http://infocenter.nordicsemi.com/topic")
 
     set(PROJECT_REVISION ${GIT_HEAD_COMMIT_ID})
     # Configure Doxyfiles
@@ -36,13 +40,23 @@ if (DOXYGEN_FOUND)
     )
 
     # Configure Doxyfile for building the Infocenter documentation:
-    set(PROJECT_DOC_NAME "${PROJECT_DOC_NAME} ${VERSION_STRING}")
-    # Project revision is in title
     set(PROJECT_REVISION "")
     set(DOCUMENTATION_DIR infocenter)
+    set(ONLY_OFFLINE NO)
+    set(ONLY_ONLINE YES)
+    set(ONLINE_DOC "_infocenter")
+    set(INFOCENTER "PLUGINS_ROOT")
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/Doxyfile.in
         ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-infocenter
+    )
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/MANIFEST.MF.meshsdk.in
+        ${CMAKE_CURRENT_BINARY_DIR}/infocenter/MANIFEST.MF.meshsdk
+    )
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/buildjar.xml.in
+        ${CMAKE_CURRENT_BINARY_DIR}/infocenter/buildjar.xml
     )
 
     # Build infocenter documentation:

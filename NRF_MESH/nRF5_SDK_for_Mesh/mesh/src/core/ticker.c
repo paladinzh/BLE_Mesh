@@ -48,12 +48,14 @@ static uint32_t m_current_time;
 /*****************************************************************************
  * Static functions
  *****************************************************************************/
+/*lint -save -e715 -e818 Symbol not referenced, p_ctx could be declared const*/
 
 static void timer_cb(timestamp_t now, void * p_ctx)
 {
     m_current_time += 1;
 }
 
+/*lint -restore */
 /*****************************************************************************
  * Interface functions
  *****************************************************************************/

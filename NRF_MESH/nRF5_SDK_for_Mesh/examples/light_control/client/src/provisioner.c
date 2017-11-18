@@ -168,7 +168,7 @@ static void do_config_step(void)
 
 static void mesh_evt_handler(nrf_mesh_evt_t * p_evt)
 {
-    switch(p_evt->type)
+    switch (p_evt->type)
     {
         case NRF_MESH_EVT_UNPROVISIONED_RECEIVED:
             if (m_prov_state == PROV_STATE_WAIT)

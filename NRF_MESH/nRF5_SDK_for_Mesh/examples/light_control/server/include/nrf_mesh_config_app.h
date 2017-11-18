@@ -115,6 +115,7 @@
 
 /** @} end of ACCESS_RELIABLE_CONFIG */
 
+
 /** @} end of ACCESS_CONFIG */
 
 
@@ -141,4 +142,5 @@
 
 
 /** @} */
+
 #endif /* NRF_MESH_CONFIG_APP_H__ */

@@ -57,6 +57,9 @@
 #include "flash_manager.h"
 #include "device_state_manager_flash.h"
 #endif
+
+/*lint -e415 -e416 Lint fails to understand the boundary checking used for handles in this module (MBTLE-1831). */
+
 /*****************************************************************************
 * Local defines
 *****************************************************************************/
@@ -122,7 +125,7 @@ typedef struct
         nrf_mesh_beacon_tx_info_t tx_info;
         nrf_mesh_beacon_info_t info;
     } beacon;
-#ifdef GATT_PROXY
+#if GATT_PROXY
     uint8_t identity_key[NRF_MESH_KEY_SIZE];
 #endif
 } subnet_t;
@@ -246,45 +249,37 @@ static uint32_t m_devkey_needs_flashing[BITFIELD_BLOCK_COUNT(DSM_DEVICE_MAX)];
 static bool flash_save(dsm_entry_type_t type, uint32_t index);
 static bool flash_invalidate(dsm_entry_type_t type, uint32_t index);
 
-/** Checks if a given address handle is a valid non-virtual address handle.
- *  Returns true if it is and sets p_status to NRF_SUCCESS.
- */
-static bool address_handle_nonvirtual_valid(dsm_handle_t address_handle, uint32_t * p_status)
+/* Checks if a given address handle is a valid non-virtual address handle. */
+static inline bool address_handle_nonvirtual_valid(dsm_handle_t address_handle)
 {
-    if (address_handle >= DSM_ADDR_MAX || !bitfield_get(m_addr_nonvirtual_allocated, address_handle))
+    if (address_handle >= DSM_NONVIRTUAL_ADDR_MAX || !bitfield_get(m_addr_nonvirtual_allocated, address_handle))
     {
-        *p_status = NRF_ERROR_NOT_FOUND;
         return false;
     }
     else
     {
-        *p_status = NRF_SUCCESS;
         return true;
     }
 }
 
-/** Checks if a given address handle is a valid virtual address handle.
- *  Returns true if it is and sets p_status to NRF_SUCCESS.
- */
-static bool address_handle_virtual_valid(dsm_handle_t address_handle, uint32_t * p_status)
+/* Checks if a given address handle is a valid virtual address handle. */
+static inline bool address_handle_virtual_valid(dsm_handle_t address_handle)
 {
     address_handle -= DSM_VIRTUAL_HANDLE_START;
     if (address_handle >= DSM_VIRTUAL_ADDR_MAX || !bitfield_get(m_addr_virtual_allocated, address_handle))
     {
-        *p_status = NRF_ERROR_NOT_FOUND;
         return false;
     }
     else
     {
-        *p_status = NRF_SUCCESS;
         return true;
     }
 }
 
-static bool address_handle_valid(dsm_handle_t address_handle, uint32_t * p_status)
+static inline bool address_handle_valid(dsm_handle_t address_handle)
 {
-    return (address_handle_nonvirtual_valid(address_handle, p_status) ||
-            address_handle_virtual_valid(address_handle, p_status));
+    return (address_handle_nonvirtual_valid(address_handle) ||
+            address_handle_virtual_valid(address_handle));
 }
 
 
@@ -735,7 +730,7 @@ static void subnet_set(mesh_key_index_t net_key_index, const uint8_t * p_key, ds
     }
     NRF_MESH_ASSERT(NRF_SUCCESS == nrf_mesh_keygen_network_secmat(p_key, &m_subnets[handle].secmat));
     NRF_MESH_ASSERT(NRF_SUCCESS == nrf_mesh_keygen_beacon_secmat(p_key, &m_subnets[handle].beacon.info.secmat));
-#ifdef GATT_PROXY
+#if GATT_PROXY
     NRF_MESH_ASSERT(NRF_SUCCESS == nrf_mesh_keygen_identitykey(p_key, &m_subnets[subnet_handle].identity_key));
 #endif
     memcpy(m_subnets[handle].root_key, p_key, NRF_MESH_KEY_SIZE);
@@ -780,34 +775,39 @@ static void virtual_address_set(const uint8_t * p_label_uuid, dsm_handle_t handl
 {
     uint32_t index = handle - DSM_VIRTUAL_HANDLE_START;
     memcpy(m_virtual_addresses[index].uuid, p_label_uuid, NRF_MESH_UUID_SIZE);
-    nrf_mesh_keygen_virtual_address(p_label_uuid, &m_virtual_addresses[index].address);
+    NRF_MESH_ASSERT(nrf_mesh_keygen_virtual_address(p_label_uuid, &m_virtual_addresses[index].address) == NRF_SUCCESS);
     bitfield_set(m_addr_virtual_allocated, index);
     bitfield_set(m_addr_virtual_needs_flashing, index);
 }
 
 static uint32_t address_delete_if_unused(dsm_handle_t address_handle)
 {
-    uint32_t status;
-    if (address_handle_nonvirtual_valid(address_handle, &status))
+    if (address_handle_nonvirtual_valid(address_handle))
     {
         if (m_addresses[address_handle].publish_count == 0 && m_addresses[address_handle].subscription_count == 0)
         {
             bitfield_clear(m_addr_nonvirtual_allocated, address_handle);
-            flash_invalidate(DSM_ENTRY_TYPE_ADDR_NONVIRTUAL, address_handle);
+            (void) flash_invalidate(DSM_ENTRY_TYPE_ADDR_NONVIRTUAL, address_handle);
         }
+
+        return NRF_SUCCESS;
     }
-    else if (address_handle_virtual_valid(address_handle, &status))
+    else if (address_handle_virtual_valid(address_handle))
     {
         uint32_t addr_virtual_index = address_handle - DSM_VIRTUAL_HANDLE_START;
         if (m_virtual_addresses[addr_virtual_index].publish_count == 0 &&
             m_virtual_addresses[addr_virtual_index].subscription_count == 0)
         {
             bitfield_clear(m_addr_virtual_allocated, addr_virtual_index);
-            flash_invalidate(DSM_ENTRY_TYPE_ADDR_VIRTUAL, addr_virtual_index);
+            (void) flash_invalidate(DSM_ENTRY_TYPE_ADDR_VIRTUAL, addr_virtual_index);
         }
-    }
 
-    return status;
+        return NRF_SUCCESS;
+    }
+    else
+    {
+        return NRF_ERROR_NOT_FOUND;
+    }
 }
 
 static uint32_t add_address(uint16_t raw_address, dsm_handle_t * p_address_handle, dsm_address_role_t role)
@@ -841,7 +841,7 @@ static uint32_t add_address(uint16_t raw_address, dsm_handle_t * p_address_handl
         else
         {
             nonvirtual_address_set(raw_address, handle);
-            flash_save(DSM_ENTRY_TYPE_ADDR_NONVIRTUAL, handle);
+            (void) flash_save(DSM_ENTRY_TYPE_ADDR_NONVIRTUAL, handle);
         }
     }
 
@@ -878,7 +878,7 @@ static uint32_t add_address_virtual(const uint8_t * p_label_uuid, dsm_handle_t *
         }
 
         virtual_address_set(p_label_uuid, handle);
-        flash_save(DSM_ENTRY_TYPE_ADDR_VIRTUAL, dest);
+        (void) flash_save(DSM_ENTRY_TYPE_ADDR_VIRTUAL, dest);
     }
     *p_address_handle = handle;
     if (role == DSM_ADDRESS_ROLE_SUBSCRIBE)
@@ -1044,7 +1044,7 @@ typedef void (*flash_op_func_t)(void);
 static void flash_mem_listener_callback(void * p_args)
 {
     NRF_MESH_ASSERT(p_args != NULL);
-    flash_op_func_t func = (flash_op_func_t) p_args;
+    flash_op_func_t func = (flash_op_func_t) p_args; /*lint !e611 Suspicious cast */
     func();
 }
 
@@ -1442,7 +1442,7 @@ uint32_t dsm_local_unicast_addresses_set(const dsm_local_unicast_address_t * p_a
     {
         memcpy(&m_local_unicast_addr, p_address, sizeof(dsm_local_unicast_address_t));
         bitfield_set(m_addr_unicast_allocated, 0);
-        flash_save(DSM_ENTRY_TYPE_LOCAL_UNICAST, 0);
+        (void) flash_save(DSM_ENTRY_TYPE_LOCAL_UNICAST, 0);
     }
     return NRF_SUCCESS;
 }
@@ -1460,8 +1460,7 @@ uint32_t dsm_address_publish_add(uint16_t raw_address, dsm_handle_t * p_address_
 
 uint32_t dsm_address_publish_add_handle(dsm_handle_t address_handle)
 {
-    uint32_t status;
-    if (address_handle_valid(address_handle, &status) && status == NRF_SUCCESS)
+    if (address_handle_valid(address_handle))
     {
         if (address_handle >= DSM_NONVIRTUAL_ADDR_MAX)
         {
@@ -1471,9 +1470,13 @@ uint32_t dsm_address_publish_add_handle(dsm_handle_t address_handle)
         {
             m_addresses[address_handle].publish_count++;
         }
-    }
 
-    return status;
+        return NRF_SUCCESS;
+    }
+    else
+    {
+        return NRF_ERROR_NOT_FOUND;
+    }
 }
 
 uint32_t dsm_address_publish_virtual_add(const uint8_t * p_label_uuid, dsm_handle_t * p_address_handle)
@@ -1483,20 +1486,19 @@ uint32_t dsm_address_publish_virtual_add(const uint8_t * p_label_uuid, dsm_handl
 
 uint32_t dsm_address_publish_remove(dsm_handle_t address_handle)
 {
-    uint32_t status;
-    if (address_handle_nonvirtual_valid(address_handle, &status))
+    if (address_handle_nonvirtual_valid(address_handle))
     {
         m_addresses[address_handle].publish_count--;
         return address_delete_if_unused(address_handle);
     }
-    else if (address_handle_virtual_valid(address_handle, &status))
+    else if (address_handle_virtual_valid(address_handle))
     {
         m_virtual_addresses[address_handle - DSM_VIRTUAL_HANDLE_START].publish_count--;
         return address_delete_if_unused(address_handle);
     }
     else
     {
-        return status;
+        return NRF_ERROR_NOT_FOUND;
     }
 }
 
@@ -1512,8 +1514,7 @@ uint32_t dsm_address_subscription_virtual_add(const uint8_t * p_label_uuid, dsm_
 
 uint32_t dsm_address_subscription_add_handle(dsm_handle_t address_handle)
 {
-    uint32_t status;
-    if (address_handle_valid(address_handle, &status) && status == NRF_SUCCESS)
+    if (address_handle_valid(address_handle))
     {
         if (address_handle >= DSM_NONVIRTUAL_ADDR_MAX)
         {
@@ -1523,15 +1524,18 @@ uint32_t dsm_address_subscription_add_handle(dsm_handle_t address_handle)
         {
             m_addresses[address_handle].subscription_count++;
         }
-    }
 
-    return status;
+        return NRF_SUCCESS;
+    }
+    else
+    {
+        return NRF_ERROR_NOT_FOUND;
+    }
 }
 
 bool dsm_address_subscription_get(dsm_handle_t address_handle)
 {
-    uint32_t status;
-    if (address_handle_valid(address_handle, &status) && status == NRF_SUCCESS)
+    if (address_handle_valid(address_handle))
     {
         if (address_handle >= DSM_NONVIRTUAL_ADDR_MAX)
         {
@@ -1555,11 +1559,10 @@ uint32_t dsm_address_subscription_count_get(dsm_handle_t address_handle, uint16_
         return NRF_ERROR_NULL;
     }
 
-    uint32_t status;
-    if (address_handle_valid(address_handle, &status) && status == NRF_SUCCESS)
+    if (address_handle_valid(address_handle))
     {
         nrf_mesh_address_t addr;
-        status = dsm_address_get(address_handle, &addr);
+        uint32_t status = dsm_address_get(address_handle, &addr);
         if (status == NRF_SUCCESS)
         {
             if (addr.type == NRF_MESH_ADDRESS_TYPE_GROUP)
@@ -1576,19 +1579,20 @@ uint32_t dsm_address_subscription_count_get(dsm_handle_t address_handle, uint16_
             }
         }
 
+        return NRF_SUCCESS;
     }
-
-    return status;
+    else
+    {
+        return NRF_ERROR_NOT_FOUND;
+    }
 }
 
 uint32_t dsm_address_subscription_remove(dsm_handle_t address_handle)
 {
-    uint32_t status;
-
-    if (address_handle_valid(address_handle, &status))
+    if (address_handle_valid(address_handle))
     {
         nrf_mesh_address_t addr;
-        status = dsm_address_get(address_handle, &addr);
+        uint32_t status = dsm_address_get(address_handle, &addr);
         if (status == NRF_SUCCESS)
         {
             if (addr.type == NRF_MESH_ADDRESS_TYPE_GROUP)
@@ -1620,29 +1624,37 @@ uint32_t dsm_address_subscription_remove(dsm_handle_t address_handle)
                 return NRF_ERROR_FORBIDDEN;
             }
         }
-    }
 
-    return status;
+        return NRF_SUCCESS;
+    }
+    else
+    {
+        return NRF_ERROR_NOT_FOUND;
+    }
 }
 
 uint32_t dsm_address_get(dsm_handle_t address_handle, nrf_mesh_address_t * p_address)
 {
-    uint32_t status;
+    uint32_t status = NRF_ERROR_NOT_FOUND;
+
     if (p_address == NULL)
     {
         status = NRF_ERROR_NULL;
     }
-    else if (address_handle_nonvirtual_valid(address_handle, &status))
+
+    else if (address_handle_nonvirtual_valid(address_handle))
     {
         p_address->value = m_addresses[address_handle].address;
         p_address->type = nrf_mesh_address_type_get(m_addresses[address_handle].address);
         p_address->p_virtual_uuid = NULL;
+        status = NRF_SUCCESS;
     }
-    else if (address_handle_virtual_valid(address_handle, &status))
+    else if (address_handle_virtual_valid(address_handle))
     {
         p_address->value = m_virtual_addresses[address_handle - DSM_VIRTUAL_HANDLE_START].address;
         p_address->p_virtual_uuid = &m_virtual_addresses[address_handle - DSM_VIRTUAL_HANDLE_START].uuid[0];
         p_address->type = NRF_MESH_ADDRESS_TYPE_VIRTUAL;
+        status = NRF_SUCCESS;
     }
 
     return status;
@@ -1657,7 +1669,8 @@ uint32_t dsm_address_get_all(dsm_handle_t * p_address_handle_list, uint32_t * p_
     }
 
     uint32_t count = 0;
-    for (uint32_t i = 0; i < DSM_NONVIRTUAL_ADDR_MAX; i++)
+    // Reverse search so handle_list is in same order as when stored.
+    for (int32_t i = (DSM_NONVIRTUAL_ADDR_MAX-1); i >= 0; i--)
     {
         if (bitfield_get(m_addr_nonvirtual_allocated, i))
         {
@@ -1668,7 +1681,8 @@ uint32_t dsm_address_get_all(dsm_handle_t * p_address_handle_list, uint32_t * p_
             p_address_handle_list[count++] = i;
         }
     }
-    for (uint32_t i = 0; i < DSM_VIRTUAL_ADDR_MAX; i++)
+    // Reverse search so handle_list is in same order as when stored.
+    for (int32_t i = (DSM_VIRTUAL_ADDR_MAX-1); i >= 0; i--)
     {
         if (bitfield_get(m_addr_virtual_allocated, i))
         {
@@ -1824,7 +1838,7 @@ uint32_t dsm_subnet_add(mesh_key_index_t net_key_index, const uint8_t * p_key, d
     else
     {
         subnet_set(net_key_index, p_key, handle);
-        flash_save(DSM_ENTRY_TYPE_SUBNET, handle);
+        (void) flash_save(DSM_ENTRY_TYPE_SUBNET, handle);
         *p_subnet_handle = handle;
 
         return NRF_SUCCESS;
@@ -1844,7 +1858,7 @@ uint32_t dsm_subnet_update(dsm_handle_t subnet_handle, const uint8_t * p_key)
     else
     {
         subnet_set(m_subnets[subnet_handle].net_key_index, p_key, subnet_handle);
-        flash_save(DSM_ENTRY_TYPE_SUBNET, subnet_handle);
+        (void) flash_save(DSM_ENTRY_TYPE_SUBNET, subnet_handle);
     }
     return NRF_SUCCESS;
 }
@@ -1875,7 +1889,7 @@ uint32_t dsm_subnet_delete(dsm_handle_t subnet_handle)
             }
         }
         bitfield_clear(m_subnet_allocated, subnet_handle);
-        flash_invalidate(DSM_ENTRY_TYPE_SUBNET, subnet_handle);
+        (void) flash_invalidate(DSM_ENTRY_TYPE_SUBNET, subnet_handle);
         return NRF_SUCCESS;
     }
 }
@@ -1924,7 +1938,7 @@ uint32_t dsm_devkey_add(uint16_t raw_unicast_addr, dsm_handle_t subnet_handle, c
     else
     {
         devkey_set(raw_unicast_addr, subnet_handle, p_key, handle);
-        flash_save(DSM_ENTRY_TYPE_DEVKEY, handle - DSM_DEVKEY_HANDLE_START);
+        (void) flash_save(DSM_ENTRY_TYPE_DEVKEY, handle - DSM_DEVKEY_HANDLE_START);
         *p_devkey_handle = handle;
     }
     return NRF_SUCCESS;
@@ -1943,7 +1957,7 @@ uint32_t dsm_devkey_delete(dsm_handle_t devkey_handle)
     {
         m_devkeys[devkey_index].key_owner = NRF_MESH_ADDR_UNASSIGNED;
         bitfield_clear(m_devkey_allocated, devkey_index);
-        flash_invalidate(DSM_ENTRY_TYPE_DEVKEY, devkey_index);
+        (void) flash_invalidate(DSM_ENTRY_TYPE_DEVKEY, devkey_index);
         return NRF_SUCCESS;
     }
 }
@@ -2000,7 +2014,7 @@ uint32_t dsm_appkey_add(mesh_key_index_t app_key_index, dsm_handle_t subnet_hand
     else
     {
         appkey_set(app_key_index, subnet_handle, p_key, handle);
-        flash_save(DSM_ENTRY_TYPE_APPKEY, handle);
+        (void) flash_save(DSM_ENTRY_TYPE_APPKEY, handle);
         *p_app_handle = handle;
     }
     return NRF_SUCCESS;
@@ -2022,7 +2036,7 @@ uint32_t dsm_appkey_update(dsm_handle_t app_handle, const uint8_t * p_key)
                    m_appkeys[app_handle].subnet_handle,
                    p_key,
                    app_handle);
-        flash_save(DSM_ENTRY_TYPE_APPKEY, app_handle);
+        (void) flash_save(DSM_ENTRY_TYPE_APPKEY, app_handle);
     }
     return NRF_SUCCESS;
 }
@@ -2036,7 +2050,7 @@ uint32_t dsm_appkey_delete(dsm_handle_t app_handle)
     else
     {
         bitfield_clear(m_appkey_allocated, app_handle);
-        flash_invalidate(DSM_ENTRY_TYPE_APPKEY, app_handle);
+        (void) flash_invalidate(DSM_ENTRY_TYPE_APPKEY, app_handle);
         return NRF_SUCCESS;
     }
 }
@@ -2120,7 +2134,7 @@ uint32_t dsm_beacon_secmat_get(dsm_handle_t subnet_handle, const nrf_mesh_beacon
 
 uint32_t dsm_proxy_identity_get(dsm_handle_t subnet_handle, const uint8_t ** pp_identity)
 {
-#ifdef GATT_PROXY
+#if GATT_PROXY
     if (NULL == pp_identity)
     {
         return NRF_ERROR_NULL;

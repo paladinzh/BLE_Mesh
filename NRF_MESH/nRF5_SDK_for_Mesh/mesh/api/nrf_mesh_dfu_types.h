@@ -56,6 +56,8 @@
 /** Length of a dfu packet data segment. */
 #define NRF_MESH_DFU_SEGMENT_LENGTH          (16)
 
+/*lint -align_max(push) -align_max(1) */
+
 /** Bootloader ID structure */
 typedef struct __attribute((packed))
 {
@@ -77,6 +79,16 @@ typedef struct __attribute((packed))
     /** Application version. */
     uint32_t app_version;
 } nrf_mesh_app_id_t;
+
+/** ID of a standalone firmware segment. */
+typedef union __attribute((packed))
+{
+    nrf_mesh_app_id_t        application;   /**< Application ID. */
+    nrf_mesh_bootloader_id_t bootloader;    /**< Bootloader ID. */
+    uint16_t                 softdevice;    /**< Softdevice revision number. */
+} nrf_mesh_fwid_t;
+
+/*lint -align_max(pop) */
 
 /** DFU transfer types. */
 typedef enum
@@ -146,14 +158,6 @@ typedef enum
     /** @internal Largest number in the enum. */
     NRF_MESH_DFU_ROLE__LAST = NRF_MESH_DFU_ROLE_SOURCE,
 } nrf_mesh_dfu_role_t;
-
-/** ID of a standalone firmware segment. */
-typedef union __attribute((packed))
-{
-    nrf_mesh_app_id_t        application;   /**< Application ID. */
-    nrf_mesh_bootloader_id_t bootloader;    /**< Bootloader ID. */
-    uint16_t                 softdevice;    /**< Softdevice revision number. */
-} nrf_mesh_fwid_t;
 
 /** DFU transfer information structure. */
 typedef struct

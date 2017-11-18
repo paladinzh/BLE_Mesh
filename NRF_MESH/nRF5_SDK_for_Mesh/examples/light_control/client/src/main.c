@@ -329,7 +329,7 @@ int main(void)
     access_setup();
     provisioner_init();
     provisioner_wait_for_unprov();
-    while(true)
+    while (true)
     {
         int key = SEGGER_RTT_GetKey(); /* Returns -1 if there is no data. */
         if (key >= '0' && key <= '3')

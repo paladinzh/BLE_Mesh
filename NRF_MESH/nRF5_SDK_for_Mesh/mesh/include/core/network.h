@@ -105,7 +105,7 @@ uint32_t network_pkt_out(packet_t * p_packet, const nrf_mesh_network_secmat_t * 
  * @retval NRF_ERROR_INVALID_ADDR The destination address is not valid.
  * @retval NRF_ERROR_NOT_FOUND    The packet could not be decrypted by the transport layer.
  */
-uint32_t network_pkt_in(packet_net_t * p_net_packet, packet_meta_t * p_packet_meta);
+uint32_t network_pkt_in(packet_net_t * p_net_packet, const packet_meta_t * p_packet_meta);
 
 /**
  * Relays a network packet.

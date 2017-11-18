@@ -37,7 +37,7 @@
 
 #include <stdint.h>
 #include "nrf_flash.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "utils.h"
 #include "nrf_mesh_assert.h"
 
@@ -68,7 +68,7 @@ uint32_t nrf_flash_erase(uint32_t * p_page, uint32_t size)
         return NRF_ERROR_INVALID_LENGTH;
     }
 
-    uint8_t num_pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
+    uint32_t num_pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
 
 #if !HOST
     /* Turn on flash erase enable and wait until the NVMC is ready: */

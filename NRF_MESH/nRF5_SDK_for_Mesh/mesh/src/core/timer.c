@@ -43,7 +43,7 @@
 #include "nrf_mesh_assert.h"
 
 #include "nrf_soc.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 #define TIMER_COMPARE_COUNT     (3)
 
@@ -73,7 +73,7 @@ static uint32_t         m_timer_mut;
 *****************************************************************************/
 static void timer_set(uint8_t timer, timestamp_t timeout)
 {
-    NRF_TIMER0->INTENSET  = (1 << (TIMER_INTENSET_COMPARE0_Pos + timer));
+    NRF_TIMER0->INTENSET  = (1u << (TIMER_INTENSET_COMPARE0_Pos + timer));
     NRF_TIMER0->CC[timer] = timeout;
     NRF_TIMER0->EVENTS_COMPARE[timer] = 0;
 }
@@ -91,6 +91,7 @@ static inline void timer_mut_unlock(void)
 {
     _ENABLE_IRQS(m_timer_mut);
 }
+
 /*****************************************************************************
 * Interface functions
 *****************************************************************************/
@@ -103,7 +104,7 @@ void timer_event_handler(void)
             timer_callback_t cb = m_callbacks[i];
             NRF_MESH_ASSERT(cb != NULL);
             m_callbacks[i] = NULL;
-            NRF_TIMER0->INTENCLR = (1 << (TIMER_INTENCLR_COMPARE0_Pos + i));
+            NRF_TIMER0->INTENCLR = (1u << (TIMER_INTENCLR_COMPARE0_Pos + i));
             timestamp_t time_now = timer_now();
             if (m_attributes[i] & TIMER_ATTR_SYNCHRONOUS)
             {
@@ -111,7 +112,7 @@ void timer_event_handler(void)
             }
             else
             {
-                bearer_event_timer_post(cb, time_now);
+                NRF_MESH_ASSERT(bearer_event_timer_post(cb, time_now) == NRF_SUCCESS);
             }
             NRF_TIMER0->EVENTS_COMPARE[i] = 0;
         }
@@ -294,7 +295,7 @@ void timer_on_ts_begin(timestamp_t timeslot_start_time)
                 }
                 else
                 {
-                    bearer_event_timer_post(cb, timeslot_start_time);
+                    NRF_MESH_ASSERT(bearer_event_timer_post(cb, timeslot_start_time) == NRF_SUCCESS);
                 }
             }
             if (mp_ppi_tasks[i] != NULL)

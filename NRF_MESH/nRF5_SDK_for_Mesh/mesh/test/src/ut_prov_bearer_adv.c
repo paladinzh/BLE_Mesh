@@ -103,7 +103,7 @@ do                                                                              
         bearer_adv_tx_ExpectAndReturn(P_ADV, mp_packet, TX_REPEAT, TX_RETURN);            \
     }                                                                                     \
 }                                                                                         \
-while(0)
+while (0)
 
 static uint8_t data[PROV_PAYLOAD_MAX_LENGTH+1];
 static uint8_t uuid1[NRF_MESH_UUID_SIZE] = {0,1,2,3};
@@ -136,14 +136,14 @@ void setUp(void)
 {
     __LOG_INIT((LOG_SRC_PROV | LOG_SRC_TEST), LOG_LEVEL_ERROR, LOG_CALLBACK_DEFAULT);
 
-    CMOCK_SETUP(bearer_adv);
-    CMOCK_SETUP(provisioning);
-    CMOCK_SETUP(timer_scheduler);
-    CMOCK_SETUP(packet_mgr);
-    CMOCK_SETUP(rand);
-    CMOCK_SETUP(prov_beacon);
-    CMOCK_SETUP(nrf_mesh);
-    CMOCK_SETUP(timer);
+    bearer_adv_mock_Init();
+    provisioning_mock_Init();
+    timer_scheduler_mock_Init();
+    packet_mgr_mock_Init();
+    rand_mock_Init();
+    prov_beacon_mock_Init();
+    nrf_mesh_mock_Init();
+    timer_mock_Init();
 
     const prov_bearer_interface_t * p_bearer = prov_bearer_adv_interface_get();
     prov_bearer_adv_tx = p_bearer->tx;
@@ -169,7 +169,22 @@ void tearDown(void)
     prov_beacon_mock_Verify();
     nrf_mesh_mock_Verify();
     timer_mock_Verify();
-    CMOCK_TEARDOWN();
+    bearer_adv_mock_Verify();
+    bearer_adv_mock_Destroy();
+    provisioning_mock_Verify();
+    provisioning_mock_Destroy();
+    timer_scheduler_mock_Verify();
+    timer_scheduler_mock_Destroy();
+    packet_mgr_mock_Verify();
+    packet_mgr_mock_Destroy();
+    rand_mock_Verify();
+    rand_mock_Destroy();
+    prov_beacon_mock_Verify();
+    prov_beacon_mock_Destroy();
+    nrf_mesh_mock_Verify();
+    nrf_mesh_mock_Destroy();
+    timer_mock_Verify();
+    timer_mock_Destroy();
 }
 
 /* In order to use the prov_bearer_adv function. */
@@ -179,7 +194,7 @@ extern uint8_t calculate_3GPP_CRC(const uint8_t * p_input, uint16_t size);
 static ble_ad_data_t * get_transaction_start_packet(uint8_t * p_data, uint16_t data_size, uint8_t transaction)
 {
     uint8_t start_payload_size = data_size > PROV_START_PDU_PAYLOAD_MAX_LEN ? PROV_START_PDU_PAYLOAD_MAX_LEN : data_size;
-    uint8_t segN = ((data_size - start_payload_size) > 0) * (data_size - start_payload_size)/PROV_CONTINUE_PDU_PAYLOAD_MAX_LEN;
+    uint8_t segN = ((data_size - start_payload_size) > 0) * (data_size - start_payload_size)/PROV_CONTINUE_PDU_PAYLOAD_MAX_LEN; /*lint !e514 Boolean used in arithmetic */
     trans_data_payload[sizeof(ble_ad_data_t) + PROV_ADV_OVERHEAD - 1] = transaction;
     trans_data_payload[sizeof(ble_ad_data_t) + PROV_ADV_OVERHEAD] = (segN << 2) | PROV_TRANS_START_OPCODE_WITH_GPCF_FIELD;
     /* Total Length*/
@@ -262,7 +277,7 @@ static void rx_link_open(prov_bearer_adv_t * p_bearer, uint8_t * p_uuid, uint32_
     p_ad_data->data[0] = (link_id >> 24) & 0xFF;
     if (accept)
     {
-        bearer_adv_interval_reset_Expect(&p_bearer->advertiser);
+        bearer_adv_interval_reset_ExpectAndReturn(&p_bearer->advertiser, NRF_SUCCESS);
         ALLOC_AND_TX(&p_bearer->advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_ACK_DATA_SIZE, NRF_SUCCESS, 1, NRF_SUCCESS);
         prov_cb_link_opened_Expect(prov_bearer_adv_parent_get(p_bearer));
         timer_now_ExpectAndReturn(1000);
@@ -281,7 +296,6 @@ static void rx_link_ack(prov_bearer_adv_t * p_bearer, uint32_t link_id, bool acc
     if (accept)
     {
         bearer_adv_flush_tx_Expect(&p_bearer->advertiser);
-        bearer_adv_interval_reset_Expect(&p_bearer->advertiser);
         prov_cb_link_opened_Expect(prov_bearer_adv_parent_get(p_bearer));
         timer_now_ExpectAndReturn(1000);
         timer_sch_reschedule_Expect(&p_bearer->link_timeout_event, 1000 + p_bearer->link_timeout);
@@ -313,7 +327,7 @@ static void tx_link_open(prov_bearer_adv_t * p_bearer, uint8_t * p_uuid, uint32_
 
     ALLOC_AND_TX(&p_bearer->advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_OPEN_DATA_SIZE, NRF_SUCCESS, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_SUCCESS);
 
-    bearer_adv_advertiser_init_ExpectAndReturn(&p_bearer->advertiser, NRF_SUCCESS);
+    bearer_adv_advertiser_init_Expect(&p_bearer->advertiser);
     rand_hw_rng_get_Expect((uint8_t*) &p_bearer->link_id, sizeof(p_bearer->link_id));
     timer_now_ExpectAndReturn(1000);
     timer_sch_reschedule_Expect(&p_bearer->link_timeout_event, 1000 + PROV_PROVISIONING_LINK_TIMEOUT_MIN_US);
@@ -324,7 +338,7 @@ static void tx_link_open(prov_bearer_adv_t * p_bearer, uint8_t * p_uuid, uint32_
 static void tx_link_close(prov_bearer_adv_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason)
 {
     ALLOC_AND_TX(&p_bearer->advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_CLOSE_DATA_SIZE, NRF_SUCCESS, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_SUCCESS);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, prov_bearer_adv_link_close(prov_bearer_adv_parent_get(p_bearer), close_reason));
+    prov_bearer_adv_link_close(prov_bearer_adv_parent_get(p_bearer), close_reason);
 
     /* Send queue empty in order to move on to link closed state */
     bearer_adv_flush_tx_Expect(&p_bearer->advertiser);
@@ -337,7 +351,7 @@ static void listen_start(prov_bearer_adv_t * p_bearer)
 {
     packet_t packet;
     packet_generic_t * p_packet = &packet;
-    bearer_adv_advertiser_init_ExpectAndReturn(&p_bearer->advertiser, NRF_SUCCESS);
+    bearer_adv_advertiser_init_Expect(&p_bearer->advertiser);
     prov_beacon_unprov_build_ExpectAndReturn(NULL, 0, p_packet);
     bearer_adv_tx_ExpectAndReturn(&p_bearer->advertiser, p_packet, BEARER_ADV_REPEAT_INFINITE, NRF_SUCCESS);
     TEST_ASSERT_EQUAL(NRF_SUCCESS, prov_bearer_adv_listen(prov_bearer_adv_parent_get(p_bearer), NULL, 0, PROV_PROVISIONING_LINK_TIMEOUT_MIN_US));
@@ -393,7 +407,7 @@ static uint8_t send_data_packet(prov_bearer_adv_t * p_bearer, uint8_t * p_data, 
     timer_sch_reschedule_IgnoreArg_new_timestamp();
     timer_sch_reschedule_Expect(&p_bearer->timeout_event, 0);
     timer_sch_reschedule_IgnoreArg_new_timestamp();
-    prov_bearer_adv_tx(prov_bearer_adv_parent_get(p_bearer), p_data, data_length);
+    (void) prov_bearer_adv_tx(prov_bearer_adv_parent_get(p_bearer), p_data, data_length);
     return no_segments;
 }
 
@@ -415,7 +429,7 @@ static void receive_data(prov_bearer_adv_t * p_bearer, uint8_t * p_data, uint16_
 
     uint8_t segment = 1;
     p_ad_data = get_transaction_continue_packet(p_data, data_length, transcation, segment);
-    while(NULL != p_ad_data)
+    while (NULL != p_ad_data)
     {
         p_ad_data->data[3] = link_id & 0xFF;
         p_ad_data->data[2] = (link_id >> 8) & 0xFF;
@@ -436,9 +450,6 @@ void test_link_establish_active(void)
     /* RX a packet with LINK_CLOSE command, do not expect a link closed callback*/
     rx_link_close(&bearer.bearer.pb_adv, NRF_MESH_PROV_LINK_CLOSE_REASON_SUCCESS, link_id, false);
 
-    /* No link close is sent when there is no open link */
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, prov_bearer_adv_link_close(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_SUCCESS));
-
     /* Open link. */
     tx_link_open(&bearer.bearer.pb_adv, uuid1, link_id);
 
@@ -458,17 +469,17 @@ void test_link_establish_active(void)
 
     /* Try to open a link and we fail due to pacman, the state should not change */
     bearer.bearer.pb_adv.link_id = link_id;
-    bearer_adv_advertiser_init_ExpectAndReturn(&bearer.bearer.pb_adv.advertiser, NRF_SUCCESS);
+    bearer_adv_advertiser_init_Expect(&bearer.bearer.pb_adv.advertiser);
     rand_hw_rng_get_Expect((uint8_t*) &bearer.bearer.pb_adv.link_id, sizeof(bearer.bearer.pb_adv.link_id));
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_OPEN_DATA_SIZE, NRF_ERROR_NO_MEM, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_SUCCESS);
     TEST_ASSERT_EQUAL(NRF_ERROR_NO_MEM, prov_bearer_adv_link_open(&bearer, uuid1, PROV_PROVISIONING_LINK_TIMEOUT_MIN_US));
 
     /* Try to open a link and we fail due to bearer, the state should not change */
     bearer.bearer.pb_adv.link_id = link_id;
-    bearer_adv_advertiser_init_ExpectAndReturn(&bearer.bearer.pb_adv.advertiser, NRF_SUCCESS);
+    bearer_adv_advertiser_init_Expect(&bearer.bearer.pb_adv.advertiser);
     rand_hw_rng_get_Expect((uint8_t*) &bearer.bearer.pb_adv.link_id, sizeof(bearer.bearer.pb_adv.link_id));
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_OPEN_DATA_SIZE, NRF_SUCCESS, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_ERROR_NO_MEM);
-    packet_mgr_decref_Expect(mp_packet);
+    packet_mgr_free_Expect(mp_packet);
     TEST_ASSERT_EQUAL(NRF_ERROR_NO_MEM, prov_bearer_adv_link_open(&bearer, uuid1, PROV_PROVISIONING_LINK_TIMEOUT_MIN_US));
 
     /* Open link. */
@@ -494,15 +505,15 @@ void test_link_establish_active(void)
     bearer_adv_flush_tx_Expect(&bearer.bearer.pb_adv.advertiser);
     prov_cb_link_closed_Expect(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT);
     timer_sch_abort_Expect(&bearer.bearer.pb_adv.link_timeout_event);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, prov_bearer_adv_link_close(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT));
+    prov_bearer_adv_link_close(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT);
 
     tx_link_open(&bearer.bearer.pb_adv, uuid1, link_id);
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_CLOSE_DATA_SIZE, NRF_SUCCESS, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_ERROR_NO_MEM);
     bearer_adv_flush_tx_Expect(&bearer.bearer.pb_adv.advertiser);
-    packet_mgr_decref_Expect(mp_packet);
+    packet_mgr_free_Expect(mp_packet);
     prov_cb_link_closed_Expect(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT);
     timer_sch_abort_Expect(&bearer.bearer.pb_adv.link_timeout_event);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, prov_bearer_adv_link_close(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT));
+    prov_bearer_adv_link_close(&bearer, NRF_MESH_PROV_LINK_CLOSE_REASON_TIMEOUT);
 
     /* Open link. */
     tx_link_open(&bearer.bearer.pb_adv, uuid1, link_id);
@@ -519,9 +530,9 @@ void test_link_establish_active(void)
     /* Open link. */
     tx_link_open(&bearer.bearer.pb_adv, uuid1, link_id);
     /* RX of unknown close command is acceptable, and this should be forwarded. */
-    rx_link_close(&bearer.bearer.pb_adv, 0xff, link_id, true);
+    rx_link_close(&bearer.bearer.pb_adv, (nrf_mesh_prov_link_close_reason_t) 0xff, link_id, true);
     /* Close link with unknown close command is not acceptable, assert */
-    TEST_NRF_MESH_ASSERT_EXPECT(prov_bearer_adv_link_close(&bearer, 0xff));
+    TEST_NRF_MESH_ASSERT_EXPECT(prov_bearer_adv_link_close(&bearer, (nrf_mesh_prov_link_close_reason_t) 0xff));
 }
 
 void test_link_establish_passive(void)
@@ -560,15 +571,15 @@ void test_link_establish_passive(void)
 
     /* Fail RX of a packet with LINK_OPEN command due to PACKET MANAGER*/
     nrf_mesh_configure_device_uuid_get_ExpectAndReturn(uuid1);
-    bearer_adv_interval_reset_Expect(&bearer.bearer.pb_adv.advertiser);
+    bearer_adv_interval_reset_ExpectAndReturn(&bearer.bearer.pb_adv.advertiser, NRF_SUCCESS);
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_ACK_DATA_SIZE, NRF_ERROR_NO_MEM, 1, NRF_SUCCESS);
     rx_link_open(&bearer.bearer.pb_adv, uuid1, link_id, false);
 
     /* Fail RX of a packet with LINK_OPEN command due to BEARER ADV */
     nrf_mesh_configure_device_uuid_get_ExpectAndReturn(uuid1);
-    bearer_adv_interval_reset_Expect(&bearer.bearer.pb_adv.advertiser);
+    bearer_adv_interval_reset_ExpectAndReturn(&bearer.bearer.pb_adv.advertiser, NRF_SUCCESS);
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_ACK_DATA_SIZE, NRF_SUCCESS, 1, NRF_ERROR_NO_MEM);
-    packet_mgr_decref_Expect(mp_packet);
+    packet_mgr_free_Expect(mp_packet);
     rx_link_open(&bearer.bearer.pb_adv, uuid1, link_id, false);
 
     /* State shouldn't have changed due to the failures, so a successful RX should be possible: */
@@ -707,7 +718,7 @@ void test_packet_send(void)
     TEST_ASSERT_EQUAL(curr_transcation, bearer.bearer.pb_adv.transaction_out);
     TEST_ASSERT_EQUAL(3, no_segments);
     /* No ack, send a timeout */
-    send_data_packet_internals(&bearer.bearer.pb_adv, data, PROV_PAYLOAD_MAX_LENGTH);
+    (void) send_data_packet_internals(&bearer.bearer.pb_adv, data, PROV_PAYLOAD_MAX_LENGTH);
     bearer.bearer.pb_adv.timeout_event.cb(0, &bearer.bearer.pb_adv);
     /* Transcation no must remain the same */
     TEST_ASSERT_EQUAL(curr_transcation, bearer.bearer.pb_adv.transaction_out);
@@ -761,7 +772,7 @@ void test_packet_send_abnormal(void)
     /* First attempt to TX fails*/
     timestamp_t timeout_timestamp = bearer.bearer.pb_adv.sar_timeout + 1;
     ALLOC_AND_TX(&bearer.bearer.pb_adv.advertiser, BLE_ADV_OVERHEAD + PROV_ADV_OVERHEAD + PROV_LINK_CLOSE_DATA_SIZE, NRF_SUCCESS, PROV_BEARER_ADV_UNACKED_REPEAT_COUNT, NRF_ERROR_NO_MEM);
-    packet_mgr_decref_Expect(mp_packet);
+    packet_mgr_free_Expect(mp_packet);
     bearer.bearer.pb_adv.timeout_event.cb(bearer.bearer.pb_adv.sar_timeout + 1, &bearer.bearer.pb_adv);
 
     /* timeout interval should be larger than 0 */
@@ -931,37 +942,56 @@ void test_interface_return(void)
 
 void test_packet_fcs_sample_check(void)
 {
-    uint8_t sample_data_8_7_3[2] = {0x00,0x00};
+    const uint8_t sample_data_8_7_3[] = {0x00, 0x00};
     TEST_ASSERT_EQUAL(0x14, calculate_3GPP_CRC(sample_data_8_7_3, sizeof(sample_data_8_7_3)));
 
-    uint8_t sample_data_8_7_4[0xC] = {0x01,0x01,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    const uint8_t sample_data_8_7_4[] = {0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     TEST_ASSERT_EQUAL(0xD6, calculate_3GPP_CRC(sample_data_8_7_4, sizeof(sample_data_8_7_4)));
 
-    uint8_t sample_data_8_7_5[0x6] = {0x02,0x00,0x00,0x00,0x00,0x00};
+    const uint8_t sample_data_8_7_5[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
     TEST_ASSERT_EQUAL(0x64, calculate_3GPP_CRC(sample_data_8_7_5, sizeof(sample_data_8_7_5)));
 
-    uint8_t sample_data_8_7_6[0x41] = {0x03,0x2c,0x31,0xa4,0x7b,0x57,0x79,0x80,0x9e,0xf4,0x4c,0xb5,0xea,0xaf,0x5c,0x3e,0x43,0xd5,0xf8,0xfa,0xad,0x4a,0x87,0x94,0xcb,0x98,0x7e,0x9b,0x03,0x74,0x5c,0x78,0xdd,0x91,0x95,0x12,0x18,0x38,0x98,0xdf,0xbe,0xcd,0x52,0xe2,0x40,0x8e,0x43,0x87,0x1f,0xd0,0x21,0x10,0x91,0x17,0xbd,0x3e,0xd4,0xea,0xf8,0x43,0x77,0x43,0x71,0x5d,0x4f};
+    const uint8_t sample_data_8_7_6[] =
+    {
+        0x03, 0x2c, 0x31, 0xa4, 0x7b, 0x57, 0x79, 0x80, 0x9e, 0xf4, 0x4c, 0xb5, 0xea, 0xaf, 0x5c, 0x3e,
+        0x43, 0xd5, 0xf8, 0xfa, 0xad, 0x4a, 0x87, 0x94, 0xcb, 0x98, 0x7e, 0x9b, 0x03, 0x74, 0x5c, 0x78,
+        0xdd, 0x91, 0x95, 0x12, 0x18, 0x38, 0x98, 0xdf, 0xbe, 0xcd, 0x52, 0xe2, 0x40, 0x8e, 0x43, 0x87,
+        0x1f, 0xd0, 0x21, 0x10, 0x91, 0x17, 0xbd, 0x3e, 0xd4, 0xea, 0xf8, 0x43, 0x77, 0x43, 0x71, 0x5d,
+        0x4f
+    };
     TEST_ASSERT_EQUAL(0xD1, calculate_3GPP_CRC(sample_data_8_7_6, sizeof(sample_data_8_7_6)));
 
-    uint8_t sample_data_8_7_7[0x41] = {0x03,0xf4,0x65,0xe4,0x3f,0xf2,0x3d,0x3f,0x1b,0x9d,0xc7,0xdf,0xc0,0x4d,0xa8,0x75,0x81,0x84,0xdb,0xc9,0x66,0x20,0x47,0x96,0xec,0xcf,0x0d,0x6c,0xf5,0xe1,0x65,0x00,0xcc,0x02,0x01,0xd0,0x48,0xbc,0xbb,0xd8,0x99,0xee,0xef,0xc4,0x24,0x16,0x4e,0x33,0xc2,0x01,0xc2,0xb0,0x10,0xca,0x6b,0x4d,0x43,0xa8,0xa1,0x55,0xca,0xd8,0xec,0xb2,0x79};
+    const uint8_t sample_data_8_7_7[] =
+    {
+        0x03, 0xf4, 0x65, 0xe4, 0x3f, 0xf2, 0x3d, 0x3f, 0x1b, 0x9d, 0xc7, 0xdf, 0xc0, 0x4d, 0xa8, 0x75,
+        0x81, 0x84, 0xdb, 0xc9, 0x66, 0x20, 0x47, 0x96, 0xec, 0xcf, 0x0d, 0x6c, 0xf5, 0xe1, 0x65, 0x00,
+        0xcc, 0x02, 0x01, 0xd0, 0x48, 0xbc, 0xbb, 0xd8, 0x99, 0xee, 0xef, 0xc4, 0x24, 0x16, 0x4e, 0x33,
+        0xc2, 0x01, 0xc2, 0xb0, 0x10, 0xca, 0x6b, 0x4d, 0x43, 0xa8, 0xa1, 0x55, 0xca, 0xd8, 0xec, 0xb2,
+        0x79
+    };
     TEST_ASSERT_EQUAL(0x10, calculate_3GPP_CRC(sample_data_8_7_7, sizeof(sample_data_8_7_7)));
 
-    uint8_t sample_data_8_7_8[0x11] = {0x05,0xb3,0x8a,0x11,0x4d,0xfd,0xca,0x1f,0xe1,0x53,0xbd,0x2c,0x1e,0x0d,0xc4,0x6a,0xc2};
+    const uint8_t sample_data_8_7_8[] = {0x05, 0xb3, 0x8a, 0x11, 0x4d, 0xfd, 0xca, 0x1f, 0xe1, 0x53, 0xbd, 0x2c, 0x1e, 0x0d, 0xc4, 0x6a, 0xc2};
      TEST_ASSERT_EQUAL(0xD1, calculate_3GPP_CRC(sample_data_8_7_8, sizeof(sample_data_8_7_8)));
 
-    uint8_t sample_data_8_7_9[0x11] = {0x05,0xee,0xba,0x52,0x1c,0x19,0x6b,0x52,0xcc,0x2e,0x37,0xaa,0x40,0x32,0x9f,0x55,0x4e};
+    const uint8_t sample_data_8_7_9[] = {0x05, 0xee, 0xba, 0x52, 0x1c, 0x19, 0x6b, 0x52, 0xcc, 0x2e, 0x37, 0xaa, 0x40, 0x32, 0x9f, 0x55, 0x4e};
      TEST_ASSERT_EQUAL(0xEC, calculate_3GPP_CRC(sample_data_8_7_9, sizeof(sample_data_8_7_9)));
 
-    uint8_t sample_data_8_7_10[0x11] = {0x06,0x8b,0x19,0xac,0x31,0xd5,0x8b,0x12,0x4c,0x94,0x62,0x09,0xb5,0xdb,0x10,0x21,0xb9};
+    const uint8_t sample_data_8_7_10[] = {0x06, 0x8b, 0x19, 0xac, 0x31, 0xd5, 0x8b, 0x12, 0x4c, 0x94, 0x62, 0x09, 0xb5, 0xdb, 0x10, 0x21, 0xb9};
     TEST_ASSERT_EQUAL(0xD3, calculate_3GPP_CRC(sample_data_8_7_10, sizeof(sample_data_8_7_10)));
 
-    uint8_t sample_data_8_7_11[0x11] = {0x06,0x55,0xa2,0xa2,0xbc,0xa0,0x4c,0xd3,0x2f,0xf6,0xf3,0x46,0xbd,0x0a,0x0c,0x1a,0x3a};
+    const uint8_t sample_data_8_7_11[] = {0x06, 0x55, 0xa2, 0xa2, 0xbc, 0xa0, 0x4c, 0xd3, 0x2f, 0xf6, 0xf3, 0x46, 0xbd, 0x0a, 0x0c, 0x1a, 0x3a};
     TEST_ASSERT_EQUAL(0x59, calculate_3GPP_CRC(sample_data_8_7_11, sizeof(sample_data_8_7_11)));
 
-    uint8_t sample_data_8_7_12[0x22] = {0x07,0xd0,0xbd,0x7f,0x4a,0x89,0xa2,0xff,0x62,0x22,0xaf,0x59,0xa9,0x0a,0x60,0xad,0x58,0xac,0xfe,0x31,0x23,0x35,0x6f,0x5c,0xec,0x29,0x73,0xe0,0xec,0x50,0x78,0x3b,0x10,0xc7};
+    const uint8_t sample_data_8_7_12[] =
+    {
+        0x07, 0xd0, 0xbd, 0x7f, 0x4a, 0x89, 0xa2, 0xff, 0x62, 0x22, 0xaf, 0x59, 0xa9, 0x0a, 0x60, 0xad,
+        0x58, 0xac, 0xfe, 0x31, 0x23, 0x35, 0x6f, 0x5c, 0xec, 0x29, 0x73, 0xe0, 0xec, 0x50, 0x78, 0x3b,
+        0x10, 0xc7
+    };
     TEST_ASSERT_EQUAL(0x8B, calculate_3GPP_CRC(sample_data_8_7_12, sizeof(sample_data_8_7_12)));
 
-    uint8_t sample_data_8_7_13[0x1] = {0x08};
+    const uint8_t sample_data_8_7_13[] = {0x08};
     TEST_ASSERT_EQUAL(0x3E, calculate_3GPP_CRC(sample_data_8_7_13, sizeof(sample_data_8_7_13)));
 }
 

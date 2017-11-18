@@ -60,13 +60,6 @@
             "visible": true
         },
         {
-            "name": "md",
-            "module": "trs",
-            "width":  1,
-            "doc": "more data bit",
-            "visible": true
-        },
-        {
             "name": "akf",
             "module": "trs",
             "width":  1,
@@ -76,7 +69,7 @@
         {
             "name": "aid",
             "module": "trs",
-            "width":  5,
+            "width":  6,
             "doc": "application key identifier",
             "visible": true
         },

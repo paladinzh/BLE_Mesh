@@ -36,7 +36,7 @@
  */
 
 #include <string.h>
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_dfu.h"
 #include "timeslot.h"
 #include "nrf_mesh_dfu_types.h"
@@ -215,7 +215,7 @@ static void interrupts_disable(void)
 static void build_dfu_packet(packet_t* p_packet, nrf_mesh_dfu_packet_t* p_dfu_packet, uint32_t dfu_packet_length)
 {
     ble_gap_addr_t adv_addr;
-    bearer_adv_addr_get(&adv_addr);
+    (void) bearer_adv_addr_get(&adv_addr);
     memcpy(p_packet->addr, adv_addr.addr, BLE_GAP_ADDR_LEN);
     ble_ad_data_t* p_ad = (ble_ad_data_t*) &p_packet->payload[0];
     ble_ad_data_service_data_t* p_service_data = (ble_ad_data_service_data_t*) &p_ad->data[0];
@@ -265,7 +265,7 @@ static void tx_timeout(uint32_t timestamp, void* p_context)
                         }
                         else
                         {
-                            packet_mgr_decref(p_packet);
+                            packet_mgr_free(p_packet);
                         }
                     }
                 }
@@ -299,7 +299,7 @@ static void timer_timeout(uint32_t timestamp, void* p_context)
     bl_cmd_t timeout_cmd;
     timeout_cmd.type = BL_CMD_TYPE_TIMEOUT;
     timeout_cmd.params.timeout.timer_index = 0;
-    nrf_mesh_dfu_cmd_send(&timeout_cmd);
+    (void) nrf_mesh_dfu_cmd_send(&timeout_cmd);
 }
 
 static void flash_op_complete(mesh_flash_user_t user, const flash_operation_t * p_op, uint16_t token)
@@ -326,7 +326,7 @@ static void flash_op_complete(mesh_flash_user_t user, const flash_operation_t * 
             NRF_MESH_ERROR_CHECK(NRF_ERROR_INVALID_PARAM);
     }
 
-    nrf_mesh_dfu_cmd_send(&end_cmd); /* don't care about the return code */
+    (void) nrf_mesh_dfu_cmd_send(&end_cmd); /* don't care about the return code */
 }
 
 /**

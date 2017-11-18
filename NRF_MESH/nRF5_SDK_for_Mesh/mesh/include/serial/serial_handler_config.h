@@ -35,85 +35,25 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SERIAL_HANDLER_H__
-#define SERIAL_HANDLER_H__
+#ifndef SERIAL_HANDLER_CONFIG_H__
+#define SERIAL_HANDLER_CONFIG_H__
 
-#include <stdint.h>
 #include "serial_packet.h"
-#include "nrf_mesh.h"
 
 /**
- * @defgroup MESH_SERIAL_HANDLER Serial Handler
- * @ingroup MESH_SERIAL
+ * @defgroup MESH_SERIAL_HANDLER_CONFIG Config serial handler
+ * @ingroup MESH_SERIAL_HANDLER
  * @{
  */
-
-/**
- * Initializes the serial handler module.
- */
-void serial_handler_init(void);
-
-
-/**
- * Set the callback function for application serial commands.
- *
- * @param[in] rx_cb Function pointer to a callback function that should be
- * called on each incoming application command.
- */
-void serial_handler_app_cb_set(nrf_mesh_serial_app_rx_cb_t rx_cb);
 
 /**
  * Handles an incoming serial command in the CONFIG range.
  *
  * @param[in] p_cmd A pointer to a command to handle.
- *
- * @retval NRF_SUCCESS The packet was handled successfully.
- * @retval NRF_ERROR_NULL The p_cmd parameter was NULL.
- * @retval NRF_ERROR_INVALID_ADDR The command is outside the CONFIG range.
- * @retval NRF_ERROR_FORBIDDEN The command can't be executed in the current
- * hardware configuration.
  */
 void serial_handler_config_rx(const serial_packet_t* p_cmd);
 
-/**
- * Handles an incoming serial command in the DFU range.
- *
- * @param[in] p_cmd A pointer to a command to handle.
- *
- * @retval NRF_SUCCESS The packet was handled successfully.
- * @retval NRF_ERROR_NULL The p_cmd parameter was NULL.
- * @retval NRF_ERROR_INVALID_ADDR The command is outside the DFU range.
- * @retval NRF_ERROR_FORBIDDEN The command can't be executed in the current
- * hardware configuration.
- */
-void serial_handler_dfu_rx(const serial_packet_t* p_cmd);
-
-/**
- * Handles an incoming serial command in the OPEN MESH range.
- *
- * @param[in] p_cmd A pointer to a command to handle.
- *
- * @retval NRF_SUCCESS The packet was handled successfully.
- * @retval NRF_ERROR_NULL The p_cmd parameter was NULL.
- * @retval NRF_ERROR_FORBIDDEN The command can't be executed in the current
- * hardware configuration.
- */
-void serial_handler_openmesh_rx(const serial_packet_t* p_cmd);
-
-/**
- * Handles an incoming serial command in the APPLICATION range.
- *
- * @param[in] p_cmd A pointer to a command to handle.
- *
- * @retval NRF_SUCCESS The packet was handled successfully.
- * @retval NRF_ERROR_NULL The p_cmd parameter was NULL.
- * @retval NRF_ERROR_INVALID_ADDR The command is outside the APPLICATION range.
- * @retval NRF_ERROR_FORBIDDEN The command can't be executed in the current
- * hardware configuration.
- */
-void serial_handler_app_rx(const serial_packet_t* p_cmd);
-
 /** @} */
 
-#endif /* SERIAL_HANDLER_H__ */
+#endif
 

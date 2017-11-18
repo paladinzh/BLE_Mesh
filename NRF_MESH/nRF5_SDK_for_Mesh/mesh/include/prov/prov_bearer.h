@@ -99,10 +99,8 @@ typedef uint32_t (*prov_bearer_if_link_open_t)(prov_bearer_t * p_bearer, const u
  * Function used for closing a provisioning link.
  * @param[in,out] p_bearer     Pointer to the bearer context structure.
  * @param[in]     close_reason Reason for why the link is being closed. This is included in the close PDU.
- * @return Returns @c NRF_SUCCESS on success or an error code otherwise. Any error will cause the
- *         provisioning procedure to fail.
  */
-typedef uint32_t (*prov_bearer_if_link_close_t)(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
+typedef void (*prov_bearer_if_link_close_t)(prov_bearer_t * p_bearer, nrf_mesh_prov_link_close_reason_t close_reason);
 
 /**
  * Struct used to provide an interface to provisioning bearers.

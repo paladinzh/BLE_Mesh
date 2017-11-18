@@ -74,7 +74,7 @@ nrf_mesh_address_type_t nrf_mesh_address_type_get(uint16_t address)
     }
 }
 
-uint8_t nrf_mesh_gap_address_type_get(uint8_t * p_addr, uint8_t txadd_bit)
+uint8_t nrf_mesh_gap_address_type_get(const uint8_t * p_addr, uint8_t txadd_bit)
 {
     uint8_t ble_gap_addr_type;
     if (txadd_bit)

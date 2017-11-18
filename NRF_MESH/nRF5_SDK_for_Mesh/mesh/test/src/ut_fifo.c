@@ -36,20 +36,14 @@
  */
 
 
-/** Override enable/disable IRQ macros */
-#define TOOLCHAIN_H__
 #include <stdint.h>
 #include <string.h>
 
 #include <unity.h>
 
-uint32_t m_was_masked;
-void (*irq_enable_cb)(void);
-
 #include "fifo.h"
 #include "nrf_error.h"
 
-fifo_t* mp_fifo;
 
 typedef struct
 {
@@ -58,42 +52,12 @@ typedef struct
     uint8_t param3;
 } test_struct_t;
 
-test_struct_t m_race_struct;
-
 void setUp(void)
 {
-    m_was_masked = 0;
-    mp_fifo = NULL;
-    irq_enable_cb = NULL;
-    m_race_struct.param1 = 11;
-    m_race_struct.param2 = 12;
-    m_race_struct.param3 = 13;
 }
 
 void tearDown(void)
 {
-
-}
-
-void race_condition_write(void)
-{
-    irq_enable_cb = NULL; /* only trigger once per call */
-    if (mp_fifo == NULL)
-    {
-        TEST_FAIL_MESSAGE("REWRITE THE TEST: Didn't set mp_fifo\n");
-    }
-
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_push(mp_fifo, &m_race_struct));
-}
-
-void race_condition_read(void)
-{
-    irq_enable_cb = NULL; /* only trigger once per call */
-    if (mp_fifo == NULL)
-    {
-        TEST_FAIL_MESSAGE("REWRITE THE TEST: Didn't set mp_fifo\n");
-    }
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_pop(mp_fifo, &m_race_struct));
 }
 
 /*************** tests ***************/
@@ -106,7 +70,7 @@ void test_normal_usage(void)
     fifo.elem_size = sizeof(test_struct_t);
     fifo.array_len = 16;
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_init(&fifo));
+    fifo_init(&fifo);
     TEST_ASSERT_EQUAL(0, fifo.head);
     TEST_ASSERT_EQUAL(0, fifo.tail);
     TEST_ASSERT_EQUAL(16, fifo.array_len);
@@ -162,7 +126,7 @@ void test_memcpy(void)
     fifo.elem_size = sizeof(test_struct_t);
     fifo.array_len = 16;
 
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_init(&fifo));
+    fifo_init(&fifo);
     TEST_ASSERT_EQUAL(0, fifo.head);
     TEST_ASSERT_EQUAL(0, fifo.tail);
     TEST_ASSERT_EQUAL(16, fifo.array_len);
@@ -216,24 +180,11 @@ void test_failures(void)
     test_struct_t buf[16];
     fifo.elem_array = buf;
     fifo.elem_size = sizeof(test_struct_t);
-    fifo.array_len = 17; /* NOT POWER OF TWO, INVALID */
+    fifo.array_len = 16;
     test_struct_t test_elem = {1, 2, 3};
 
-    /* test init function */
-    TEST_ASSERT_EQUAL(NRF_ERROR_NULL, fifo_init(NULL));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, fifo_init(&fifo));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, fifo_push(&fifo, &test_elem));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, fifo_pop(&fifo, &test_elem));
-    fifo.array_len = 16;
-    fifo.elem_array = NULL;
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, fifo_init(&fifo));
-    fifo.elem_array = buf;
-    fifo.elem_size = 0;
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_PARAM, fifo_init(&fifo));
-
     /* test access functions */
-    fifo.elem_size = sizeof(test_struct_t);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_init(&fifo));
+    fifo_init(&fifo);
     TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_push(&fifo, &test_elem));
     TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_pop(&fifo, &test_elem));
     TEST_ASSERT_EQUAL(NRF_ERROR_NULL, fifo_push(NULL, &test_elem));

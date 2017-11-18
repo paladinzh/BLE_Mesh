@@ -47,15 +47,22 @@
 
 void setUp(void)
 {
-    CMOCK_SETUP(packet_mgr);
-    CMOCK_SETUP(bearer_adv);
-    CMOCK_SETUP(net_beacon);
-    CMOCK_SETUP(prov_beacon);
+    packet_mgr_mock_Init();
+    bearer_adv_mock_Init();
+    net_beacon_mock_Init();
+    prov_beacon_mock_Init();
 }
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    packet_mgr_mock_Verify();
+    packet_mgr_mock_Destroy();
+    bearer_adv_mock_Verify();
+    bearer_adv_mock_Destroy();
+    net_beacon_mock_Verify();
+    net_beacon_mock_Destroy();
+    prov_beacon_mock_Verify();
+    prov_beacon_mock_Destroy();
 }
 
 /*****************************************************************************
@@ -89,9 +96,9 @@ void test_beacon_create()
 void test_beacon_pkt_in()
 {
     uint8_t beacon_data[] = {0x06, AD_TYPE_BEACON, BEACON_TYPE_UNPROV, 0x01, 0x02, 0x03, 0x04};
-    packet_meta_t meta; // don't really care about contents
+    packet_meta_t meta = {}; // don't really care about contents
     prov_beacon_unprov_pkt_in_Expect(&beacon_data[3], 4, &meta);
-    beacon_pkt_in((ble_ad_data_t*) beacon_data, &meta);
+    TEST_ASSERT_EQUAL_HEX32(NRF_SUCCESS, beacon_pkt_in((ble_ad_data_t*) beacon_data, &meta));
 
     beacon_data[2] = BEACON_TYPE_SEC_NET_BCAST;
     net_beacon_pkt_in_Expect(&beacon_data[3], 4, &meta);

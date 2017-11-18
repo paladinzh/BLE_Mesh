@@ -86,7 +86,7 @@
  * @warning Be very careful when modifying the timeout values. Too low values
  * _will_ clog the bearer TX queue and potentially halt the system.
  */
-typedef struct __attribute((packed))
+typedef struct
 {
     timestamp_t rx_timeout;                          /**< Timeout for receiving a SAR message. */
     timestamp_t rx_ack_timeout;                      /**< RX acknowledgement timer timeout value. */
@@ -210,7 +210,7 @@ void transport_sar_mem_funcs_reset(void);
  * @retval NRF_SUCCESS            The packet was successfully decrypted and sent up the stack.
  */
 uint32_t transport_pkt_in(packet_net_t * p_net_packet,
-                          packet_meta_t * p_packet_meta,
+                          const packet_meta_t * p_packet_meta,
                           const nrf_mesh_network_secmat_t * const p_net_secmat,
                           uint32_t iv_index);
 
@@ -231,7 +231,7 @@ uint32_t transport_sar_process(void);
  * @retval NRF_ERROR_NOT_FOUND Not able to decrypt packet.
  * @retval NRF_ERROR_NO_MEM    Not able to allocate memory for decryption buffer.
  */
-uint32_t trs_sar_pkt_decrypt(trs_sar_ctx_t * p_sar_ctx);
+uint32_t trs_sar_pkt_decrypt(const trs_sar_ctx_t * p_sar_ctx);
 
 /**
  * Convert a transport address context structure to a 16-bit short address.

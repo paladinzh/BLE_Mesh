@@ -35,71 +35,30 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NRF_MESH_HW_MOCK_H
-#define NRF_MESH_HW_MOCK_H
+#include "nrf_mesh_serial.h"
 
-#undef NRF_POWER
-#undef NRF_CLOCK
-#undef NRF_MPU
-#undef NRF_RADIO
-#undef NRF_UART0
-#undef NRF_SPI0
-#undef NRF_TWI0
-#undef NRF_SPI1
-#undef NRF_TWI1
-#undef NRF_SPIS1
-#undef NRF_GPIOTE
-#undef NRF_ADC
-#undef NRF_TIMER0
-#undef NRF_TIMER1
-#undef NRF_TIMER2
-#undef NRF_RTC0
-#undef NRF_TEMP
-#undef NRF_RNG
-#undef NRF_ECB
-#undef NRF_AAR
-#undef NRF_CCM
-#undef NRF_WDT
-#undef NRF_RTC1
-#undef NRF_QDEC
-#undef NRF_LPCOMP
-#undef NRF_SWI
-#undef NRF_NVMC
-#undef NRF_PPI
-#undef NRF_FICR
-#undef NRF_UICR
-#undef NRF_GPIO
+#include "serial.h"
+#include "serial_handler_app.h"
+#include "serial_status.h"
 
-extern NRF_POWER_Type *  NRF_POWER;
-extern NRF_CLOCK_Type *  NRF_CLOCK;
-extern NRF_MPU_Type *    NRF_MPU;
-extern NRF_RADIO_Type *  NRF_RADIO;
-extern NRF_UART_Type *   NRF_UART0;
-extern NRF_SPI_Type *    NRF_SPI0;
-extern NRF_TWI_Type *    NRF_TWI0;
-extern NRF_SPI_Type *    NRF_SPI1;
-extern NRF_TWI_Type *    NRF_TWI1;
-extern NRF_SPIS_Type *   NRF_SPIS1;
-extern NRF_GPIOTE_Type * NRF_GPIOTE;
-extern NRF_ADC_Type *    NRF_ADC;
-extern NRF_TIMER_Type *  NRF_TIMER0;
-extern NRF_TIMER_Type *  NRF_TIMER1;
-extern NRF_TIMER_Type *  NRF_TIMER2;
-extern NRF_RTC_Type *    NRF_RTC0;
-extern NRF_TEMP_Type *   NRF_TEMP;
-extern NRF_RNG_Type *    NRF_RNG;
-extern NRF_ECB_Type *    NRF_ECB;
-extern NRF_AAR_Type *    NRF_AAR;
-extern NRF_CCM_Type *    NRF_CCM;
-extern NRF_WDT_Type *    NRF_WDT;
-extern NRF_RTC_Type *    NRF_RTC1;
-extern NRF_QDEC_Type *   NRF_QDEC;
-extern NRF_LPCOMP_Type * NRF_LPCOMP;
-extern NRF_SWI_Type *    NRF_SWI;
-extern NRF_NVMC_Type *   NRF_NVMC;
-extern NRF_PPI_Type *    NRF_PPI;
-extern NRF_FICR_Type *   NRF_FICR;
-extern NRF_UICR_Type *   NRF_UICR;
-extern NRF_GPIO_Type *   NRF_GPIO;
+static nrf_mesh_serial_app_rx_cb_t m_app_rx_cb;
 
-#endif /* NRF_MESH_HW_MOCK_H */
+void serial_handler_app_cb_set(nrf_mesh_serial_app_rx_cb_t rx_cb)
+{
+    m_app_rx_cb = rx_cb;
+}
+
+void serial_handler_app_rx(const serial_packet_t* p_cmd)
+{
+    if (m_app_rx_cb)
+    {
+        m_app_rx_cb(p_cmd->payload.cmd.application.data,
+                    p_cmd->length - SERIAL_PACKET_LENGTH_OVERHEAD);
+        serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_SUCCESS, NULL, 0);
+    }
+    else
+    {
+        serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
+    }
+}
+

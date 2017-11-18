@@ -53,18 +53,13 @@ function(add_pc_lint target)
     get_property(lint_target_defines TARGET ${target} PROPERTY COMPILE_DEFINITIONS)
     get_directory_property(lint_defines COMPILE_DEFINITIONS)
 
-    # Set root direcitory for relative paths in lint command
-    # relative paths needed because windows commands can not exceed 8196 characters.
-    #set(MY_ROOT ${PROJECT_BINARY_DIR})
-    #message(MY_ROOT = ${MY_ROOT})
-    # let's get those elephants across the alps
-    # prepend each include directory with "-i"; also quotes the directory
+    # Convert all include dirs to use relative path in order to stay below maximum allowed
+    # limit of 8196 characters for windows commands.
     set(lint_include_directories_transformed)
     foreach(include_dir ${lint_include_directories})
-        list(APPEND lint_include_directories_transformed -i"${include_dir}")
-        #file(RELATIVE_PATH include_dir_rel ${MY_ROOT} ${include_dir})
+        file(RELATIVE_PATH include_dir_rel ${PROJECT_BINARY_DIR} ${include_dir})
+        list(APPEND lint_include_directories_transformed -i"${include_dir_rel}")
         #message(lint include_dir_rel = ${include_dir_rel})
-        #list(APPEND lint_include_directories_transformed -i"${include_dir_rel}")
     endforeach(include_dir)
 
     # prepend each definition with "-d"
@@ -73,16 +68,25 @@ function(add_pc_lint target)
         list(APPEND lint_defines_transformed -d"${definition}")
     endforeach(definition)
 
-
     foreach(definition ${lint_target_defines})
         list(APPEND lint_defines_transformed -d${definition})
     endforeach()
 
+    # If building for host, add -dHOST=1, otherwise add -dHOST=0:
+    if(BUILD_HOST)
+        list(APPEND lint_defines_transformed -dHOST=1)
+    else()
+        list(APPEND lint_defines_transformed -dHOST=0)
+    endif()
+
+    # Set target platform define:
+    if(TARGET_PLATFORM MATCHES "51")
+        list(APPEND lint_defines_transformed -dNRF51)
+    elseif(TARGET_PLATFORM MATCHES "52")
+        list(APPEND lint_defines_transformed -dNRF52)
+    endif()
 
     # list of all commands, one for each given source file
-    set(target_platform)
-    set(pc_lint_commands)
-    set(sourcefiles_complete)
     set(pc_lint_properties_file -i"${CMAKE_SOURCE_DIR}/CMake" mesh.lnt)
 
     foreach(argument ${ARGN})
@@ -90,13 +94,16 @@ function(add_pc_lint target)
         if( argument MATCHES \\.c$|\\.cxx$|\\.cpp$ )
             # Make filename absolute
             get_filename_component(sourcefile_abs ${argument} ABSOLUTE)
-            # Append user flags per file.
-            list(APPEND sourcefiles_complete ${sourcefile_abs} ${PC_LINT_USER_FLAGS})
-            # Include source folders as well
+            # Include source folders as well, if it has not been included yet
             get_filename_component(sourcefile_dir ${argument} DIRECTORY)
-            list(APPEND lint_include_directories_transformed -i"${sourcefile_dir}")
+            list(FIND lint_include_directories_transformed ${sourcefile_dir} dir_index)
+            if(${dir_index} GREATER -1)
+                list(APPEND lint_include_directories_transformed -i"${sourcefile_dir}")
+            endif()
 
-            #file(RELATIVE_PATH sourcefile_rel ${MY_ROOT} ${sourcefile_abs})
+            # Use relative path for all src files to stay below windows command line limit
+            file(RELATIVE_PATH sourcefile_rel ${PROJECT_BINARY_DIR} ${sourcefile_abs})
+            list(APPEND sourcefiles_rel ${sourcefile_rel} ${PC_LINT_USER_FLAGS})
             #message(lint sourcefile_rel = ${sourcefile_rel})
         endif()
     endforeach(argument)
@@ -108,7 +115,9 @@ function(add_pc_lint target)
         "-u" ${PC_LINT_USER_FLAGS}
         ${lint_include_directories_transformed}
         ${lint_defines_transformed}
-        ${sourcefiles_complete} VERBATIM
+        ${sourcefiles_rel}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        COMMENT "Running lint for target ${target}"
         )
 
     # make the lint target depend on each and every *_LINT target

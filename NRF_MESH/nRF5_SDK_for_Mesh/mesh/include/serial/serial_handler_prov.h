@@ -60,7 +60,6 @@ uint32_t serial_handler_prov_init(void);
 /**
  * Callback function for when a serial packet has been received.
  * @param p_packet Pointer to the incoming serial packet.
- * @retval NRF_SUCCESS packet handled.
  */
 void serial_handler_prov_pkt_in(const serial_packet_t * p_packet);
 

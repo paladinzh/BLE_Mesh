@@ -64,7 +64,7 @@ NRF_MESH_STATIC_ASSERT(ACCESS_PUBLISH_RESOLUTION_MAX <= UINT8_MAX);
 static void model_pub_addr_set(const serial_packet_t * p_cmd)
 {
     uint32_t status = access_model_publish_address_set(p_cmd->payload.cmd.access.handle_pair.model_handle, p_cmd->payload.cmd.access.handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_pub_addr_get(const serial_packet_t * p_cmd)
@@ -78,7 +78,7 @@ static void model_pub_addr_get(const serial_packet_t * p_cmd)
 static void model_pub_period_set(const serial_packet_t * p_cmd)
 {
     uint32_t status = access_model_publish_period_set(p_cmd->payload.cmd.access.publish_period.model_handle, (access_publish_resolution_t) p_cmd->payload.cmd.access.publish_period.resolution, p_cmd->payload.cmd.access.publish_period.step_number);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_pub_period_get(const serial_packet_t * p_cmd)
@@ -92,14 +92,14 @@ static void model_subs_add(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_subscription_add(p_access_msg->handle_pair.model_handle, p_access_msg->handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_subs_remove(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_subscription_remove(p_access_msg->handle_pair.model_handle, p_access_msg->handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_subs_get(const serial_packet_t * p_cmd)
@@ -110,11 +110,11 @@ static void model_subs_get(const serial_packet_t * p_cmd)
     uint32_t status = access_model_subscriptions_get(p_cmd->payload.cmd.access.model_handle.handle, (dsm_handle_t *) response.address_handles, (uint16_t *) &response.count);
     if (NRF_SUCCESS == status || status == NRF_ERROR_INVALID_LENGTH)
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
     }
     else
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
     }
 }
 
@@ -122,14 +122,14 @@ static void model_app_bind(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_application_bind(p_access_msg->handle_pair.model_handle, p_access_msg->handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_app_unbind(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_application_unbind(p_access_msg->handle_pair.model_handle, p_access_msg->handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_app_get(const serial_packet_t * p_cmd)
@@ -140,11 +140,11 @@ static void model_app_get(const serial_packet_t * p_cmd)
     uint32_t status = access_model_applications_get(p_cmd->payload.cmd.access.model_handle.handle, (dsm_handle_t *) response.appkey_handles, (uint16_t *) &response.count);
     if (NRF_SUCCESS == status || status == NRF_ERROR_INVALID_LENGTH)
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
     }
     else
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
     }
 }
 
@@ -152,7 +152,7 @@ static void model_pub_app_set(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_publish_application_set(p_access_msg->handle_pair.model_handle, p_access_msg->handle_pair.dsm_handle);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_pub_app_get(const serial_packet_t * p_cmd)
@@ -167,7 +167,7 @@ static void model_pub_ttl_set(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_model_publish_ttl_set(p_access_msg->model_ttl.model_handle, p_access_msg->model_ttl.ttl);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void model_pub_ttl_get(const serial_packet_t * p_cmd)
@@ -181,7 +181,7 @@ static void elem_loc_set(const serial_packet_t * p_cmd)
 {
     const serial_cmd_access_t * p_access_msg = &p_cmd->payload.cmd.access;
     uint32_t status = access_element_location_set(p_access_msg->elem_loc.element_index, p_access_msg->elem_loc.location);
-    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+    (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
 }
 
 static void elem_loc_get(const serial_packet_t * p_cmd)
@@ -231,11 +231,11 @@ static void elem_models_get(const serial_packet_t * p_cmd)
     uint32_t status = access_element_models_get(p_cmd->payload.cmd.access.index.element_index, (access_model_handle_t *) response.model_handles, (uint16_t *) &response.count);
     if (NRF_SUCCESS == status || status == NRF_ERROR_INVALID_LENGTH)
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), (uint8_t *) &response, sizeof(response));
     }
     else
     {
-        serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
+        (void) serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
     }
 }
 

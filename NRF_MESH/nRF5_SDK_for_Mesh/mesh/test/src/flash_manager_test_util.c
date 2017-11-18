@@ -113,7 +113,7 @@ void flash_manager_test_util_setup(void)
     g_flash_token                      = 0;
     g_callback_token                   = 0;
     g_completes                        = 0;
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, fifo_init(&g_flash_operation_queue));
+    fifo_init(&g_flash_operation_queue);
     gp_active_manager = NULL;
     gp_expected_entry = NULL;
     g_flash_malfunctions = false;
@@ -179,6 +179,7 @@ void print_page(const flash_manager_page_t * p_page)
     printf(COLOR_NORMAL);
 }
 
+/*lint -save -e429 Custodial pointer has not been freed or returned - handled correctly by function. */
 void build_test_page(flash_manager_page_t * p_area,
                      uint32_t               pages,
                      test_entry_t *         p_entries,
@@ -206,6 +207,7 @@ void build_test_page(flash_manager_page_t * p_area,
         p_entry->header.handle = HANDLE_SEAL;
     }
 }
+/*lint -restore */
 
 void test_page_add_entry(flash_manager_page_t * p_area, test_entry_t * p_entry, bool put_seal)
 {

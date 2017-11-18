@@ -60,16 +60,9 @@
             "visible": true
         },
         {
-            "name": "md",
-            "module": "trs",
-            "width":  1,
-            "doc": "more data bit",
-            "visible": true
-        },
-        {
             "name": "opcode",
             "module": "trs",
-            "width":  6,
+            "width":  7,
             "doc": "transport control opcode",
             "visible": true
         },

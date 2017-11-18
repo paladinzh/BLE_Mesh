@@ -57,12 +57,11 @@ void nrf_mesh_assertion_handler(uint32_t pc)
     TEST_FAIL_MESSAGE("Mesh assertion triggered");
 }
 
-/** Simple integer power function. Converting between integers and floats can cause rounding
- * errors. */
-static uint32_t pow__(uint32_t num, uint8_t pow)
+/* Simple integer power function. Converting between integers and floats can cause rounding errors. */
+static uint32_t pow__(uint32_t num, uint8_t p)
 {
     uint32_t ret = 1;
-    for (uint8_t i = 0; i < pow; ++i)
+    for (uint8_t i = 0; i < p; ++i)
     {
         ret *= num;
     }
@@ -72,14 +71,19 @@ static uint32_t pow__(uint32_t num, uint8_t pow)
 void setUp(void)
 {
     m_assertion_handler = nrf_mesh_assertion_handler;
-    CMOCK_SETUP(enc);
-    CMOCK_SETUP(uECC);
-    CMOCK_SETUP(rand);
+    enc_mock_Init();
+    uECC_mock_Init();
+    rand_mock_Init();
 }
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    enc_mock_Verify();
+    enc_mock_Destroy();
+    uECC_mock_Verify();
+    uECC_mock_Destroy();
+    rand_mock_Verify();
+    rand_mock_Destroy();
 }
 
 /*****************************************************************************
@@ -90,7 +94,7 @@ void test_authentication_values_derive(void)
 {
     uint8_t confirmation_value[16];
     memset(confirmation_value, 0xCB, 16);
-    uint8_t local_pubkey[NRF_MESH_ECDH_PUBLIC_KEY_SIZE];
+    uint8_t local_pubkey[NRF_MESH_ECDH_PUBLIC_KEY_SIZE] = {};
     m_ctx.p_public_key = local_pubkey;
     uint8_t conf_input[145];
     memset(m_ctx.confirmation_inputs, 0xAB, 17);
@@ -326,8 +330,8 @@ void test_derive_keys(void)
 
 void test_calculate_shared_secret(void)
 {
-    uint8_t privkey[NRF_MESH_ECDH_PRIVATE_KEY_SIZE];
-    uint8_t shared_secret[NRF_MESH_KEY_SIZE];
+    uint8_t privkey[NRF_MESH_ECDH_PRIVATE_KEY_SIZE] = {};
+    uint8_t shared_secret[NRF_MESH_KEY_SIZE] = {};
     m_ctx.p_private_key  = privkey;
     uECC_secp256r1_ExpectAndReturn(NULL);
     uECC_valid_public_key_ExpectAndReturn(m_ctx.peer_public_key, NULL, 0);
@@ -373,7 +377,7 @@ void test_generate_oob_data(void)
         };
         for (uint32_t i = 0; i < sizeof(count_pairs) / sizeof(count_pairs[0]); i++)
         {
-            m_ctx.oob_method = count_pairs[i].method;
+            m_ctx.oob_method = (nrf_mesh_prov_oob_method_t) count_pairs[i].method;
             m_ctx.oob_action = count_pairs[i].action;
 
             uint8_t rand_output[] = {92, 11, 1, 0, 255, 128};
@@ -396,7 +400,7 @@ void test_generate_oob_data(void)
         };
         for (uint32_t i = 0; i < sizeof(numeric_pairs) / sizeof(numeric_pairs[0]); i++)
         {
-            m_ctx.oob_method = numeric_pairs[i].method;
+            m_ctx.oob_method = (nrf_mesh_prov_oob_method_t) numeric_pairs[i].method;
             m_ctx.oob_action = numeric_pairs[i].action;
 
             uint32_t rand_output[] = {1000, 100, 99, 999, 10000000, 3, 7, 432483922, 0xFFFFFFFF, 11, 1, 0, 255, 128};
@@ -406,7 +410,7 @@ void test_generate_oob_data(void)
                 rand_hw_rng_get_IgnoreArg_p_result();
                 rand_hw_rng_get_ReturnMemThruPtr_p_result((uint8_t *) &rand_output[j], 4);
                 prov_utils_generate_oob_data(&m_ctx, auth_value);
-                uint32_t value = LE2BE32(rand_output[j] % (pow__(10, m_ctx.oob_size)));
+                uint32_t value = LE2BE32(rand_output[j] % (pow__(10, m_ctx.oob_size))); /*lint !e666 Function with side effects passed to macro */
                 memcpy(&expected_auth_value[PROV_AUTH_LEN - 4], &value, 4);
                 char outputstring[8];
                 sprintf(outputstring, "%d", LE2BE32(value));
@@ -423,7 +427,7 @@ void test_generate_oob_data(void)
         };
         for (uint32_t i = 0; i < sizeof(alphanumeric_pairs) / sizeof(alphanumeric_pairs[0]); i++)
         {
-            m_ctx.oob_method = alphanumeric_pairs[i].method;
+            m_ctx.oob_method = (nrf_mesh_prov_oob_method_t) alphanumeric_pairs[i].method;
             m_ctx.oob_action = alphanumeric_pairs[i].action;
 
             uint8_t rand_output[][8] = {
@@ -438,7 +442,7 @@ void test_generate_oob_data(void)
                 memset(expected_auth_value, 0, PROV_AUTH_LEN);
                 rand_hw_rng_get_Expect(NULL, m_ctx.oob_size);
                 rand_hw_rng_get_IgnoreArg_p_result();
-                rand_hw_rng_get_ReturnMemThruPtr_p_result((uint8_t *) &rand_output[j], m_ctx.oob_size);
+                rand_hw_rng_get_ReturnMemThruPtr_p_result(rand_output[j], m_ctx.oob_size);
                 prov_utils_generate_oob_data(&m_ctx, auth_value);
                 static const char alphanumeric[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 for (uint32_t k = 0; k < m_ctx.oob_size; k++)
@@ -460,7 +464,7 @@ void test_generate_oob_data(void)
         memset(expected_auth_value, 0, PROV_AUTH_LEN);
         for (uint32_t i = 0; i < sizeof(invalid_pairs) / sizeof(invalid_pairs[0]); i++)
         {
-            m_ctx.oob_method = invalid_pairs[i].method;
+            m_ctx.oob_method = (nrf_mesh_prov_oob_method_t) invalid_pairs[i].method;
             m_ctx.oob_action = invalid_pairs[i].action;
             prov_utils_generate_oob_data(&m_ctx, auth_value);
             TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_auth_value, auth_value, PROV_AUTH_LEN);

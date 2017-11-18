@@ -55,6 +55,7 @@ void tearDown(void)
 *****************************************************************************/
 void test_init(void)
 {
+    /*lint -save -e550 Local symbol not accessed (variable bitfield is only used with sizeof()) */
 #define TEST_SIZE(BITS, EXPECTED_SIZE) do {                 \
         uint32_t bitfield[BITFIELD_BLOCK_COUNT(BITS)];      \
         TEST_ASSERT_EQUAL(EXPECTED_SIZE, sizeof(bitfield)); \
@@ -67,6 +68,7 @@ void test_init(void)
     TEST_SIZE(64, 8);
     TEST_SIZE(65, 12);
 #undef TEST_SIZE
+    /*lint -restore */
 }
 
 void test_set_get(void)

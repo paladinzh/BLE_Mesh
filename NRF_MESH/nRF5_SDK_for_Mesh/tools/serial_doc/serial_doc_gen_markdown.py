@@ -33,13 +33,13 @@ import re
 import os
 
 CMD_INTRO = """
-# Serial Commands
+# Serial commands
 
-# Serial Command Overview {#serial-commands}
+# Serial command overview {#serial-commands}
 @ingroup LIBRARIES
-Serial commands are messages sent from the host controller to the nRF5x. Most
+Serial commands are messages sent from the host controller to the nRF5. Most
 serial commands result in a _CMD RSP_ event, indicating whether the command was
-successful, and returning any relevant data depending on the command type.
+successful and returning any relevant data depending on the command type.
 
 The serial commands are broken into groups:
 
@@ -48,9 +48,9 @@ The serial commands are broken into groups:
 CMD_OVERVIEW = """
 
 See the tables below for a list of serial commands available for each command
-group in the nRF5x Mesh serial interface, and their opcodes. Each entry links
+group in the nRF5 mesh serial interface and their opcodes. Each entry links
 to their respective "Details" section, where the parameters and effect of each
-command will be described.
+command are described.
 
 """
 
@@ -61,20 +61,20 @@ CMD_DETAILS = """
 """
 
 EVT_INTRO = """
-# Serial Events
+# Serial events
 """
 
 
 EVT_OVERVIEW = """
 # Serial Event Overview {#serial-events}
 
-Serial Events are messages sent from the nRF5x to the host controller. Messages
-are either sent asynchronously as a result of some interaction in the mesh, or
+Serial Events are messages sent from the nRF5 to the host controller. Messages
+are either sent asynchronously as a result of some interaction in the mesh or
 as a response to a command.
 
-See the table below for an overiew over the various events pushed by the nRF5x
+See the table below for an overview over the various events pushed by the nRF5
 to the host. Each entry links to their respective "Details" section, where the
-parameters and reason for each event will be described.
+parameters and reason for each event are described.
 
 """
 

@@ -9,4 +9,5 @@
     :mock_suffix: "_mock"
     :mock_path: "./mocks"
     :verbosity: 0
+    :treat_externs: :include
 colour: true

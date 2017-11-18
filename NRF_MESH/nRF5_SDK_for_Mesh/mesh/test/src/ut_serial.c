@@ -45,18 +45,21 @@
 
 #include "nrf_error.h"
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_mesh_serial.h"
 
 
 #include "bearer_event_mock.h"
 #include "serial_bearer_mock.h"
-#include "serial_handler_mock.h"
 #include "serial_handler_access_mock.h"
+#include "serial_handler_app_mock.h"
+#include "serial_handler_config_mock.h"
+#include "serial_handler_dfu_mock.h"
 #include "serial_handler_models_mock.h"
 #include "serial_handler_device_mock.h"
 #include "serial_handler_mesh_mock.h"
 #include "serial_handler_prov_mock.h"
+#include "serial_handler_openmesh_mock.h"
 
 NRF_POWER_Type  * NRF_POWER;
 static NRF_POWER_Type m_power;
@@ -73,25 +76,53 @@ static uint32_t m_bearer_event_generic_post(bearer_event_callback_t callback, vo
 void setUp(void)
 {
     NRF_POWER = &m_power;
-    CMOCK_SETUP(serial_bearer);
-    CMOCK_SETUP(bearer_event);
-    CMOCK_SETUP(serial_handler);
-    CMOCK_SETUP(serial_handler_access);
-    CMOCK_SETUP(serial_handler_models);
-    CMOCK_SETUP(serial_handler_device);
-    CMOCK_SETUP(serial_handler_mesh);
-    CMOCK_SETUP(serial_handler_prov);
+    serial_bearer_mock_Init();
+    bearer_event_mock_Init();
+    serial_handler_access_mock_Init();
+    serial_handler_app_mock_Init();
+    serial_handler_config_mock_Init();
+    serial_handler_dfu_mock_Init();
+    serial_handler_models_mock_Init();
+    serial_handler_device_mock_Init();
+    serial_handler_mesh_mock_Init();
+    serial_handler_prov_mock_Init();
+    serial_handler_openmesh_mock_Init();
+
     bearer_event_generic_post_StubWithCallback(m_bearer_event_generic_post);
 }
 
 void tearDown(void)
 {
     serial_bearer_mock_Verify();
-    serial_handler_mock_Verify();
+    serial_handler_app_mock_Verify();
+    serial_handler_dfu_mock_Verify();
+    serial_handler_config_mock_Verify();
+    serial_handler_openmesh_mock_Verify();
     serial_handler_device_mock_Verify();
     serial_handler_mesh_mock_Verify();
     serial_handler_prov_mock_Verify();
-    CMOCK_TEARDOWN();
+    serial_bearer_mock_Verify();
+    serial_bearer_mock_Destroy();
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
+    serial_handler_access_mock_Verify();
+    serial_handler_access_mock_Destroy();
+    serial_handler_app_mock_Verify();
+    serial_handler_app_mock_Destroy();
+    serial_handler_config_mock_Verify();
+    serial_handler_config_mock_Destroy();
+    serial_handler_dfu_mock_Verify();
+    serial_handler_dfu_mock_Destroy();
+    serial_handler_models_mock_Verify();
+    serial_handler_models_mock_Destroy();
+    serial_handler_device_mock_Verify();
+    serial_handler_device_mock_Destroy();
+    serial_handler_mesh_mock_Verify();
+    serial_handler_mesh_mock_Destroy();
+    serial_handler_prov_mock_Verify();
+    serial_handler_prov_mock_Destroy();
+    serial_handler_openmesh_mock_Verify();
+    serial_handler_openmesh_mock_Destroy();
 }
 
 void test_serial_invalid(void)
@@ -111,13 +142,9 @@ void test_serial_invalid(void)
     TEST_ASSERT_EQUAL(NRF_MESH_SERIAL_STATE_INITIALIZED, serial_state_get());
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, serial_init());
 
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, serial_cmd_rsp_send(0,0,NULL,1));
+    TEST_NRF_MESH_ASSERT_EXPECT(serial_cmd_rsp_send(0,0,NULL,1));
     uint8_t blah = 0;
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_LENGTH, serial_cmd_rsp_send(0,0,&blah,0));
-    /* Can't send without starting the serial first */
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, serial_cmd_rsp_send(0,0,NULL,0));
-    /* Can't send without starting the serial first */
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, serial_cmd_rsp_send(0,0,&blah,1));
+    TEST_NRF_MESH_ASSERT_EXPECT(serial_cmd_rsp_send(0,0,&blah,0));
 
     serial_bearer_blocking_buffer_get_ExpectAndReturn(sizeof(serial_evt_device_started_t) + NRF_MESH_SERIAL_PACKET_OVERHEAD, NULL, NRF_ERROR_INVALID_LENGTH);
     serial_bearer_blocking_buffer_get_IgnoreArg_pp_packet();
@@ -128,7 +155,7 @@ void test_serial_invalid(void)
     serial_packet_t * p_packet = &serial_packet;
     /* packet buffer get and serial tx would fail without starting the serial */
     TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, serial_packet_buffer_get(1, &p_packet));
-    TEST_ASSERT_EQUAL(NRF_ERROR_INVALID_STATE, serial_tx(p_packet));
+    TEST_NRF_MESH_ASSERT_EXPECT(serial_tx(p_packet));
 
     serial_bearer_blocking_buffer_get_ExpectAndReturn(sizeof(serial_evt_device_started_t) + NRF_MESH_SERIAL_PACKET_OVERHEAD, &p_packet, NRF_SUCCESS);
     serial_bearer_blocking_buffer_get_IgnoreArg_pp_packet();
@@ -150,14 +177,14 @@ void test_serial_tx(void)
     TEST_ASSERT_EQUAL(NRF_SUCCESS, serial_packet_buffer_get(0xFFF, &p_serial_packet));
     TEST_ASSERT_EQUAL_PTR(p_packet, p_serial_packet);
     serial_bearer_tx_Expect(p_packet);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, serial_tx(p_serial_packet));
+    serial_tx(p_serial_packet);
 
     uint8_t blah = 0xFA;
     serial_bearer_blocking_buffer_get_ExpectAndReturn(1+SERIAL_EVT_CMD_RSP_LEN_OVERHEAD, &p_packet, NRF_SUCCESS);
     serial_bearer_blocking_buffer_get_IgnoreArg_pp_packet();
     serial_bearer_blocking_buffer_get_ReturnThruPtr_pp_packet(&p_packet);
     serial_bearer_tx_Expect(p_packet);
-    TEST_ASSERT_EQUAL(NRF_SUCCESS, serial_cmd_rsp_send(0xF,0x10,&blah,1));
+    serial_cmd_rsp_send(0xF,0x10,&blah,1);
     TEST_ASSERT_EQUAL(SERIAL_OPCODE_EVT_CMD_RSP, p_packet->opcode);
     TEST_ASSERT_EQUAL(0xF, p_packet->payload.evt.cmd_rsp.opcode);
     TEST_ASSERT_EQUAL(0x10, p_packet->payload.evt.cmd_rsp.status);

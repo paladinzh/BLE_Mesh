@@ -153,7 +153,7 @@ static void provisionee_setup(void)
 
 static void mesh_evt_handler(nrf_mesh_evt_t * p_evt)
 {
-    switch(p_evt->type)
+    switch (p_evt->type)
     {
         case NRF_MESH_EVT_PROV_LINK_ESTABLISHED:
             /* A provisioning link has been established. This is a notification so that the application
@@ -250,7 +250,7 @@ int main(void)
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Starting listening for incoming provisioning links...\n");
     ERROR_CHECK(nrf_mesh_prov_listen(&m_prov_ctx, NRF_MESH_PROV_BEARER_ADV, NULL, 0));
 
-    while(true)
+    while (true)
     {
         nrf_mesh_process();
     }

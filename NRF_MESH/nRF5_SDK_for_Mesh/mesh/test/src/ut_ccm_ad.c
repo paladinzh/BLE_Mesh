@@ -96,14 +96,6 @@ static uint8_t tv18_out[] = {0xcd, 0x90, 0x44, 0xd2, 0xb7, 0x1f, 0xdb, 0x81,
                              0x51};
 static uint16_t tv18_adlen = 12;
 
-void print_hex(const char * msg, uint8_t * arr, uint16_t len)
-{
-    printf("%s:", msg);
-    for (int i=0; i < len; ++i)
-        printf(" %02X", arr[i]);
-    printf("\n");
-}
-
 void setUp(void)
 {
 }

@@ -106,7 +106,7 @@ static void reliable_status_cb(access_model_handle_t model_handle, void * p_args
     /* Some messages does not carry data, s.t. no packet is allocated for it. E.g., netkey_get(). */
     if (mp_packet_buffer != NULL)
     {
-        packet_mgr_decref(mp_packet_buffer);
+        packet_mgr_free(mp_packet_buffer);
         mp_packet_buffer = NULL;
     }
 
@@ -133,7 +133,7 @@ static uint32_t send_reliable(config_opcode_t opcode, uint16_t length, config_op
     uint32_t status = access_model_reliable_publish(&reliable);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(mp_packet_buffer);
+        packet_mgr_free(mp_packet_buffer);
         mp_packet_buffer = NULL;
     }
     else
@@ -481,7 +481,9 @@ uint32_t config_client_appkey_add(uint16_t netkey_index, uint16_t appkey_index, 
         return status;
     }
 
+    NRF_MESH_ASSERT(p_appkey != NULL);
     NRF_MESH_ASSERT(mp_packet_buffer == NULL);
+
     uint16_t length = sizeof(config_msg_appkey_add_t);
     status = packet_mgr_alloc((packet_generic_t **) &mp_packet_buffer, length);
     if (status != NRF_SUCCESS)
@@ -594,6 +596,10 @@ uint32_t config_client_model_publication_set(const config_publication_state_t * 
     if (client_in_wrong_state(&status))
     {
         return status;
+    }
+    else if (p_publication_state == NULL)
+    {
+        return NRF_ERROR_NULL;
     }
     else if (p_publication_state->publish_address.type == NRF_MESH_ADDRESS_TYPE_VIRTUAL)
     {

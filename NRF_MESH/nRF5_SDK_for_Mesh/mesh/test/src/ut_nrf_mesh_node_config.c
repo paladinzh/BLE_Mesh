@@ -93,15 +93,15 @@ void nrf_mesh_assertion_handler(uint32_t pc)
 
 void setUp(void)
 {
-    CMOCK_SETUP(access);
-    CMOCK_SETUP(access_config);
-    CMOCK_SETUP(flash_manager);
-    CMOCK_SETUP(config_server);
-    CMOCK_SETUP(device_state_manager);
-    CMOCK_SETUP(net_state);
-    CMOCK_SETUP(nrf_mesh);
-    CMOCK_SETUP(nrf_mesh_events);
-    CMOCK_SETUP(nrf_mesh_prov);
+    access_mock_Init();
+    access_config_mock_Init();
+    flash_manager_mock_Init();
+    config_server_mock_Init();
+    device_state_manager_mock_Init();
+    net_state_mock_Init();
+    nrf_mesh_mock_Init();
+    nrf_mesh_events_mock_Init();
+    nrf_mesh_prov_mock_Init();
 
     m_assertion_handler = nrf_mesh_assertion_handler;
 }
@@ -118,7 +118,24 @@ void tearDown(void)
     nrf_mesh_events_mock_Verify();
     nrf_mesh_prov_mock_Verify();
 
-    CMOCK_TEARDOWN();
+    access_mock_Verify();
+    access_mock_Destroy();
+    access_config_mock_Verify();
+    access_config_mock_Destroy();
+    flash_manager_mock_Verify();
+    flash_manager_mock_Destroy();
+    config_server_mock_Verify();
+    config_server_mock_Destroy();
+    device_state_manager_mock_Verify();
+    device_state_manager_mock_Destroy();
+    net_state_mock_Verify();
+    net_state_mock_Destroy();
+    nrf_mesh_mock_Verify();
+    nrf_mesh_mock_Destroy();
+    nrf_mesh_events_mock_Verify();
+    nrf_mesh_events_mock_Destroy();
+    nrf_mesh_prov_mock_Verify();
+    nrf_mesh_prov_mock_Destroy();
 }
 
 /********** Test cases **********/

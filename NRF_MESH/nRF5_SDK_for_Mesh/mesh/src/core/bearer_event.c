@@ -44,7 +44,7 @@
 #include "utils.h"
 #include "nrf_mesh_assert.h"
 #include "bitfield.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include "nrf_soc.h"
 
 #ifdef BEARER_EVENT_USE_SWI0
@@ -63,9 +63,9 @@
  * @note For nRF51 (Cortex M0) http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0497a/Cihfaaha.html
  *       For nRF52 (Cortex M4) http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/Cihfaaha.html
  */
-#if NRF51 && !NRF52
+#if defined(NRF51) && !defined(NRF52)
 #define NVIC_ICSR_MASK      (0x3f)
-#elif !NRF51 && NRF52
+#elif !defined(NRF51) && defined(NRF52)
 #define NVIC_ICSR_MASK      (0x01ff)
 #endif
 
@@ -138,22 +138,22 @@ static inline int get_current_irq(void)
 /* Function for calling a callback according to the callback type. */
 static void call_callback(const bearer_event_t * p_evt)
 {
-    switch(p_evt->type)
+    switch (p_evt->type)
     {
         case BEARER_EVENT_TYPE_TIMER:
-            if(p_evt->params.timer.callback)
+            if (p_evt->params.timer.callback)
             {
                 p_evt->params.timer.callback(p_evt->params.timer.timeout);
             }
             break;
         case BEARER_EVENT_TYPE_TIMER_SCHEDULER:
-            if(p_evt->params.timer_sch.callback)
+            if (p_evt->params.timer_sch.callback)
             {
                 p_evt->params.timer_sch.callback(p_evt->params.timer_sch.timeout, p_evt->params.timer_sch.p_context);
             }
             break;
         case BEARER_EVENT_TYPE_GENERIC:
-            if(p_evt->params.generic.callback)
+            if (p_evt->params.generic.callback)
             {
                 p_evt->params.generic.callback(p_evt->params.generic.p_context);
             }
@@ -208,7 +208,7 @@ static void trigger_event_handler(void)
 }
 
 /** Push a bearer event to the processing FIFO, and notify the IRQ. */
-static uint32_t evt_push(bearer_event_t* p_evt)
+static uint32_t evt_push(const bearer_event_t* p_evt)
 {
     if (fifo_push(&m_bearer_event_fifo, p_evt) == NRF_SUCCESS)
     {
@@ -230,7 +230,7 @@ void bearer_event_init(void)
     m_bearer_event_fifo.elem_array = m_bearer_event_fifo_buffer;
     m_bearer_event_fifo.elem_size = sizeof(bearer_event_t);
     m_bearer_event_fifo.array_len = BEARER_EVENT_FIFO_SIZE;
-    NRF_MESH_ASSERT(fifo_init(&m_bearer_event_fifo) == NRF_SUCCESS);
+    fifo_init(&m_bearer_event_fifo);
 
 #if !HOST
     NVIC_SetPriority(EVENT_IRQn, BEARER_EVENT_IRQ_PRIORITY);

@@ -35,35 +35,16 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
-#include "serial_handler.h"
-
 #include "serial.h"
-#include "serial_packet.h"
-#include "serial_cmd.h"
-#include "serial_evt.h"
-#include "serial_cmd_rsp.h"
+#include "serial_handler_dfu.h"
 #include "serial_status.h"
-#include "nrf_mesh_assert.h"
-#include "nrf_mesh_configure.h"
-#include "nrf_mesh_dfu.h"
-#include "log.h"
-#include "rand.h"
-#include "hal.h"
-#include "internal_event.h"
-#include "nrf_mesh_dfu.h"
-#include "transport.h"
-#include "bearer_adv.h"
+
+#include "nrf_mesh.h"
 #include "nrf_mesh_events.h"
-/*****************************************************************************
-* Static globals
-*****************************************************************************/
-/** Configuration for the handler. */
+#include "nrf_mesh_dfu.h"
+
 static nrf_mesh_evt_handler_t m_evt_handler;
-/*****************************************************************************
-* Static functions
-*****************************************************************************/
-static nrf_mesh_serial_app_rx_cb_t m_app_rx_cb;
+
 static void serial_handler_mesh_evt_handle(nrf_mesh_evt_t* p_evt)
 {
     serial_packet_t * p_serial_evt;
@@ -137,91 +118,14 @@ static void serial_handler_mesh_evt_handle(nrf_mesh_evt_t* p_evt)
             break;
     }
 }
-/*****************************************************************************
-* Interface functions
-*****************************************************************************/
-void serial_handler_init(void)
+
+void serial_handler_dfu_init(void)
 {
     m_evt_handler.evt_cb = serial_handler_mesh_evt_handle;
     nrf_mesh_evt_handler_add(&m_evt_handler);
 }
 
-void serial_handler_app_cb_set(nrf_mesh_serial_app_rx_cb_t rx_cb)
-{
-    m_app_rx_cb = rx_cb;
-}
-
-void serial_handler_config_rx(const serial_packet_t* p_cmd)
-{
-    switch (p_cmd->opcode)
-    {
-        case SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_SET:
-        case SERIAL_OPCODE_CMD_CONFIG_CHANNEL_MAP_SET:
-        case SERIAL_OPCODE_CMD_CONFIG_CHANNEL_MAP_GET:
-        case SERIAL_OPCODE_CMD_CONFIG_TX_POWER_SET:
-        case SERIAL_OPCODE_CMD_CONFIG_TX_POWER_GET:
-            serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
-            break;
-
-        case SERIAL_OPCODE_CMD_CONFIG_ADV_ADDR_GET:
-        {
-            if (p_cmd->length != SERIAL_PACKET_LENGTH_OVERHEAD)
-            {
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
-            }
-            else
-            {
-                ble_gap_addr_t addr;
-                uint32_t status = bearer_adv_addr_get(&addr);
-                if (status == NRF_SUCCESS)
-                {
-                    serial_evt_cmd_rsp_data_adv_addr_t rsp;
-                    rsp.addr_type = addr.addr_type;
-                    memcpy(rsp.addr, addr.addr, BLE_GAP_ADDR_LEN);
-                    serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &rsp, sizeof(rsp));
-                }
-                else
-                {
-                    serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(status), NULL, 0);
-                }
-            }
-            break;
-        }
-
-        case SERIAL_OPCODE_CMD_CONFIG_UUID_SET:
-            if (p_cmd->length != SERIAL_PACKET_LENGTH_OVERHEAD + sizeof(serial_cmd_config_uuid_t))
-            {
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
-            }
-            else
-            {
-                nrf_mesh_configure_device_uuid_set(p_cmd->payload.cmd.config.uuid.uuid);
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_SUCCESS, NULL, 0);
-            }
-            break;
-
-        case SERIAL_OPCODE_CMD_CONFIG_UUID_GET:
-            if (p_cmd->length != SERIAL_PACKET_LENGTH_OVERHEAD)
-            {
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
-            }
-            else
-            {
-                serial_evt_cmd_rsp_data_device_uuid_t rsp;
-                memcpy(&rsp.device_uuid, nrf_mesh_configure_device_uuid_get(), NRF_MESH_UUID_SIZE);
-                serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &rsp, sizeof(rsp));
-            }
-            break;
-
-        default:
-            NRF_MESH_ASSERT(p_cmd->opcode >= SERIAL_OPCODE_CMD_RANGE_CONFIG_START &&
-                p_cmd->opcode <= SERIAL_OPCODE_CMD_RANGE_CONFIG_END);
-            serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
-            break;
-    }
-}
-
-void serial_handler_dfu_rx(const serial_packet_t* p_cmd)
+void serial_handler_dfu_rx(const serial_packet_t * p_cmd)
 {
     static const uint8_t lengths[] =
     {
@@ -343,35 +247,4 @@ void serial_handler_dfu_rx(const serial_packet_t* p_cmd)
     }
 }
 
-void serial_handler_openmesh_rx(const serial_packet_t* p_cmd)
-{
-    switch (p_cmd->opcode)
-    {
-        case SERIAL_OPCODE_CMD_OPENMESH_DFU_DATA:
-        {
-            uint32_t error_code = nrf_mesh_dfu_rx(
-                    (nrf_mesh_dfu_packet_t*) &p_cmd->payload.cmd.openmesh.dfu_data.dfu_packet,
-                    p_cmd->length - SERIAL_PACKET_LENGTH_OVERHEAD);
-            serial_cmd_rsp_send(p_cmd->opcode, serial_translate_error(error_code), NULL, 0);
-            break;
-        }
-        default:
-            serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
-            break;
-    }
-}
-
-void serial_handler_app_rx(const serial_packet_t* p_cmd)
-{
-    if (m_app_rx_cb)
-    {
-        m_app_rx_cb(p_cmd->payload.cmd.application.data,
-                    p_cmd->length - SERIAL_PACKET_LENGTH_OVERHEAD);
-        serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_SUCCESS, NULL, 0);
-    }
-    else
-    {
-        serial_cmd_rsp_send(p_cmd->opcode, SERIAL_STATUS_ERROR_REJECTED, NULL, 0);
-    }
-}
 

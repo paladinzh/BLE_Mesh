@@ -39,7 +39,7 @@
 
 #define CACHE_ELEM_AT(p_cache, index) ((uint8_t*) p_cache->elem_array + index * p_cache->elem_size)
 
-static void erase_at(cache_t* p_cache, uint32_t index) 
+static void erase_at(const cache_t* p_cache, uint32_t index)
 {
     if (p_cache->erase_fptr)
     {

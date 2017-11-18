@@ -52,8 +52,8 @@ static void*    mp_write_buffer_location;
 
 void setUp(void)
 {
-    CMOCK_SETUP(bootloader_app_bridge);
-    CMOCK_SETUP(sha256);
+    bootloader_app_bridge_mock_Init();
+    sha256_mock_Init();
     m_retval = NRF_SUCCESS;
     m_write_calls = 0;
     mp_expected_flash_write_dest = NULL;
@@ -65,7 +65,10 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    bootloader_app_bridge_mock_Verify();
+    bootloader_app_bridge_mock_Destroy();
+    sha256_mock_Verify();
+    sha256_mock_Destroy();
 
 }
 

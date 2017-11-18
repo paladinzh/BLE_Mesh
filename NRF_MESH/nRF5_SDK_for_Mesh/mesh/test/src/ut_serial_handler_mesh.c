@@ -50,16 +50,16 @@
 #include "nrf_mesh_events_mock.h"
 #include "nrf_mesh_assert.h"
 
-#define CMD_LENGTH_CHECK(_opcode, _intended_length)                                                             \
-    do {                                                                                                        \
-        serial_packet_t _cmd;                                                                                   \
-        _cmd.opcode = _opcode;                                                                                  \
-        _cmd.length = _intended_length + 1;                                                                     \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0, NRF_SUCCESS); \
-        serial_handler_mesh_rx(&_cmd);                                                                                  \
-        _cmd.length = _intended_length + 1;                                                                     \
-        serial_cmd_rsp_send_ExpectWithArrayAndReturn(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0, NRF_SUCCESS); \
-        serial_handler_mesh_rx(&_cmd);                                                                                  \
+#define CMD_LENGTH_CHECK(_opcode, _intended_length)                                                   \
+    do {                                                                                              \
+        serial_packet_t _cmd;                                                                         \
+        _cmd.opcode = _opcode;                                                                        \
+        _cmd.length = _intended_length + 1;                                                           \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0); \
+        serial_handler_mesh_rx(&_cmd);                                                                \
+        _cmd.length = _intended_length + 1;                                                           \
+        serial_cmd_rsp_send_ExpectWithArray(_opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, 0); \
+        serial_handler_mesh_rx(&_cmd);                                                                \
     } while (0)
 
 static nrf_mesh_tx_params_t m_expected_tx_params;
@@ -91,22 +91,21 @@ static void nrf_mesh_event_handler_add_cb(nrf_mesh_evt_handler_t * p_handler, in
     mp_evt_handler = p_handler;
 }
 
-static uint32_t serial_tx_cb(const serial_packet_t * p_packet, int count)
+static void serial_tx_cb(const serial_packet_t * p_packet, int count)
 {
     TEST_ASSERT_TRUE(m_expected_serial_tx > 0);
     m_expected_serial_tx--;
     TEST_ASSERT_EQUAL_HEX8_ARRAY((uint8_t *) &m_expected_tx_packet, (uint8_t *) p_packet, m_expected_tx_packet.length + 1);
-    return NRF_SUCCESS;
 }
 
 void setUp(void)
 {
-    CMOCK_SETUP(device_state_manager);
-    CMOCK_SETUP(serial);
-    CMOCK_SETUP(nrf_mesh);
-    CMOCK_SETUP(nrf_mesh_events);
-    CMOCK_SETUP(net_state);
-    CMOCK_SETUP(access);
+    device_state_manager_mock_Init();
+    serial_mock_Init();
+    nrf_mesh_mock_Init();
+    nrf_mesh_events_mock_Init();
+    net_state_mock_Init();
+    access_mock_Init();
     m_expected_packet_send = 0;
     m_packet_send_return = 0;
     memset(&m_expected_tx_params, 0, sizeof(m_expected_tx_params));
@@ -115,7 +114,18 @@ void setUp(void)
 
 void tearDown(void)
 {
-    CMOCK_TEARDOWN();
+    device_state_manager_mock_Verify();
+    device_state_manager_mock_Destroy();
+    serial_mock_Verify();
+    serial_mock_Destroy();
+    nrf_mesh_mock_Verify();
+    nrf_mesh_mock_Destroy();
+    nrf_mesh_events_mock_Verify();
+    nrf_mesh_events_mock_Destroy();
+    net_state_mock_Verify();
+    net_state_mock_Destroy();
+    access_mock_Verify();
+    access_mock_Destroy();
 }
 
 /*****************************************************************************
@@ -126,7 +136,7 @@ void test_invalid_cmd(void)
     serial_packet_t cmd;
     cmd.opcode = SERIAL_OPCODE_CMD_RANGE_MESH_END;
     cmd.length = 1;
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, SERIAL_STATUS_ERROR_CMD_UNKNOWN, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 }
 
@@ -138,14 +148,14 @@ void test_enable_disable(void)
     cmd.length = 1;
     nrf_mesh_enable_ExpectAndReturn(0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
 
     cmd.opcode = SERIAL_OPCODE_CMD_MESH_DISABLE;
     cmd.length = 1;
     nrf_mesh_disable_ExpectAndReturn(0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
 }
 
@@ -157,7 +167,7 @@ void test_stateclear()
     dsm_clear_Expect();
     access_clear_Expect();
     net_state_reset_Expect();
-    serial_cmd_rsp_send_ExpectAndReturn(SERIAL_OPCODE_CMD_MESH_STATE_CLEAR, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
+    serial_cmd_rsp_send_Expect(SERIAL_OPCODE_CMD_MESH_STATE_CLEAR, SERIAL_STATUS_SUCCESS, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 }
 
@@ -172,13 +182,13 @@ void test_subnet(void)
     dsm_subnet_add_IgnoreArg_p_subnet_handle();
     dsm_subnet_add_ReturnThruPtr_p_subnet_handle(&handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_subnet_add_ExpectAndReturn(0x1234, cmd.payload.cmd.mesh.subnet_add.key, NULL, 0x12345678);
     dsm_subnet_add_IgnoreArg_p_subnet_handle();
     dsm_subnet_add_ReturnThruPtr_p_subnet_handle(&handle);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -187,11 +197,11 @@ void test_subnet(void)
     cmd.payload.cmd.mesh.subnet_update.subnet_handle = 0x5678;
     dsm_subnet_update_ExpectAndReturn(0x5678, cmd.payload.cmd.mesh.subnet_update.key, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_subnet_update_ExpectAndReturn(0x5678, cmd.payload.cmd.mesh.subnet_update.key, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -200,11 +210,11 @@ void test_subnet(void)
     cmd.payload.cmd.mesh.subnet_delete.subnet_handle = 0x5678;
     dsm_subnet_delete_ExpectAndReturn(0x5678, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_subnet_delete_ExpectAndReturn(0x5678, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -223,7 +233,7 @@ void test_subnet(void)
     dsm_subnet_get_all_ReturnMemThruPtr_p_key_list(handle_list, sizeof(handle_list[0]) * count);
     dsm_subnet_get_all_ReturnMemThruPtr_p_count(&count, sizeof(count));
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) handle_list, sizeof(handle_list[0]) * count, sizeof(handle_list[0]) * count, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) handle_list, sizeof(handle_list[0]) * count, sizeof(handle_list[0]) * count);
     serial_handler_mesh_rx(&cmd);
     dsm_subnet_get_all_ExpectAndReturn(NULL, NULL, 0x12345678);
     dsm_subnet_get_all_IgnoreArg_p_key_list();
@@ -231,7 +241,7 @@ void test_subnet(void)
     dsm_subnet_get_all_ReturnArrayThruPtr_p_key_list(handle_list, count);
     dsm_subnet_get_all_ReturnMemThruPtr_p_count(&count, sizeof(count));
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     count = 0;
     dsm_subnet_get_all_ExpectAndReturn(NULL, NULL, NRF_SUCCESS);
@@ -240,7 +250,7 @@ void test_subnet(void)
     dsm_subnet_get_all_ReturnArrayThruPtr_p_key_list(handle_list, count);
     dsm_subnet_get_all_ReturnMemThruPtr_p_count(&count, sizeof(count));
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -248,7 +258,7 @@ void test_subnet(void)
     cmd.length = 1;
     uint16_t list_size = DSM_SUBNET_MAX;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -265,13 +275,13 @@ void test_appkey(void)
     dsm_appkey_add_IgnoreArg_p_app_handle();
     dsm_appkey_add_ReturnThruPtr_p_app_handle(&handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_appkey_add_ExpectAndReturn(0x1234, 0xABCD, cmd.payload.cmd.mesh.appkey_add.key, NULL, 0x12345678);
     dsm_appkey_add_IgnoreArg_p_app_handle();
     dsm_appkey_add_ReturnThruPtr_p_app_handle(&handle);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -280,11 +290,11 @@ void test_appkey(void)
     cmd.payload.cmd.mesh.appkey_update.appkey_handle = 0x5678;
     dsm_appkey_update_ExpectAndReturn(0x5678, cmd.payload.cmd.mesh.appkey_update.key, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_appkey_update_ExpectAndReturn(0x5678, cmd.payload.cmd.mesh.appkey_update.key, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -293,11 +303,11 @@ void test_appkey(void)
     cmd.payload.cmd.mesh.appkey_delete.appkey_handle = 0x5678;
     dsm_appkey_delete_ExpectAndReturn(0x5678, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_appkey_delete_ExpectAndReturn(0x5678, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -318,11 +328,10 @@ void test_appkey(void)
     dsm_appkey_get_all_ReturnArrayThruPtr_p_key_list(&handle_list[1], count);
     dsm_appkey_get_all_ReturnThruPtr_p_count(&count);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS,
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS,
             (uint8_t *) handle_list,
             sizeof(handle_list[0]) * (count + 1),
-            sizeof(handle_list[0]) * (count + 1),
-            NRF_SUCCESS);
+            sizeof(handle_list[0]) * (count + 1));
     serial_handler_mesh_rx(&cmd);
     dsm_appkey_get_all_ExpectAndReturn(0x5678, NULL, NULL, 0x12345678);
     dsm_appkey_get_all_IgnoreArg_p_key_list();
@@ -330,7 +339,7 @@ void test_appkey(void)
     dsm_appkey_get_all_ReturnArrayThruPtr_p_key_list(&handle_list[1], count);
     dsm_appkey_get_all_ReturnMemThruPtr_p_count(&count, sizeof(count));
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 
     count = 0;
@@ -340,7 +349,7 @@ void test_appkey(void)
     dsm_appkey_get_all_ReturnArrayThruPtr_p_key_list(handle_list, count);
     dsm_appkey_get_all_ReturnMemThruPtr_p_count(&count, sizeof(count));
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -348,7 +357,7 @@ void test_appkey(void)
     cmd.length = 1;
     uint16_t list_size = DSM_APP_MAX;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -365,13 +374,13 @@ void test_devkey(void)
     dsm_devkey_add_IgnoreArg_p_devkey_handle();
     dsm_devkey_add_ReturnThruPtr_p_devkey_handle(&handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_devkey_add_ExpectAndReturn(0x1234, 0xABCD, cmd.payload.cmd.mesh.devkey_add.key, NULL, 0x12345678);
     dsm_devkey_add_IgnoreArg_p_devkey_handle();
     dsm_devkey_add_ReturnThruPtr_p_devkey_handle(&handle);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -380,11 +389,11 @@ void test_devkey(void)
     cmd.payload.cmd.mesh.devkey_delete.devkey_handle = 0x5678;
     dsm_devkey_delete_ExpectAndReturn(0x5678, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &handle, sizeof(handle), sizeof(handle));
     serial_handler_mesh_rx(&cmd);
     dsm_devkey_delete_ExpectAndReturn(0x5678, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -392,7 +401,7 @@ void test_devkey(void)
     cmd.length = 1;
     uint16_t list_size = DSM_DEVICE_MAX;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &list_size, sizeof(list_size), sizeof(list_size));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -411,7 +420,7 @@ void test_local_unicast(void)
     dsm_local_unicast_addresses_get_IgnoreArg_p_address();
     dsm_local_unicast_addresses_get_ReturnMemThruPtr_p_address(&addr, sizeof(addr));
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr, sizeof(addr), sizeof(addr), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr, sizeof(addr), sizeof(addr));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -423,7 +432,7 @@ void test_local_unicast(void)
     addr.count = 0x5678;
     dsm_local_unicast_addresses_set_ExpectWithArrayAndReturn(&addr, 1, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -451,14 +460,14 @@ void test_addresses(void)
     raw_addr_rsp.raw_short_addr = addr.value;
     raw_addr_rsp.address_handle = addr_handle;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &raw_addr_rsp, sizeof(raw_addr_rsp) - NRF_MESH_UUID_SIZE, sizeof(raw_addr_rsp) - NRF_MESH_UUID_SIZE, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &raw_addr_rsp, sizeof(raw_addr_rsp) - NRF_MESH_UUID_SIZE, sizeof(raw_addr_rsp) - NRF_MESH_UUID_SIZE);
     serial_handler_mesh_rx(&cmd);
     /* fail getter */
     dsm_address_get_ExpectAndReturn(0x1234, NULL, 0x12345678);
     dsm_address_get_IgnoreArg_p_address();
     dsm_address_get_ReturnThruPtr_p_address(&addr);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     /* get virtual */
     uint8_t virtual_uuid[NRF_MESH_UUID_SIZE];
@@ -479,7 +488,7 @@ void test_addresses(void)
     memcpy(raw_addr_rsp.virtual_uuid, virtual_uuid, NRF_MESH_UUID_SIZE);
     raw_addr_rsp.address_handle = addr_handle;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &raw_addr_rsp, sizeof(raw_addr_rsp), sizeof(raw_addr_rsp), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &raw_addr_rsp, sizeof(raw_addr_rsp), sizeof(raw_addr_rsp));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -500,14 +509,14 @@ void test_addresses(void)
     dsm_address_get_all_ReturnArrayThruPtr_p_address_handle_list(addr_list, count);
     dsm_address_get_all_ReturnThruPtr_p_count(&count);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) addr_list, sizeof(addr_list[0]) * count, sizeof(addr_list[0]) * count, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) addr_list, sizeof(addr_list[0]) * count, sizeof(addr_list[0]) * count);
     serial_handler_mesh_rx(&cmd);
     /* fail getter */
     dsm_address_get_all_ExpectAndReturn(NULL, NULL, 0x12345678);
     dsm_address_get_all_IgnoreArg_p_count();
     dsm_address_get_all_IgnoreArg_p_address_handle_list();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, 0xAA, NULL, 0, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, 0xAA, NULL, 0, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -515,7 +524,7 @@ void test_addresses(void)
     cmd.length = 1;
     uint16_t max_count = DSM_NONVIRTUAL_ADDR_MAX;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &max_count, sizeof(max_count), sizeof(max_count), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &max_count, sizeof(max_count), sizeof(max_count));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -523,7 +532,7 @@ void test_addresses(void)
     cmd.length = 1;
     max_count = DSM_VIRTUAL_ADDR_MAX;
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &max_count, sizeof(max_count), sizeof(max_count), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &max_count, sizeof(max_count), sizeof(max_count));
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -542,13 +551,13 @@ void test_addr_subscription(void)
     dsm_address_subscription_add_IgnoreArg_p_address_handle();
     dsm_address_subscription_add_ReturnThruPtr_p_address_handle(&addr_handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_subscription_add_ExpectAndReturn(0x1234, NULL, 0x12345678);
     dsm_address_subscription_add_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -560,13 +569,13 @@ void test_addr_subscription(void)
     dsm_address_subscription_virtual_add_IgnoreArg_p_address_handle();
     dsm_address_subscription_virtual_add_ReturnThruPtr_p_address_handle(&addr_handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_subscription_virtual_add_ExpectWithArrayAndReturn(test_uuid, sizeof(test_uuid), NULL, 0, 0x12345678);
     dsm_address_subscription_virtual_add_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 
     cmd.opcode = SERIAL_OPCODE_CMD_MESH_ADDR_SUBSCRIPTION_REMOVE;
@@ -574,12 +583,12 @@ void test_addr_subscription(void)
     cmd.payload.cmd.mesh.addr_subscription_remove.address_handle = addr_handle;
     dsm_address_subscription_remove_ExpectAndReturn(addr_handle, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_subscription_remove_ExpectAndReturn(addr_handle, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -597,13 +606,13 @@ void test_addr_publication(void)
     dsm_address_publish_add_IgnoreArg_p_address_handle();
     dsm_address_publish_add_ReturnThruPtr_p_address_handle(&addr_handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_publish_add_ExpectAndReturn(0x1234, NULL, 0x12345678);
     dsm_address_publish_add_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -615,13 +624,13 @@ void test_addr_publication(void)
     dsm_address_publish_virtual_add_IgnoreArg_p_address_handle();
     dsm_address_publish_virtual_add_ReturnThruPtr_p_address_handle(&addr_handle);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_publish_virtual_add_ExpectWithArrayAndReturn(test_uuid, sizeof(test_uuid), NULL, 0, 0x12345678);
     dsm_address_publish_virtual_add_IgnoreArg_p_address_handle();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 
@@ -630,12 +639,12 @@ void test_addr_publication(void)
     cmd.payload.cmd.mesh.addr_publication_remove.address_handle = addr_handle;
     dsm_address_publish_remove_ExpectAndReturn(addr_handle, NRF_SUCCESS);
     serial_translate_error_ExpectAndReturn(NRF_SUCCESS, SERIAL_STATUS_SUCCESS);
-    serial_cmd_rsp_send_ExpectWithArrayAndReturn(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle), NRF_SUCCESS);
+    serial_cmd_rsp_send_ExpectWithArray(cmd.opcode, SERIAL_STATUS_SUCCESS, (uint8_t *) &addr_handle, sizeof(addr_handle), sizeof(addr_handle));
     serial_handler_mesh_rx(&cmd);
 
     dsm_address_publish_remove_ExpectAndReturn(addr_handle, 0x12345678);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     CMD_LENGTH_CHECK(cmd.opcode, cmd.length);
 }
@@ -685,12 +694,12 @@ void test_packet_send(void)
     dsm_local_unicast_addresses_get_ReturnThruPtr_p_address(&local_addr);
     nrf_mesh_packet_send_StubWithCallback(nrf_mesh_packet_send_cb);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     TEST_ASSERT_EQUAL(0, m_expected_packet_send);
 
     cmd.length = 8; // one too short
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 
     cmd.length = 98; //maxlen
@@ -707,12 +716,12 @@ void test_packet_send(void)
     dsm_local_unicast_addresses_get_IgnoreArg_p_address();
     dsm_local_unicast_addresses_get_ReturnThruPtr_p_address(&local_addr);
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     TEST_ASSERT_EQUAL(0, m_expected_packet_send);
 
     cmd.length = 99; // one too long
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, SERIAL_STATUS_ERROR_INVALID_LENGTH, NULL, 0);
     serial_handler_mesh_rx(&cmd);
 
     /* give a source address that isn't a local unicast address */
@@ -725,7 +734,7 @@ void test_packet_send(void)
     dsm_local_unicast_addresses_get_IgnoreArg_p_address();
     dsm_local_unicast_addresses_get_ReturnThruPtr_p_address(&local_addr);
     serial_translate_error_ExpectAndReturn(NRF_ERROR_INVALID_ADDR, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     local_addr.address_start = 0x0100;
     local_addr.count = 2; // only includes 0x0100 and 0x0101, not 0x0102.
@@ -736,13 +745,13 @@ void test_packet_send(void)
     dsm_local_unicast_addresses_get_IgnoreArg_p_address();
     dsm_local_unicast_addresses_get_ReturnThruPtr_p_address(&local_addr);
     serial_translate_error_ExpectAndReturn(NRF_ERROR_INVALID_ADDR, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     /* Unknown target address */
     dsm_address_get_ExpectAndReturn(0x0102, NULL, 0x12345678);
     dsm_address_get_IgnoreArg_p_address();
     serial_translate_error_ExpectAndReturn(0x12345678, 0xAA);
-    serial_cmd_rsp_send_ExpectAndReturn(cmd.opcode, 0xAA, NULL, 0, NRF_SUCCESS);
+    serial_cmd_rsp_send_Expect(cmd.opcode, 0xAA, NULL, 0);
     serial_handler_mesh_rx(&cmd);
     TEST_ASSERT_EQUAL(0, m_expected_packet_send);
 }
@@ -912,7 +921,7 @@ void test_events(void)
 
 
     evt.type = NRF_MESH_EVT_IV_UPDATE_NOTIFICATION;
-    evt.params.iv_update.state = 0x95;
+    evt.params.iv_update.state = (net_state_iv_update_t) 0x95;
     evt.params.iv_update.iv_index = 0x12345678;
     m_expected_serial_tx = 1;
     m_expected_tx_packet.length = 5;

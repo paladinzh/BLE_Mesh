@@ -122,10 +122,8 @@ typedef uint32_t (*internal_event_report_cb_t) (internal_event_t * p_event);
  * @param[in]  report_cb    A callback function for reporting internal events. This can be a NULL
  *                          pointer, in which case the events will be stored internally in a buffer
  *                          size of @ref INTERNAL_EVENT_BUFFER_SIZE.
- *
- * @retval     NRF_SUCCESS  Successfully initialized the internal event module.
  */
-uint32_t internal_event_init(internal_event_report_cb_t report_cb);
+void internal_event_init(internal_event_report_cb_t report_cb);
 
 /**
  * Push an internal event.
@@ -165,10 +163,10 @@ uint32_t internal_event_pop(internal_event_t * p_event);
     do {                                                                   \
         internal_event_t EVT =                                             \
             {                                                              \
-                .type = (internal_event_type_t) EVENT_TYPE,                \
-                .state.value = (uint8_t) ADDATA,                           \
-                .packet_size = (uint8_t) PACKET_SIZE,                      \
-                .p_packet = (uint8_t *)P_PACKET                            \
+                .type = (EVENT_TYPE),                                      \
+                .state.value = (ADDATA),                                   \
+                .packet_size = (PACKET_SIZE),                              \
+                .p_packet = (uint8_t *) (P_PACKET)                         \
             };                                                             \
         uint32_t RESULT = internal_event_push(&EVT);                       \
         if (RESULT != NRF_SUCCESS)                                         \

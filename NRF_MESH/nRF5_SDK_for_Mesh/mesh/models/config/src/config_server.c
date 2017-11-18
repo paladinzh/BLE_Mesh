@@ -87,6 +87,8 @@ static access_model_handle_t m_config_server_handle = ACCESS_HANDLE_INVALID;
 
 /********** Helper functions **********/
 
+/*lint -ecall(569, send_reply) Conversion of size_t (returned by sizeof()) to uint16_t causes loss of precision. */
+
 /*
  * Sends a message as a reply to an incoming message.
  */
@@ -104,7 +106,7 @@ static void send_reply(access_model_handle_t handle, const access_message_rx_t *
         .length = reply_length
     };
 
-    access_model_reply(handle, p_message, &reply);
+    (void) access_model_reply(handle, p_message, &reply);
 }
 
 /*
@@ -118,7 +120,7 @@ static void send_generic_error_reply(access_model_handle_t handle, const access_
     memset(buffer, 0, msg_size);
 
     buffer[0] = status;
-    send_reply(handle, p_message, status_opcode, (const uint8_t *) &buffer, msg_size);
+    send_reply(handle, p_message, status_opcode, buffer, msg_size);
 }
 
 /* Sends the network beacon state in response to a network beacon state set/get message: */
@@ -138,7 +140,7 @@ static void send_appkey_status(access_model_handle_t handle, const access_messag
     {
         .status = ACCESS_STATUS_SUCCESS,
         .key_indexes = key_indexes
-    };
+    }; /*lint !e64 Lint incorrectly complains about a type mismach in this initializer. */
     send_reply(handle, p_message, CONFIG_OPCODE_APPKEY_STATUS, (const uint8_t *) &response, sizeof(response));
 }
 
@@ -164,7 +166,7 @@ static void send_publication_status(access_model_handle_t this_handle, const acc
     dsm_handle_t publish_address_handle;
     NRF_MESH_ASSERT(access_model_publish_address_get(model_handle, &publish_address_handle) == NRF_SUCCESS);
 
-    if(publish_address_handle ==  DSM_HANDLE_INVALID)
+    if (publish_address_handle ==  DSM_HANDLE_INVALID)
     {
         /* If no publish address is set, the rest of the packet is set to 0: */
         response.publish_address = NRF_MESH_ADDR_UNASSIGNED;
@@ -212,8 +214,8 @@ static void send_publication_status(access_model_handle_t this_handle, const acc
 static access_status_t delete_all_subscriptions(access_model_handle_t model_handle)
 {
     /* Get a list of all the models: */
-    dsm_handle_t subscribed_addresses[ACCESS_MODEL_SUBSCRIPTIONS_MAX];
-    uint16_t subscription_count = ACCESS_MODEL_SUBSCRIPTIONS_MAX;
+    dsm_handle_t subscribed_addresses[ACCESS_SUBSCRIPTION_LIST_COUNT];
+    uint16_t subscription_count = ACCESS_SUBSCRIPTION_LIST_COUNT;
     uint32_t status = access_model_subscriptions_get(model_handle, subscribed_addresses, &subscription_count);
     if (status == NRF_ERROR_NOT_SUPPORTED)
     {
@@ -414,7 +416,7 @@ static void handle_appkey_get(access_model_handle_t handle, const access_message
     uint8_t packet_buffer[sizeof(config_msg_appkey_list_t) + packed_index_list_size(appkey_count)];
     config_msg_appkey_list_t * p_reply = (config_msg_appkey_list_t *) packet_buffer;
 
-    switch(status)
+    switch (status)
     {
         case NRF_SUCCESS:
             p_reply->status = ACCESS_STATUS_SUCCESS;
@@ -1549,7 +1551,7 @@ static void handle_netkey_get(access_model_handle_t handle, const access_message
 
     uint32_t num_netkeys = DSM_SUBNET_MAX;
     mesh_key_index_t netkey_indexes[num_netkeys];
-    dsm_subnet_get_all(netkey_indexes, &num_netkeys);
+    (void) dsm_subnet_get_all(netkey_indexes, &num_netkeys);
 
     /* The 12-bit netkey indexes needs to be packed into an array before being sent to the client: */
     uint8_t buffer[packed_index_list_size(num_netkeys)];

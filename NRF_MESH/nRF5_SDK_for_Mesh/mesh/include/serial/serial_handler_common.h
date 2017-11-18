@@ -43,6 +43,12 @@
 #include "nrf_mesh.h"
 
 /**
+ * @defgroup MESH_SERIAL_HANDLER Serial handlers
+ * @ingroup MESH_SERIAL
+ * Modules for handling incoming serial commands.
+ */
+
+/**
  * @defgroup SERIAL_HANDLER_COMMON Common serial handler functions
  * @ingroup MESH_SERIAL_HANDLER
  * @{

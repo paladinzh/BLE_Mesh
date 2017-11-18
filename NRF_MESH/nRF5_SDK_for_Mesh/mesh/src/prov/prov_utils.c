@@ -55,7 +55,7 @@
 #define DEVICE_KEY_INFO              (const uint8_t *) "prdk"
 #define DEVICE_KEY_INFO_SIZE         4
 
-#define CONFIRMATION_INPUTS_SIZE     145
+#define CONFIRMATION_INPUTS_SIZE     (PROV_CONFIRMATION_INPUT_LEN + 2 * NRF_MESH_PROV_PUBKEY_SIZE)
 
 NRF_MESH_STATIC_ASSERT(NRF_MESH_PROV_OOB_SIZE_MAX == 8);
 
@@ -72,7 +72,7 @@ static void create_confirmation_salt(const prov_common_ctx_t * p_ctx, uint8_t * 
     memcpy(confirmation_inputs, p_ctx->confirmation_inputs, PROV_CONFIRMATION_INPUT_LEN);
     uint8_t target_index = PROV_CONFIRMATION_INPUT_LEN;
 
-    if(p_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
+    if (p_ctx->role == NRF_MESH_PROV_ROLE_PROVISIONER)
     {
         memcpy(&confirmation_inputs[target_index], p_ctx->p_public_key, NRF_MESH_PROV_PUBKEY_SIZE);
         target_index += NRF_MESH_PROV_PUBKEY_SIZE;
@@ -131,9 +131,9 @@ static void oob_gen_alphanumeric(uint8_t * p_auth_value, uint8_t characters)
 
 uint32_t prov_utils_opt_set(nrf_mesh_opt_id_t id, const nrf_mesh_opt_t * p_opt)
 {
-    if(id == NRF_MESH_OPT_PROV_ECDH_OFFLOADING)
+    if (id == NRF_MESH_OPT_PROV_ECDH_OFFLOADING)
     {
-        if(p_opt->opt.val)
+        if (p_opt->opt.val)
         {
             m_offload_ecdh = true;
         }
@@ -150,7 +150,7 @@ uint32_t prov_utils_opt_set(nrf_mesh_opt_id_t id, const nrf_mesh_opt_t * p_opt)
 
 uint32_t prov_utils_opt_get(nrf_mesh_opt_id_t id, nrf_mesh_opt_t * p_opt)
 {
-    if(id == NRF_MESH_OPT_PROV_ECDH_OFFLOADING)
+    if (id == NRF_MESH_OPT_PROV_ECDH_OFFLOADING)
     {
         p_opt->len = 1;
         p_opt->opt.val = m_offload_ecdh;
@@ -253,11 +253,11 @@ void prov_utils_derive_keys(const prov_common_ctx_t * p_ctx,
 uint32_t prov_utils_calculate_shared_secret(const prov_common_ctx_t * p_ctx, uint8_t * p_shared_secret)
 {
 #if NRF_MESH_UECC_ENABLE
-    if(!uECC_valid_public_key(p_ctx->peer_public_key, uECC_secp256r1()))
+    if (!uECC_valid_public_key(p_ctx->peer_public_key, uECC_secp256r1()))
     {
         return NRF_ERROR_INTERNAL;
     }
-    if(!uECC_shared_secret(p_ctx->peer_public_key, p_ctx->p_private_key, p_shared_secret, uECC_secp256r1()))
+    if (!uECC_shared_secret(p_ctx->peer_public_key, p_ctx->p_private_key, p_shared_secret, uECC_secp256r1()))
     {
         return NRF_ERROR_INTERNAL;
     }

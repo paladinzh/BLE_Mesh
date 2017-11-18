@@ -39,14 +39,7 @@
 #include <string.h>
 #include <unity.h>
 
-#include "utils.h"
 #include "aes_cmac.h"
-#include "aes_soft.h"
-
-/* Bluetooth mesh sample data #1 */
-static uint8_t m_net_key[] = {0x7d, 0xd7, 0x36, 0x4c, 0xd8, 0x42, 0xad, 0x18, 0xc1, 0x7c, 0x2b, 0x82, 0x0c, 0x84, 0xc3, 0xd6};
-static uint8_t m_priv_key[] = {0xe2, 0xe0, 0x0f, 0x4d, 0xc2, 0xe0, 0x81, 0x35, 0xd2, 0x35, 0x05, 0x2e, 0xc7, 0xf6, 0x3a, 0xfa};
-static uint8_t m_net_id[] = {0xb9, 0xb9, 0x39, 0x58, 0xce, 0x1f, 0xf2, 0xe3, 0x57, 0x82, 0xe6, 0xea, 0x43, 0xc4, 0x17, 0x4a};
 
 /* RFC sample data */
 static uint8_t m_key[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
@@ -73,7 +66,7 @@ void tearDown(void)
 
 void test_aes_cmac0(void)
 {
-    aes_cmac(m_key, '\0', 0, m_result);
+    aes_cmac(m_key, (const uint8_t *) "\0", 0, m_result);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(m_cmac0, m_result, 16);
 }
 
@@ -99,26 +92,3 @@ void test_aes_cmac3(void)
     TEST_ASSERT_EQUAL_HEX8_ARRAY(m_cmac3, m_result, 16);
 }
 
-void test_aes_cmac_netid(void)
-{
-    /* NetworkID= AES-CMAC (AES-CMAC (NetKey, “smdt”), “smid”) */
-    unsigned char msg1[] = "smdt";
-    unsigned char msg2[] = "smid";
-
-    uint8_t buf1[16];
-    aes_cmac(m_net_key, (const uint8_t *) msg1, 4, buf1);
-    aes_cmac(buf1    ,  (const uint8_t *) msg2, 4, m_result);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(m_net_id, m_result, 16);
-}
-
-void test_aes_cmac_priv_key(void)
-{
-    /* PrivacyKey = AES-CMAC (AES-CMAC (NetKey, “smpt”), “smpk”) */
-    unsigned char msg1[] = "smpt";
-    unsigned char msg2[] = "smpk";
-
-    uint8_t buf1[16];
-    aes_cmac(m_net_key, (const uint8_t *) msg1, 4, buf1);
-    aes_cmac(buf1    ,  (const uint8_t *) msg2, 4, m_result);
-    TEST_ASSERT_EQUAL_HEX8_ARRAY(m_priv_key, m_result, 16);
-}

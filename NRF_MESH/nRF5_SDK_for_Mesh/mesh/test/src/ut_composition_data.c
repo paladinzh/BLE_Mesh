@@ -49,27 +49,36 @@
                    {0x1003, ACCESS_COMPANY_ID_NONE}
 #define SIG_MODELS_COUNT 5
 #define VENDOR_MODELS {0x002A, 0x003F}
-#define VENDOR_MODELS_COUNT 1
+#define VENDOR_MODELS_COUNT 2
 #define ELEMENT_LOCATION 0x0100 /* Front */
 
 const access_model_id_t models[SIG_MODELS_COUNT +
                                VENDOR_MODELS_COUNT] = {SIG_MODELS, VENDOR_MODELS};
 
-const uint8_t composition_data[] = {0x0C, 0x00,
-                                    0x1A, 0x00,
-                                    0x01, 0x00,
-                                    0x08, 0x00,
-                                    0x03, 0x00,
-                                    0x00, 0x01, 0x05, 0x01, 0x00, 0x00, 0x00, 0x80,
-                                    0x01, 0x00, 0x00, 0x10, 0x03, 0x10, 0x3F, 0x00, 0x2A, 0x00};
+const uint8_t composition_data[] = {0x0C, 0x00, /* CID (Company identifier) */
+                                    0x1A, 0x00, /* PID (Product identifier) */
+                                    0x01, 0x00, /* VID (Product version identifier) */
+                                    0x08, 0x00, /* CRPL (Minimum replay protection list entries) */
+                                    0x03, 0x00, /* Features (bitfield indicating device features) */
+                                    0x00, 0x01, /* Location */
+                                    0x05,       /* SIG models count */
+                                    0x02,       /* Vendor models count */
+                                    0x00, 0x00, /* SIG model 0x0000 */
+                                    0x00, 0x80, /* SIG model 0x8000 */
+                                    0x01, 0x00, /* SIG model 0x0001 */
+                                    0x00, 0x10, /* SIG model 0x1000 */
+                                    0x03, 0x10, /* SIG model 0x1003 */
+                                    0x3F, 0x00, /* Vendor model 0x003f */
+                                    0x2A, 0x00  /* Vendor model 0x002a */
+    };
 
-static access_status_t model_id_get_cb(access_model_handle_t handle,
+static uint32_t model_id_get_cb(access_model_handle_t handle,
                                        access_model_id_t * p_model_id,
                                        int num_calls)
 {
     p_model_id->model_id = models[handle].model_id;
     p_model_id->company_id = models[handle].company_id;
-    return ACCESS_STATUS_SUCCESS;
+    return NRF_SUCCESS;
 }
 
 static uint32_t element_models_get_cb(uint16_t element_index,
@@ -92,7 +101,7 @@ static uint32_t element_models_get_cb(uint16_t element_index,
 
 void setUp(void)
 {
-    CMOCK_SETUP(access_config);
+    access_config_mock_Init();
 }
 
 void tearDown(void)

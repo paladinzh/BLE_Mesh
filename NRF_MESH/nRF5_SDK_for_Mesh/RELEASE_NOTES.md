@@ -1,5 +1,56 @@
 # Release Notes
 
+## BLE Mesh v0.9.2-Alpha
+
+This is a hotfix release, providing critical bug fixes and improvements.
+
+### New features
+
+- nrf_mesh_packet_send() now supports the reliable feature. I.e., it is possible to send single segments messages using the transport layer SAR.
+- Interactive PyACI has support for an interactive provisioner and provisionee
+- New serial interface event "Prov Failed"
+
+### Bug fixes
+
+- Provisionee not handling invalid provisioning data properly
+- Problems using "Release" configuration in SES examples
+- Incorrect usage of hal_led_blink_ms() in light control server
+- Serial buffers must be word aligned
+- Number of elements not handled in Serial interface's "Capabilities set" command
+- S110 build failure
+- Default build type is set in CMake
+- Word alignment problems caused by high optimization levels when using Segger Embedded Studio
+- PB-remote opcodes overlapping with Configuration model opcodes
+- Advertisement bearer used timer_scheduler contexts dangerously, potentially corrupting its internal linked list
+- PB-remote server would get confused about out-of-order ACKs from the client
+- Documentation has been updated
+
+### Document updates
+
+- Rename "Bluetooth Mesh SDK" to "nRF5 SDK for Bluetooth Mesh"
+- How to create a model document updated to current API
+- Minor fixes to cryptography section in the "Bluetooth Mesh basic concepts" document
+- Added installation instructions for CMake, Ninja and ARM toolchain
+- Added information on how to select compile target
+
+### Other
+
+- Serial handlers split into separate source file
+- Fix unit tests to work with the public CMock
+- Fix packet formats and application nonce for compliance
+    - Update unit tests with new sample data
+- Several minor bugfixes
+- Serial interface "Init Context" command removed. Provisioning context initialization is managed automatically.
+
+### Known limitations of this release
+
+- Heartbeat and Health model not implemented
+- Source for bootloader must be downloaded from OpenMesh gitHub repo
+- No power down state storage
+
+
+
+
 ## BLE Mesh v0.9.1-Alpha
 
 This is an experimental release for exploration of the BLE Mesh stack on the nRF5 device family. It is not intended for commercial use.

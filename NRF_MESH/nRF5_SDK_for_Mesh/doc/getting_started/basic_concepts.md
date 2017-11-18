@@ -1,12 +1,12 @@
-# Basic Bluetooth Mesh Concepts
+# Basic Bluetooth Mesh concepts
 
-The Bluetooth Mesh is a profile specification developed and published by the [Bluetooth SIG](http://www.bluetooth.org). This document explains the basic concepts of the Bluetooth Mesh and gives an overview of the operation and capabilities of the profile, as well as explaining the life cycle of a mesh device. For information about Nordic Semiconductor's implementation of the Bluetooth Mesh, see the [Mesh Architecture documentation](@ref md_doc_getting_started_basic_architecture).
+The Bluetooth Mesh is a profile specification developed and published by the @link_BluetoothSIG<!--http://www.bluetooth.org/-->. This document explains the basic concepts of the Bluetooth Mesh and gives an overview of the operation and capabilities of the profile, as well as explaining the life cycle of a mesh device. For information about Nordic Semiconductor's implementation of the Bluetooth Mesh, see the [mesh architecture documentation](@ref md_doc_getting_started_basic_architecture).
 
 ## Relation to Bluetooth low energy
 
 The Bluetooth Mesh is based on the Bluetooth low energy part of the Bluetooth 4.0 Specification and shares the lowest layers with this protocol. On-air, the Bluetooth Mesh packet format and physical representation is compatible with existing Bluetooth low energy devices, and the Mesh protocol acts entirely in the payload space of Bluetooth low energy _Advertisement_ packets. The Bluetooth Mesh specifies a completely new host layer, and although some concepts are shared, the Bluetooth Mesh is incompatible with the Bluetooth low energy host layer.
 
-![Relationship between Bluetooth Mesh and Bluetooth low energy specifications](img/mesh_and_ble.png)
+![Relationship between Bluetooth Mesh and Bluetooth low energy specifications](img/mesh_and_ble.svg)
 
 ## Application areas
 
@@ -60,7 +60,7 @@ To standardize communication between devices from different vendors, the Mesh Pr
 
 The access layer holds a set of mesh models arranged in elements, as illustrated in the following figure.
 
-![Access layer structure](img/access.png)
+![Access layer structure](img/access.svg)
 
 Every device has one or more elements, each acting as a virtual entity in the mesh with its own unique unicast address. Every element holds one or more models. A model represents a specific behavior or service and defines a set of states and messages that act on these states. The Bluetooth SIG defines a set of models to cover typical usage scenarios like device configuration, sensor reading, and light control, but vendors are free to define their own models with accompanying messages.
 
@@ -90,13 +90,13 @@ The Bluetooth Mesh employs several security measures to prevent third-party inte
 
 ### Authentication
 
-Device authentication is part of the network building process (the provisioning) and lets the user confirm that the device being added is the device they think it is, and not an impostor. The specification defines a range of local out-of-band authentication methods (for example, blinking of lights, output and input of passphrases, and static authentication against an external resource like a product database). When a device has been provisioned, it is part of the network and all its messages are considered authenticated.
+Device authentication is part of the network building process (the provisioning) and lets the user confirm that the device being added is the device they think it is, and not an impostor. The specification defines a range of local out-of-band authentication methods (for example, blinking of lights, output and input of passphrases, and static authentication against an external resource like a product database). When a device has been provisioned, it is part of the network and all its messages are considered authenticated. To secure the provisioning procedure, Elliptic Curve Diffie-Helmann (ECDH) public key cryptography is used.
 
 ### Encryption
 
 The Bluetooth Mesh features two levels of AES-CCM encryption with 128-bit keys for all messages going across the network.
 
-The lowest layer, _network encryption_, protects all devices in the network from outside access, while implicitly defining which devices are part of the network. Network encryption is done with a network key, and any network may have up to 4096 different network keys. All devices with a network key are considered part of the network and may send and relay messages across it. By using multiple network keys, a network administrator may effectively separate their network into multiple subnetworks, because a mesh relay forwards only messages that are encrypted with a known network key.
+The lowest layer, _network encryption_, protects all devices in the network from outside access, while implicitly defining which devices are part of the network. Network encryption is done with a network encryption key, and any network may have up to 4096 different network keys. All devices with a network key are considered part of the network and may send and relay messages across it. By using multiple network keys, a network administrator may effectively separate their network into multiple subnetworks, because a mesh relay forwards only messages that are encrypted with a known network key.
 
 The second encryption layer is the _transport encryption_. This encryption layer limits which devices can do what _within a network_ through an application or device key. As an example, consider a mesh network deployed in a hotel, where it is desirable to limit some features to be controlled by the staff (like configuration of key cards or access to storage areas) and some features to be available to guests (like controlling room lighting or air conditioning). For this, we can have one application key for the guests and one for the staff, with their messages traveling across the same network with the same network key.
 
@@ -106,7 +106,7 @@ Each encrypted mesh message contains 32-bit or 64-bit message integrity check va
 
 ### Privacy
 
-All mesh message payloads are fully encrypted. Message metadata like source and destination address is obfuscated with the network key.
+All mesh message payloads are fully encrypted. Message metadata like source address and message sequence number is obfuscated with the privacy key, derived from the network key.
 
 ### Replay protection
 

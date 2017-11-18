@@ -46,7 +46,7 @@ void event_handle(nrf_mesh_evt_t * p_evt)
 {
     NRF_MESH_ASSERT(p_evt != NULL);
 
-    if(mp_evt_handlers_head != NULL)
+    if (mp_evt_handlers_head != NULL)
     {
         for (list_node_t * p_node = mp_evt_handlers_head;
              p_node != NULL;

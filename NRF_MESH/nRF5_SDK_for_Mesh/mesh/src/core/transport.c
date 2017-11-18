@@ -71,12 +71,6 @@
 /** Mask for SeqZero value. */
 #define TRANSPORT_SAR_SEQZERO_MASK (0x1FFF)
 
-/** Virtual address salt. */
-#define TRANSPORT_VIRTUAL_ADDR_SALT ((const uint8_t * ) "vtad")
-
-/** Virtual address salt length. */
-#define TRANSPORT_VIRTUAL_ADDR_SALT_LENGTH (4)
-
 #define TRANSPORT_SAR_SEGMENT_MAX_SIZE (PACKET_MESH_SEG_PDU_MAX_SIZE - BIT2MICSIZE(0))
 #define TRANSPORT_SAR_PACKET_MAX_SIZE (32 * TRANSPORT_SAR_SEGMENT_MAX_SIZE)
 
@@ -119,7 +113,7 @@ static uint8_t m_transport_pkt_buf[PACKET_MESH_UNSEG_PDU_MAX_SIZE];
  * @return Sequence number calculated from seqzero (little endian).
  */
 static inline
-uint32_t packet_mesh_trs_seq_auth_get(packet_mesh_t * p_mesh_packet)
+uint32_t packet_mesh_trs_seq_auth_get(const packet_mesh_t * p_mesh_packet)
 {
     uint32_t seq = packet_mesh_net_seq_get(p_mesh_packet);
     uint16_t seqzero = packet_mesh_trs_seqzero_get(p_mesh_packet);
@@ -137,20 +131,20 @@ uint32_t packet_mesh_trs_seq_auth_get(packet_mesh_t * p_mesh_packet)
 }
 
 static inline
-bool is_unseg_access_packet(packet_mesh_t * p_mesh_packet)
+bool is_unseg_access_packet(const packet_mesh_t * p_mesh_packet)
 {
 
     return (!packet_mesh_net_ctl_get(p_mesh_packet) && !packet_mesh_trs_seg_get(p_mesh_packet));
 }
 
 static inline
-bool is_seg_access_packet(packet_mesh_t * p_mesh_packet)
+bool is_seg_access_packet(const packet_mesh_t * p_mesh_packet)
 {
     return (!packet_mesh_net_ctl_get(p_mesh_packet) && packet_mesh_trs_seg_get(p_mesh_packet));
 }
 
 static inline
-bool is_seg_ack_packet(packet_mesh_t * p_mesh_packet)
+bool is_seg_ack_packet(const packet_mesh_t * p_mesh_packet)
 {
     return (packet_mesh_net_ctl_get(p_mesh_packet) && packet_mesh_trs_opcode_get(p_mesh_packet) == 0x00);
 
@@ -286,7 +280,7 @@ static void trs_sar_session_timer_order(trs_sar_ctx_t * p_sar_ctx)
     }
 }
 
-static uint32_t trs_sar_pkt_ack(trs_sar_ctx_t * p_sar_ctx)
+static uint32_t trs_sar_pkt_ack(const trs_sar_ctx_t * p_sar_ctx)
 {
     uint32_t status;
     packet_t * p_packet;
@@ -305,9 +299,9 @@ static uint32_t trs_sar_pkt_ack(trs_sar_ctx_t * p_sar_ctx)
 
     uint32_t seq = 0;
     status = net_state_seqnum_alloc(&seq);
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         return status;
     }
 
@@ -328,7 +322,7 @@ static uint32_t trs_sar_pkt_ack(trs_sar_ctx_t * p_sar_ctx)
     status = network_pkt_out(p_packet, p_sar_ctx->p_net_secmat, true);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
 
     return status;
@@ -379,7 +373,7 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
 
     if (p_sar_ctx == NULL)
     {
-        (void)m_send_sar_cancel_event((uint32_t) NULL, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
+        m_send_sar_cancel_event(0, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
         return NRF_ERROR_NO_MEM;
     }
 
@@ -421,13 +415,13 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
             }
         }
 
-        if(status != NRF_SUCCESS)
+        if (status != NRF_SUCCESS)
         {
             if (nrf_mesh_address_type_get(p_sar_ctx->header.dst) == NRF_MESH_ADDRESS_TYPE_UNICAST)
             {
                 (void)trs_sar_pkt_ack(p_sar_ctx);
             }
-            (void)m_send_sar_cancel_event((uint32_t) NULL, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
+            m_send_sar_cancel_event(0, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
             return status;
         }
 
@@ -450,13 +444,13 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
     }
 
     __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, "Got segment %u\n", packet_mesh_trs_sego_get(p_mesh_packet));
-    if (p_sar_ctx->header.block_ack & (1 << packet_mesh_trs_sego_get(p_mesh_packet)))
+    if (p_sar_ctx->header.block_ack & (1u << packet_mesh_trs_sego_get(p_mesh_packet)))
     {
         /* Segment already received. */
         return NRF_SUCCESS;
     }
 
-    p_sar_ctx->header.block_ack |= (1 << packet_mesh_trs_sego_get(p_mesh_packet));
+    p_sar_ctx->header.block_ack |= (1u << packet_mesh_trs_sego_get(p_mesh_packet));
     p_sar_ctx->header.seg_left--;
 
     uint8_t len;
@@ -538,7 +532,7 @@ static uint32_t trs_sar_segack_pkt_in(packet_mesh_t * p_mesh_packet)
     p_sar_ctx->header.block_ack &= ~(block_ack);
     if (block_ack == 0)
     {
-        (void)trs_sar_drop_session(p_sar_ctx, NRF_MESH_SAR_CANCEL_BY_PEER);
+        trs_sar_drop_session(p_sar_ctx, NRF_MESH_SAR_CANCEL_BY_PEER);
     }
     else
     {
@@ -563,7 +557,7 @@ static bool test_transport_decrypt(const nrf_mesh_application_secmat_t ** pp_app
     return mic_passed;
 }
 
-uint32_t trs_sar_pkt_decrypt(trs_sar_ctx_t * p_sar_ctx)
+uint32_t trs_sar_pkt_decrypt(const trs_sar_ctx_t * p_sar_ctx)
 {
     uint32_t status;
     uint8_t decrypt_buf[p_sar_ctx->header.length - BIT2MICSIZE(p_sar_ctx->header.szmic)];
@@ -573,7 +567,8 @@ uint32_t trs_sar_pkt_decrypt(trs_sar_ctx_t * p_sar_ctx)
     enc_nonce_app_t nonce =
         {
             .type     = p_sar_ctx->header.akf ? ENC_NONCE_APP : ENC_NONCE_DEV,
-            .zero1    = 0,
+            .aszmic   = p_sar_ctx->header.szmic,
+            .padding  = 0,
             .seq      = LE2BE24(p_sar_ctx->header.seq_auth),
             .src      = LE2BE16(p_sar_ctx->header.src),
             .dst      = LE2BE16(p_sar_ctx->header.dst),
@@ -590,7 +585,7 @@ uint32_t trs_sar_pkt_decrypt(trs_sar_ctx_t * p_sar_ctx)
     ccm_data.p_mic   = (uint8_t *) ccm_data.p_m + ccm_data.m_len;
     ccm_data.p_out   = &decrypt_buf[0];
 
-    nrf_mesh_address_t dst_address = {0};
+    nrf_mesh_address_t dst_address = { NRF_MESH_ADDRESS_TYPE_INVALID };
     if (!nrf_mesh_rx_address_get(p_sar_ctx->header.dst, &dst_address))
     {
         return NRF_ERROR_INVALID_ADDR;
@@ -619,7 +614,7 @@ uint32_t trs_sar_pkt_decrypt(trs_sar_ctx_t * p_sar_ctx)
              nrf_mesh_app_secmat_next_get(p_sar_ctx->p_net_secmat, p_sar_ctx->header.aid, &p_app_secmat))
         {
             mic_passed = test_transport_decrypt(&p_app_secmat, &ccm_data);
-            if(mic_passed)
+            if (mic_passed)
             {
                 break;
             }
@@ -695,16 +690,16 @@ static uint32_t trs_sar_rx_process(void)
         if ((m_trs_sar_ack_timeout || p_sar_ctx->header.seg_left == 0))
         {
             /* The replay cache may be full by now*/
-            if(!replay_cache_has_room(p_sar_ctx->header.src, p_sar_ctx->header.ivi))
+            if (!replay_cache_has_room(p_sar_ctx->header.src, p_sar_ctx->header.ivi))
             {
-                (void)m_send_replay_cache_full_event(p_sar_ctx->header.src, p_sar_ctx->header.ivi, NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
+                m_send_replay_cache_full_event(p_sar_ctx->header.src, p_sar_ctx->header.ivi, NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
                 p_sar_ctx->header.block_ack = 0;
                 /* We're already in failure path don't care about return of these here, but perhaps they can be pushed as events?*/
                 if (nrf_mesh_address_type_get(p_sar_ctx->header.dst) == NRF_MESH_ADDRESS_TYPE_UNICAST)
                 {
                     (void)trs_sar_pkt_ack(p_sar_ctx);
                 }
-                (void)trs_sar_drop_session(p_sar_ctx, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
+                trs_sar_drop_session(p_sar_ctx, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
                 return NRF_ERROR_NO_MEM;
             }
 
@@ -733,7 +728,7 @@ static uint32_t trs_sar_rx_process(void)
                     /* We had already checked that the replay_cache still has space! */
                     NRF_MESH_ASSERT(NRF_SUCCESS == status);
 
-                    /* fall-through */
+                    /* fallthrough */
                 case NRF_ERROR_NOT_FOUND:
                 {
                     /* @todo should only need to set active => 0 */
@@ -772,18 +767,18 @@ static uint32_t sar_segment_send(trs_sar_ctx_t * p_sar_ctx, uint8_t seg_index, u
 
     uint32_t seqnum;
     status = net_state_seqnum_alloc(&seqnum);
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         p_sar_ctx->header.seg_left = seg_index;
         return status;
     }
 
-    p_mesh_packet = (packet_mesh_t *) &p_packet->payload[0];
-
     uint32_t packet_payload_size = sizeof(packet_mesh_t) + PACKET_MESH_SEG_PDU_OFFSET + trs_payload_size + BIT2MICSIZE(0);
-    memset(p_mesh_packet, 0, packet_payload_size);
+    memset(p_packet->payload, 0, packet_payload_size);
     packet_payload_size_set(p_packet, packet_payload_size);
+
+    p_mesh_packet = (packet_mesh_t *) &p_packet->payload[0];
 
     p_mesh_packet->ad_type = AD_TYPE_MESH;
     p_mesh_packet->length  = packet_payload_size - 1;
@@ -795,7 +790,6 @@ static uint32_t sar_segment_send(trs_sar_ctx_t * p_sar_ctx, uint8_t seg_index, u
     packet_mesh_net_src_set(p_mesh_packet, p_sar_ctx->header.src);
     packet_mesh_net_dst_set(p_mesh_packet, p_sar_ctx->header.dst);
     packet_mesh_trs_seg_set(p_mesh_packet, 1);
-    packet_mesh_trs_md_set(p_mesh_packet, 0);
     packet_mesh_trs_aid_set(p_mesh_packet, p_sar_ctx->header.aid);
     packet_mesh_trs_akf_set(p_mesh_packet, p_sar_ctx->header.akf);
     packet_mesh_trs_szmic_set(p_mesh_packet, p_sar_ctx->header.szmic);
@@ -810,7 +804,7 @@ static uint32_t sar_segment_send(trs_sar_ctx_t * p_sar_ctx, uint8_t seg_index, u
     status = network_pkt_out(p_packet, p_sar_ctx->p_net_secmat, true);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
         p_sar_ctx->header.seg_left = seg_index;
         __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_WARN, "Error %u: Unable to transmit segment. Segments left: %u\n", status, p_sar_ctx->header.seg_left);
     }
@@ -838,7 +832,7 @@ static uint32_t trs_sar_pkt_out(trs_sar_ctx_t * p_sar_ctx)
     /* Starts at seg_left if, e.g., there was no memory available last round. */
     for (uint8_t i = p_sar_ctx->header.seg_left; i < seg_n; ++i)
     {
-        if ((p_sar_ctx->header.block_ack & (1 << i)) == 0)
+        if ((p_sar_ctx->header.block_ack & (1u << i)) == 0)
         {
             /* Segment acknowledged */
             __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_INFO, "Segment %u already acked!\n", i);
@@ -873,7 +867,7 @@ static void sar_ctx_free(trs_sar_ctx_t * p_sar_ctx)
         };
     event_handle(&evt);
 
-    if(p_sar_ctx->payload != NULL)
+    if (p_sar_ctx->payload != NULL)
     {
         m_sar_release(p_sar_ctx->payload);
         p_sar_ctx->payload = NULL;
@@ -971,7 +965,7 @@ static uint32_t transport_pkt_decrypt(packet_mesh_t * p_mesh_packet,
     uint8_t app_nonce_buf[CCM_NONCE_LENGTH];
     enc_nonce_generate((packet_net_hdr_t*) &p_mesh_packet->pdu[0],
                        LE2BE32(iv_index),
-                       ((akf == 1) ? ENC_NONCE_APP : ENC_NONCE_DEV),
+                       ((akf == 1) ? ENC_NONCE_APP : ENC_NONCE_DEV), 0,
                        app_nonce_buf);
     ccm_soft_data_t ccm_data;
     ccm_data.p_nonce = app_nonce_buf;
@@ -1034,8 +1028,7 @@ static uint32_t transport_pkt_decrypt(packet_mesh_t * p_mesh_packet,
 
 static void transport_pkt_encrypt(packet_mesh_t * p_mesh_packet,
                                   const nrf_mesh_address_t * p_dst,
-                                  const nrf_mesh_application_secmat_t * p_app_secmat,
-                                  const nrf_mesh_network_secmat_t * p_net_secmat)
+                                  const nrf_mesh_application_secmat_t * p_app_secmat)
 {
     NRF_MESH_ASSERT(p_mesh_packet != NULL);
 
@@ -1047,7 +1040,7 @@ static void transport_pkt_encrypt(packet_mesh_t * p_mesh_packet,
     enc_nonce_generate((packet_net_hdr_t *) &p_mesh_packet->pdu[0],
                        LE2BE32(iv_index),
                        (packet_mesh_trs_akf_get(p_mesh_packet) == 1 ? ENC_NONCE_APP : ENC_NONCE_DEV),
-                       app_nonce_buf);
+                       0, app_nonce_buf);
 
     /* Encryption length is the payload size minus the size of the MIC_app and
      * MIC_net. The address of MIC_app is right after the app_payload:
@@ -1101,7 +1094,7 @@ void transport_init(const nrf_mesh_init_params_t * p_init_params)
     memset(&m_trs_sar_session_timer, 0, sizeof(timer_event_t));
     m_trs_sar_session_timer.cb = trs_sar_session_cb;
 
-    (void)replay_cache_init();
+    replay_cache_init();
 
     m_trs_config.rx_timeout       = TRANSPORT_SAR_RX_TIMEOUT_DEFAULT;
     m_trs_config.rx_ack_timeout   = TRANSPORT_SAR_RX_ACK_TIMEOUT_DEFAULT;
@@ -1114,7 +1107,7 @@ void transport_init(const nrf_mesh_init_params_t * p_init_params)
 
 uint32_t transport_sar_mem_funcs_set(transport_sar_alloc_t alloc_func, transport_sar_release_t release_func)
 {
-    if ((alloc_func == NULL) != (release_func == NULL))
+    if ((alloc_func == NULL) != (release_func == NULL)) /*lint !e731 Boolean arguments to equal/not equal operator */
     {
         /* Both functions must be NULL or non-NULL, but not a mix of both. */
         return NRF_ERROR_NULL;
@@ -1138,7 +1131,7 @@ void transport_sar_mem_funcs_reset(void)
 }
 
 uint32_t transport_pkt_in(packet_net_t * p_net_packet,
-                          packet_meta_t * p_packet_meta,
+                          const packet_meta_t * p_packet_meta,
                           const nrf_mesh_network_secmat_t * p_net_secmat,
                           uint32_t iv_index)
 {
@@ -1163,7 +1156,7 @@ uint32_t transport_pkt_in(packet_net_t * p_net_packet,
         return NRF_ERROR_INVALID_ADDR;
     }
 
-    nrf_mesh_address_t rx_address = {0};
+    nrf_mesh_address_t rx_address = { NRF_MESH_ADDRESS_TYPE_INVALID };
     if (!nrf_mesh_rx_address_get(rx_addr_le, &rx_address))
     {
         __INTERNAL_EVENT_PUSH(INTERNAL_EVENT_PACKET_DROPPED, PACKET_DROPPED_UNKNOWN_ADDRESS, p_net_packet->length+1, p_net_packet);
@@ -1231,9 +1224,9 @@ uint32_t transport_pkt_in(packet_net_t * p_net_packet,
                               packet_mesh_net_ivi_get(p_mesh_packet));
     if (status != NRF_SUCCESS)
     {
-        (void)m_send_replay_cache_full_event(src_addr,
-                                             packet_mesh_net_ivi_get(p_mesh_packet),
-                                             NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
+        m_send_replay_cache_full_event(src_addr,
+                                       packet_mesh_net_ivi_get(p_mesh_packet),
+                                       NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
         return status;
     }
 
@@ -1346,13 +1339,12 @@ uint32_t transport_tx(const nrf_mesh_tx_params_t * p_params, uint32_t * const p_
 
     transport_pkt_encrypt(p_mesh_packet,
             &p_params->dst,
-            p_params->security_material.p_app,
-            p_params->security_material.p_net);
+            p_params->security_material.p_app);
 
     status = network_pkt_out(p_buffer, p_params->security_material.p_net, true);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_buffer);
+        packet_mgr_free(p_buffer);
     }
     return status;
 }
@@ -1366,11 +1358,11 @@ uint32_t transport_tx_sar(const nrf_mesh_tx_params_t * p_params, uint32_t * cons
         *p_packet_reference = 0;
     }
 
-    if (p_params->data_len <  transport_unseg_maxlen_get() ||
-        p_params->data_len >= transport_seg_maxlen_get())
-    {
-        return NRF_ERROR_INVALID_LENGTH;
-    }
+    NRF_MESH_ASSERT((p_params->data_len < transport_seg_maxlen_get() &&
+                     p_params->data_len >= transport_unseg_maxlen_get())
+                    ||
+                    (p_params->data_len < transport_unseg_maxlen_get() &&
+                     p_params->reliable));
 
     trs_sar_ctx_t * p_sar_ctx = NULL;
     uint32_t was_masked;
@@ -1411,7 +1403,7 @@ uint32_t transport_tx_sar(const nrf_mesh_tx_params_t * p_params, uint32_t * cons
     enc_nonce_app_t * p_nonce;
 
     /* Setup header */
-    p_sar_ctx->p_net_secmat    = p_params->security_material.p_net;
+    p_sar_ctx->p_net_secmat = p_params->security_material.p_net;
 
     uint32_t num_segments = ((p_params->data_len
                               + BIT2MICSIZE(p_sar_ctx->header.szmic)
@@ -1421,7 +1413,7 @@ uint32_t transport_tx_sar(const nrf_mesh_tx_params_t * p_params, uint32_t * cons
     /* Keep configuration consistent across session. */
     net_state_iv_index_lock(true);
     p_sar_ctx->header.szmic = m_trs_config.szmic;
-    p_sar_ctx->header.ttl      = p_params->ttl;
+    p_sar_ctx->header.ttl = p_params->ttl;
     p_sar_ctx->header.block_ack = (0xFFFFFFFF >> (32 - num_segments));
 
     uint32_t iv_index = net_state_tx_iv_index_get();
@@ -1438,7 +1430,7 @@ uint32_t transport_tx_sar(const nrf_mesh_tx_params_t * p_params, uint32_t * cons
     p_sar_ctx->header.dst = p_params->dst.value;
 
     p_sar_ctx->header.length = p_params->data_len + BIT2MICSIZE(p_sar_ctx->header.szmic);
-    p_sar_ctx->header.ivi    = iv_index & NETWORK_IVI_MASK;
+    p_sar_ctx->header.ivi = iv_index & NETWORK_IVI_MASK;
     p_sar_ctx->header.seg_left = 0;
     p_sar_ctx->header.akf = !p_params->security_material.p_app->is_device_key;
     p_sar_ctx->header.aid = p_params->security_material.p_app->aid;
@@ -1452,7 +1444,8 @@ uint32_t transport_tx_sar(const nrf_mesh_tx_params_t * p_params, uint32_t * cons
 
     p_nonce->type  = ((p_params->security_material.p_app->is_device_key) ?
                       ENC_NONCE_DEV : ENC_NONCE_APP);
-    p_nonce->zero1    = 0;
+    p_nonce->aszmic   = p_sar_ctx->header.szmic;
+    p_nonce->padding  = 0;
     p_nonce->seq      = LE2BE24(p_sar_ctx->header.seq_auth);
     p_nonce->src      = LE2BE16(p_sar_ctx->header.src);
     p_nonce->dst      = LE2BE16(p_sar_ctx->header.dst);

@@ -40,8 +40,13 @@
 #ifdef UNIT_TEST
 #include <setjmp.h>
 #endif
+
+#ifdef _lint
+#include <stdlib.h>
+#endif
+
 #include "nrf_mesh.h"
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 
 /**
  * @defgroup MESH_ASSERT Internal assert triggering functions.
@@ -54,7 +59,10 @@
 extern nrf_mesh_assertion_handler_t m_assertion_handler;
 
 #if HOST
-    #if defined(__GNUC__)
+    #if defined(_lint)
+        #define HARD_FAULT() abort()
+        #define GET_PC(pc) pc = __current_pc();
+    #elif defined(__GNUC__)
         #define HARD_FAULT() __builtin_trap()
         /** Get program counter on x86-32 using AT&T assembler syntax (GNU default). */
         #define GET_PC(pc) do {                         \
@@ -66,6 +74,8 @@ extern nrf_mesh_assertion_handler_t m_assertion_handler;
     #else
         #error "Compiler used is not supported."
     #endif /* defined(__GNUC__) */
+#elif defined(_lint)
+    #define HARD_FAULT() abort()
 #elif defined(__CC_ARM) /* ARMCC for NRF */
     /** Produces a hardfault. */
     #define HARD_FAULT() __breakpoint(0)
@@ -95,7 +105,7 @@ extern nrf_mesh_assertion_handler_t m_assertion_handler;
             mesh_assert_expect = true;             \
             if (!setjmp(assert_jump_buf))          \
             {                                      \
-                func;                              \
+                (void) func;                       \
                 mesh_assert_expect = false;        \
                 TEST_FAIL();                       \
             }                                      \
@@ -120,7 +130,7 @@ extern nrf_mesh_assertion_handler_t m_assertion_handler;
         }                                          \
      }
 #elif _lint
-    #define NRF_MESH_ASSERT(cond) do {if (!(cond)) {exit(-1);}} while (0)
+    #define NRF_MESH_ASSERT(cond) do {if (!(cond)) {abort();}} while (0)
 #else
     #define NRF_MESH_ASSERT(cond)   if (!(cond))                        \
     {                                                                   \

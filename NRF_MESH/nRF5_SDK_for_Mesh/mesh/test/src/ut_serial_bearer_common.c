@@ -133,7 +133,7 @@ void serial_transmit_packet_buf_calls(serial_packet_t * p_packet, packet_buffer_
 void serial_buffer_get(uint16_t packet_len, serial_packet_t ** pp_packet, packet_buffer_packet_t * p_buf_packet)
 {
     serial_buffer_get_calls(packet_len, &p_buf_packet);
-    serial_bearer_packet_buffer_get(packet_len, pp_packet);
+    (void) serial_bearer_packet_buffer_get(packet_len, pp_packet);
 }
 
 void serial_transmit(serial_packet_t * p_packet, packet_buffer_packet_t * p_buf_packet)
@@ -188,10 +188,10 @@ void receive_char(packet_buffer_packet_t ** pp_buf_packet, uint8_t val, bool che
 
 void setUp(void)
 {
-    CMOCK_SETUP(serial_uart);
-    CMOCK_SETUP(packet_buffer);
-    CMOCK_SETUP(bearer_event);
-    CMOCK_SETUP(serial);
+    serial_uart_mock_Init();
+    packet_buffer_mock_Init();
+    bearer_event_mock_Init();
+    serial_mock_Init();
 
     signal(SIGSEGV,segfault_handler);
     bearer_event_flag_set_StubWithCallback(bearer_event_flag_set_callback);
@@ -208,10 +208,10 @@ void setUp(void)
         test_data[i] = i;
     }
 
-    packet_buffer_init_Expect(NULL, NULL, sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t));
+    packet_buffer_init_Expect(NULL, NULL, ALIGN_VAL(sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t), WORD_SIZE));
     packet_buffer_init_IgnoreArg_p_pool();
     packet_buffer_init_IgnoreArg_p_buffer();
-    packet_buffer_init_Expect(NULL, NULL, sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t));
+    packet_buffer_init_Expect(NULL, NULL, ALIGN_VAL(sizeof(serial_packet_t) + sizeof(packet_buffer_packet_t), WORD_SIZE));
     packet_buffer_init_IgnoreArg_p_pool();
     packet_buffer_init_IgnoreArg_p_buffer();
     serial_uart_receive_set_Expect(true);
@@ -224,6 +224,13 @@ void tearDown(void)
     packet_buffer_mock_Verify();
     bearer_event_mock_Verify();
     serial_mock_Verify();
-    CMOCK_TEARDOWN();
+    serial_uart_mock_Verify();
+    serial_uart_mock_Destroy();
+    packet_buffer_mock_Verify();
+    packet_buffer_mock_Destroy();
+    bearer_event_mock_Verify();
+    bearer_event_mock_Destroy();
+    serial_mock_Verify();
+    serial_mock_Destroy();
 }
 

@@ -130,6 +130,8 @@ typedef enum
     NRF_MESH_PROV_ROLE_PROVISIONEE  /**< The device will act as a provisionee, receiving provisioning data. */
 } nrf_mesh_prov_role_t;
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * Provisioning authentication capabilities.
  * This structure is filled in with the preferred values for how authentication is to be performed.
@@ -241,6 +243,8 @@ typedef struct __attribute((packed))
     } flags;
 } nrf_mesh_prov_provisioning_data_t;
 
+/*lint -align_max(pop) */
+
 /**
  * Provisioning state machine states.
  * These are used internally in the provisioning stack to run the provisioning protocol.
@@ -332,6 +336,10 @@ uint32_t nrf_mesh_prov_generate_keys(uint8_t * p_public, uint8_t * p_private);
  * @param[in]     bearer        Which bearer to establish the provisioning link on.
  *
  * @retval NRF_SUCCESS The provisioning process was started.
+ * @retval NRF_ERROR_NULL One or more parameters were NULL.
+ * @retval NRF_ERROR_NOT_SUPPORTED The given bearer type is not supported in the current configuration.
+ * @retval NRF_ERROR_INVALID_DATA The provisioning data failed some boundary conditions.
+ * @retval NRF_ERROR_INVALID_STATE The given context is in use.
  */
 uint32_t nrf_mesh_prov_provision(nrf_mesh_prov_ctx_t * p_ctx, const uint8_t * p_target_uuid,
         const nrf_mesh_prov_provisioning_data_t * p_data, nrf_mesh_prov_bearer_type_t bearer);

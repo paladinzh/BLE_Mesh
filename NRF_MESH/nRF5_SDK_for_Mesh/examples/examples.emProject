@@ -113,7 +113,7 @@
       <file file_name="../mesh/src/access/nrf_mesh_node_config.c" />
     </folder>
   </project>
-  <project Name="pm_remote_server">
+  <project Name="pb_remote_server">
     <configuration
       Name="Common"
       arm_linker_heap_size="1024"
@@ -167,13 +167,16 @@
       <file file_name="../mesh/src/serial/serial_bearer.c" />
       <file file_name="../mesh/src/serial/serial.c" />
       <file file_name="../mesh/src/serial/serial_handler_access.c" />
-      <file file_name="../mesh/src/serial/serial_handler.c" />
       <file file_name="../mesh/src/serial/serial_handler_common.c" />
       <file file_name="../mesh/src/serial/serial_handler_device.c" />
       <file file_name="../mesh/src/serial/serial_handler_mesh.c" />
       <file file_name="../mesh/src/serial/serial_handler_models.c" />
       <file file_name="../mesh/src/serial/serial_handler_prov.c" />
       <file file_name="../mesh/src/serial/serial_uart.c" />
+      <file file_name="../mesh/src/serial/serial_handler_app.c" />
+      <file file_name="../mesh/src/serial/serial_handler_config.c" />
+      <file file_name="../mesh/src/serial/serial_handler_dfu.c" />
+      <file file_name="../mesh/src/serial/serial_handler_openmesh.c" />
     </folder>
     <folder Name="Mesh Access">
       <file file_name="../mesh/src/access/device_state_manager.c" />

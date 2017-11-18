@@ -89,7 +89,8 @@ static uint32_t event_report_cb(internal_event_t * p_event)
     p_serial_evt->payload.evt.device.internal_event.state = p_event->state.value;
     p_serial_evt->payload.evt.device.internal_event.packet_size = p_event->packet_size;
     memcpy(p_serial_evt->payload.evt.device.internal_event.packet, p_event->p_packet, p_event->packet_size);
-    return serial_tx(p_serial_evt);
+    serial_tx(p_serial_evt);
+    return NRF_SUCCESS;
 }
 #endif
 
@@ -103,14 +104,15 @@ static void handle_cmd_device_echo(const serial_packet_t * p_cmd)
     p_serial_evt->opcode = SERIAL_OPCODE_EVT_DEVICE_ECHO_RSP;
     memcpy(p_serial_evt->payload.evt.device.echo.data, p_cmd->payload.cmd.device.echo.data,
             p_serial_evt->length - SERIAL_PACKET_LENGTH_OVERHEAD);
-    serial_tx(p_serial_evt);
+    (void) serial_tx(p_serial_evt);
 }
 
 static void handle_cmd_device_internal_events_report(const serial_packet_t * p_cmd)
 {
 #if INTERNAL_EVT_ENABLE
+    internal_event_init(event_report_cb);
     serial_cmd_rsp_send(p_cmd->opcode,
-            serial_translate_error(internal_event_init(event_report_cb)),
+            SERIAL_STATUS_SUCCESS,
             NULL,
             0);
 #else
@@ -173,7 +175,7 @@ static void handle_cmd_device_beacon_start(const serial_packet_t * p_cmd)
             }
             else
             {
-                packet_mgr_decref(p_packet);
+                packet_mgr_free(p_packet);
             }
         }
     }
@@ -272,7 +274,7 @@ void serial_handler_device_init(void)
         m_beacons[i].advertiser.adv_int_min_ms = BEARER_ADV_INT_MIN_MS_DEFAULT;
         m_beacons[i].advertiser.adv_channel_map = NRF_MESH_ADV_CHAN_DEFAULT;
         m_beacons[i].advertiser.queue_empty_cb = NULL;
-        NRF_MESH_ASSERT(bearer_adv_advertiser_init(&m_beacons[i].advertiser) == NRF_SUCCESS);
+        bearer_adv_advertiser_init(&m_beacons[i].advertiser);
     }
 }
 

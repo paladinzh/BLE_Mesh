@@ -129,7 +129,7 @@
 /** Maximum number of applications */
 #define DSM_APP_MAX                                     (8)
 /** Maximum number of device keys */
-#define DSM_DEVICE_MAX                                  (1)
+#define DSM_DEVICE_MAX                                  (3)
 /** Maximum number of concurrent key refresh keys. */
 #define DSM_KEY_REFRESH_KEYS_MAX                        (1)
 /** Maximum number of virtual addresses. */
@@ -144,4 +144,3 @@
 /** @} */
 
 #endif /* NRF_MESH_CONFIG_APP_H__ */
-

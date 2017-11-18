@@ -35,38 +35,24 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include <pthread.h>
+#include <nrf_error.h>
 
 #include "packet_mgr.h"
-#include "nrf_error.h"
 #include "nrf_mesh_assert.h"
-#include "utils.h"
-#include "log.h"
 
-#if PACKET_MGR_DEBUG_MODE
-#   include <stdio.h>
-#   define PACKET_MGR_LOG(...) printf(__VA_ARGS__)
-#else
-#   define PACKET_MGR_LOG(...)
-#endif
-
-#define PACKET_MGR_PACKET_MAGIC_1_BASE  0xbeeffeeb
-#define PACKET_MGR_PACKET_MAGIC_2_BASE  0xaa55aa55
+/*lint -e429 Custodial pointer has not been freed or returned */
 
 /**
  * Structure of the header for each allocated packet buffer.
  */
 typedef struct
 {
-    uint32_t magic_1;            /**< Magic word 1, used for locating the header of a block. */
-    uint32_t magic_2;            /**< Magic word 2, used for locating the header of a block. */
-    pthread_mutex_t block_mutex; /**< Mutex ensuring atomic access to block headers. */
-    uint16_t size;               /**< Size of the block in bytes */
-    uint16_t ref_count;          /**< Reference count */
+    uint16_t size;               /**< Size of the block in bytes. */
+    bool     in_use;             /**< Whether the block is in use. */
 } buffer_header_t;
 
 /********************
@@ -93,27 +79,12 @@ static inline packet_generic_t * buffer_get_mem(buffer_header_t * p_header)
     return (packet_generic_t *) (((uint8_t *) p_header) + sizeof(buffer_header_t));
 }
 
-#if PACKET_MGR_DEBUG_MODE
-/**
- * Gets the offset of a buffer relative to the start of the memory pool.
- * @param p_header header of the buffer.
- * @return offset of the buffer relative to the start of the memory pool.
- */
-static inline unsigned int buffer_offset_get(buffer_header_t * p_header)
-{
-    return (unsigned int) p_header;
-}
-#endif
-
 /******************************
  * Public interface functions *
  ******************************/
 
-uint32_t packet_mgr_init(const nrf_mesh_init_params_t * p_init_params)
+void packet_mgr_init(const nrf_mesh_init_params_t * p_init_params)
 {
-    PACKET_MGR_LOG("Packet manager initialized, using malloc() and free() as backend:\n");
-    PACKET_MGR_LOG("\tmaximum buffer size: %d\n", PACKET_MGR_PACKET_MAXLEN);
-    return NRF_SUCCESS;
 }
 
 uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size)
@@ -121,86 +92,31 @@ uint32_t packet_mgr_alloc(packet_generic_t ** pp_buffer, uint16_t size)
     buffer_header_t * current;
     uint32_t retval = NRF_SUCCESS;
 
-    if(size > PACKET_MGR_PACKET_MAXLEN)
+    if (size > PACKET_MGR_PACKET_MAXLEN)
     {
         return NRF_ERROR_INVALID_LENGTH;
     }
 
     current = malloc(size + sizeof(buffer_header_t));
-    if(current == NULL)
+    if (current == NULL)
     {
-        retval = NRF_ERROR_NO_MEM;
-        goto _alloc_return;
+        return NRF_ERROR_NO_MEM;
     }
 
     current->size = size;
-    current->ref_count = 1;
-    current->magic_2 = current->size + PACKET_MGR_PACKET_MAGIC_2_BASE;
-    current->magic_1 = current->size + current->magic_2 + PACKET_MGR_PACKET_MAGIC_1_BASE;
+    current->in_use = true;
     *pp_buffer = buffer_get_mem(current);
-    pthread_mutex_init(&current->block_mutex, NULL);
 
-    PACKET_MGR_LOG("Allocated block of size %d (actual %d)\n", size, current->size);
-
-_alloc_return:
     return retval;
 }
 
-
-void packet_mgr_incref(packet_generic_t * p_buffer)
-{
-    buffer_header_t * header = buffer_header_get(p_buffer);
-    pthread_mutex_lock(&header->block_mutex);
-    header->ref_count++;
-    pthread_mutex_unlock(&header->block_mutex);
-
-    PACKET_MGR_LOG("Increased refcount for buffer at offset %d to %d\n", buffer_offset_get(header), header->ref_count);
-}
-
-void packet_mgr_decref(packet_generic_t * p_buffer)
+void packet_mgr_free(packet_generic_t * p_buffer)
 {
     buffer_header_t * header = buffer_header_get(p_buffer);
 
-    pthread_mutex_lock(&header->block_mutex);
-    NRF_MESH_ASSERT(header->ref_count != 0);
+    NRF_MESH_ASSERT(header->in_use);
 
-    header->ref_count--;
-    if(header->ref_count != 0)
-    {
-        pthread_mutex_unlock(&header->block_mutex);
-        PACKET_MGR_LOG("Decreased refcount for buffer at offset %d to %d\n", buffer_offset_get(header), header->ref_count);
-    }
-    else
-    {
-        pthread_mutex_unlock(&header->block_mutex);
-        pthread_mutex_destroy(&header->block_mutex);
-        free(header);
-    }
+    header->in_use = false;
+    free(header);
 }
-
-uint32_t packet_mgr_bufstart_get(packet_generic_t * p_buffer, packet_generic_t ** pp_start)
-{
-    packet_generic_t * p_packet = NULL;
-    for(int i = 0; i < PACKET_MGR_PACKET_MAXLEN; ++i)
-    {
-        buffer_header_t * p_header = (buffer_header_t *) (((uint8_t *) p_buffer) - i);
-        if(p_header->magic_2 == PACKET_MGR_PACKET_MAGIC_2_BASE + p_header->size
-                && p_header->magic_1 == PACKET_MGR_PACKET_MAGIC_1_BASE + p_header->magic_2 + p_header->size)
-        {
-            PACKET_MGR_LOG("Found buffer start at %x (%x)\n", p_header, buffer_get_mem(p_header));
-            p_packet = buffer_get_mem(p_header);
-            break;
-        }
-    }
-
-    *pp_start = p_packet;
-    return NRF_SUCCESS;
-}
-
-uint8_t packet_mgr_refcount_get(packet_generic_t * p_packet)
-{
-    buffer_header_t * header = buffer_header_get(p_packet);
-    return header->ref_count;
-}
-
 

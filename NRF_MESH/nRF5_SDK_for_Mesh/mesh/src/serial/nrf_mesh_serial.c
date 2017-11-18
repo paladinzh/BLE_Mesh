@@ -40,12 +40,15 @@
 #include "nrf_mesh_events.h"
 #include "nrf_mesh_assert.h"
 #include "nrf_mesh_serial.h"
-#include "serial_handler.h"
-#include "serial_handler_mesh.h"
-#include "serial_handler_device.h"
+
 #include "serial.h"
 #include "serial_evt.h"
 
+#include "serial_handler_app.h"
+#include "serial_handler_device.h"
+#include "serial_handler_dfu.h"
+#include "serial_handler_mesh.h"
+#include "serial_handler_openmesh.h"
 #include "serial_handler_prov.h"
 
 
@@ -73,7 +76,7 @@ uint32_t nrf_mesh_serial_init(nrf_mesh_serial_app_rx_cb_t app_rx_cb)
     /* Initialize the serial handlers that can't fail last */
     serial_handler_device_init();
     serial_handler_mesh_init();
-    serial_handler_init();
+    serial_handler_dfu_init();
 
     if (app_rx_cb != NULL)
     {
@@ -111,6 +114,8 @@ uint32_t nrf_mesh_serial_tx(uint8_t* p_data, uint32_t length)
     NRF_MESH_ASSERT(NRF_SUCCESS == serial_packet_buffer_get(SERIAL_PACKET_LENGTH_OVERHEAD + length, &p_evt))
     p_evt->opcode = SERIAL_OPCODE_EVT_APPLICATION;
     memcpy(p_evt->payload.evt.application.data, p_data, length);
-    return serial_tx(p_evt);
+    serial_tx(p_evt);
+
+    return NRF_SUCCESS;
 }
 

@@ -44,7 +44,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "nrf_mesh_hw.h"
+#include "nrf.h"
 #include <nrf_error.h>
 #include "nrf_sdm.h"
 
@@ -90,10 +90,12 @@ uint32_t nrf_mesh_init(const nrf_mesh_init_params_t * p_init_params)
         return NRF_ERROR_INVALID_STATE;
     }
 
-    if (p_init_params != NULL)
+    if (p_init_params == NULL)
     {
-        m_assertion_handler = p_init_params->assertion_handler;
+        return NRF_ERROR_NULL;
     }
+
+    m_assertion_handler = p_init_params->assertion_handler;
 
     nrf_mesh_configure_device_uuid_reset();
 
@@ -111,35 +113,24 @@ uint32_t nrf_mesh_init(const nrf_mesh_init_params_t * p_init_params)
     }
 #endif
 
-#if __linux__
+#ifdef __linux__
     toolchain_init_irqs();
 #endif
 
-    status = packet_mgr_init(p_init_params);
-    if(status != NRF_SUCCESS)
-    {
-        return status;
-    }
-
-    status = msg_cache_init();
-    if(status != NRF_SUCCESS)
-    {
-        return status;
-    }
-
+    packet_mgr_init(p_init_params);
+    msg_cache_init();
     timer_sch_init();
-
     bearer_event_init();
 
     status = bearer_init(p_init_params);
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
         return status;
     }
 
 #  if !HOST
     status = timeslot_init(p_init_params);
-    if(status != NRF_SUCCESS)
+    if (status != NRF_SUCCESS)
     {
         return status;
     }
@@ -152,17 +143,11 @@ uint32_t nrf_mesh_init(const nrf_mesh_init_params_t * p_init_params)
 
     transport_init(p_init_params);
     network_init(p_init_params);
-
-    status = beacon_init(BEACON_INTERVAL_MS_DEFAULT);
-    if(status != NRF_SUCCESS)
-    {
-        return status;
-    }
-
+    beacon_init(BEACON_INTERVAL_MS_DEFAULT);
 
 #if !HOST
     status = nrf_mesh_dfu_init();
-    if((status != NRF_SUCCESS) && (status != NRF_ERROR_NOT_SUPPORTED))
+    if ((status != NRF_SUCCESS) && (status != NRF_ERROR_NOT_SUPPORTED))
     {
         return status;
     }
@@ -185,7 +170,7 @@ uint32_t nrf_mesh_enable(void)
     else
     {
 #if !HOST
-        timeslot_resume();
+        NRF_MESH_ASSERT(timeslot_resume() == NRF_SUCCESS);
 #endif
         uint32_t status = bearer_enable();
         if (status != NRF_SUCCESS)
@@ -236,7 +221,7 @@ uint32_t nrf_mesh_packet_send(const nrf_mesh_tx_params_t * p_params,
         return NRF_ERROR_INVALID_ADDR;
     }
 
-    if (p_params->data_len > transport_unseg_maxlen_get())
+    if (p_params->data_len > transport_unseg_maxlen_get() || p_params->reliable)
     {
         return transport_tx_sar(p_params, p_packet_reference);
     }
@@ -274,7 +259,7 @@ uint32_t nrf_mesh_adv_send(const uint8_t * p_payload, uint8_t size)
     status = bearer_tx(p_packet, BEARER_ADV_RADIO, 1);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_packet);
+        packet_mgr_free(p_packet);
     }
     return status;
 #else
@@ -289,7 +274,7 @@ uint32_t nrf_mesh_process(void)
     /* Process all incoming packets: */
     packet_t * p_incoming_packet;
     packet_meta_t meta_data;
-    while(bearer_rx(&p_incoming_packet, NULL, &meta_data) == NRF_SUCCESS)
+    while (bearer_rx(&p_incoming_packet, NULL, &meta_data) == NRF_SUCCESS)
     {
         for (ble_ad_data_t* p_ad_data = (ble_ad_data_t*) &p_incoming_packet->payload[0];
                 (uint8_t*) p_ad_data < &p_incoming_packet->payload[p_incoming_packet->header.length - BLE_ADV_PACKET_OVERHEAD];
@@ -333,7 +318,7 @@ uint32_t nrf_mesh_process(void)
                     if (p_service_data->uuid == BLE_ADV_SERVICE_DATA_UUID_DFU)
                     {
                         /* Send dfu packet pointer. */
-                        nrf_mesh_dfu_rx((nrf_mesh_dfu_packet_t*) p_service_data->data, p_ad_data->length - DFU_PACKET_PAYLOAD_OVERHEAD);
+                        (void) nrf_mesh_dfu_rx((nrf_mesh_dfu_packet_t*) p_service_data->data, p_ad_data->length - DFU_PACKET_PAYLOAD_OVERHEAD);
                     }
                     break;
                 }
@@ -357,7 +342,7 @@ uint32_t nrf_mesh_process(void)
             m_rx_cb(&rx_data);
         }
 
-        packet_mgr_decref(p_incoming_packet);
+        packet_mgr_free(p_incoming_packet);
     }
 
     status = transport_sar_process();

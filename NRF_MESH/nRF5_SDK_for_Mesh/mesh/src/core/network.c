@@ -65,6 +65,8 @@
  * Local Typedefs *
  ******************/
 
+/*lint -align_max(push) -align_max(1) */
+
 /**
  * PECB data according to the specification.
  */
@@ -74,6 +76,8 @@ typedef struct __attribute((packed))
     uint32_t         iv_index_be;                         /**< Current IV index (big endian). */
     uint8_t          privacy_random[PRIVACY_RANDOM_SIZE]; /**< The 7 LSBs of the privacy random value. */
 } pecb_data_t;
+
+/*lint -align_max(pop) */
 
 /********************
  * Static variables *
@@ -116,7 +120,7 @@ static void header_transfuscate(const packet_net_t * p_net_packet_in,
     pecb_data_t pecb_data;
     memset(&pecb_data.zero_padding[0], 0, sizeof(pecb_data.zero_padding));
     pecb_data.iv_index_be = iv_index_be;
-    memcpy(pecb_data.privacy_random, (const void *) &p_net_packet_in->header.dst, PRIVACY_RANDOM_SIZE);
+    memcpy(pecb_data.privacy_random, (const void *) &p_net_packet_in->header.dst, PRIVACY_RANDOM_SIZE); /*lint !e420 Apparent access beyond p_net_packet_in->header.dst */
     enc_aes_encrypt(p_net_secmat->privacy_key, (const uint8_t *) &pecb_data, pecb);
 
     utils_xor(((uint8_t *) &p_net_packet_out->header) + sizeof(uint8_t) /* Skip the first byte, not obfuscated */,
@@ -146,7 +150,7 @@ static void network_pkt_encrypt(packet_net_t * p_net_packet,
     uint8_t nonce[CCM_NONCE_LENGTH];
     const uint32_t iv_index_be = LE2BE32(iv_index_le);
 
-    enc_nonce_generate(&p_net_packet->header, iv_index_be, ENC_NONCE_NET, nonce);
+    enc_nonce_generate(&p_net_packet->header, iv_index_be, ENC_NONCE_NET, 0, nonce);
 
     ccm_soft_data_t ccm_params;
     ccm_params.mic_len = packet_net_micsize_get(p_net_packet);
@@ -215,7 +219,7 @@ static bool network_pkt_decrypt(packet_net_t * p_net_packet,
         ccm_params.p_mic   = (uint8_t *) ccm_params.p_m + ccm_params.m_len;
 
         /* Create a nonce for use when authenticating the packet from the de-obfuscated header: */
-        enc_nonce_generate(&p_net_decrypted_packet->header, iv_index_be, ENC_NONCE_NET, nonce);
+        enc_nonce_generate(&p_net_decrypted_packet->header, iv_index_be, ENC_NONCE_NET, 0, nonce);
 
         ccm_params.p_key = (*pp_net_secmat)->encryption_key;
         enc_aes_ccm_decrypt(&ccm_params, &authenticated);
@@ -282,7 +286,7 @@ uint32_t network_pkt_relay(packet_net_t * p_net_packet,
     status = bearer_tx(p_relay_packet, NETWORK_BEARER, 1);
     if (status != NRF_SUCCESS)
     {
-        packet_mgr_decref(p_relay_packet);
+        packet_mgr_free(p_relay_packet);
     }
     else
     {
@@ -401,7 +405,7 @@ uint32_t network_pkt_out(packet_t * p_packet, const nrf_mesh_network_secmat_t * 
     return status;
 }
 
-uint32_t network_pkt_in(packet_net_t* p_net_packet, packet_meta_t * p_packet_meta)
+uint32_t network_pkt_in(packet_net_t* p_net_packet, const packet_meta_t * p_packet_meta)
 {
     uint32_t status = NRF_SUCCESS;
 
@@ -433,12 +437,12 @@ uint32_t network_pkt_in(packet_net_t* p_net_packet, packet_meta_t * p_packet_met
         else
         {
             uint16_t src_addr_le = BE2LE16(p_net_decrypted_packet->header.src);
-            nrf_mesh_address_t dummy = {0};
 
             if (nrf_mesh_address_type_get(src_addr_le) == NRF_MESH_ADDRESS_TYPE_UNICAST)
             {
                 /* If the source address is one of our unicast rx addresses, we
                  * sent it ourselves, and shouldn't process it: */
+                nrf_mesh_address_t dummy;
                 if (!nrf_mesh_rx_address_get(src_addr_le, &dummy))
                 {
                     status = transport_pkt_in(p_net_decrypted_packet, p_packet_meta, p_net_secmat, decrypted_iv_index);

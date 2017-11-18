@@ -50,7 +50,8 @@
  * @{
  */
 
-#ifdef __CC_ARM
+#if defined(__CC_ARM) && !defined(_lint)
+#   include <nrf.h>
 #   define BE2LE16(n) __REV16(n) /**< Converts a 16-bit big-endian number to little-endian. */
 #   define LE2BE16(n) __REV16(n) /**< Converts a 16-bit little-endian number to big endian. */
 #   define BE2LE32(n) __REV(n)   /**< Converts a 32-bit big-endian number to little-endian. */
@@ -74,10 +75,12 @@
 /** Size of a word on the current hardware platform. */
 #define WORD_SIZE (sizeof(int))
 
-#if (NRF51 || NRF52)
-/**
- * Entry macro for debugging atomic functions.
- */
+#if defined(_lint)
+    /** Entry macro for debugging atomic functions. */
+    #define DEBUG_ATOMIC_FUNCTION_ENTER(lock)
+    #define DEBUG_ATOMIC_FUNCTION_EXIT(lock)
+#elif (NRF51 || NRF52)
+/** Entry macro for debugging atomic functions. */
 #define DEBUG_ATOMIC_FUNCTION_ENTER(lock) do                                            \
                                           {                                             \
                                               uint32_t masked_irqs;                     \

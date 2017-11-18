@@ -30,7 +30,7 @@ indicating the number of repeats that the advertiser should do. In this example,
 the repeat count is set to `BEARER_ADV_REPEAT_INFINITE`, causing the packet to
 be retransmitted forever or until replaced by a different packet.
 
-**NOTE**: Using the packet manager and advertiser directly makes the
+> **Important:** Using the packet manager and advertiser directly makes the
 application compete for the same resources as the core mesh framework. Incorrect or
 heavy usage will affect mesh performance or stability. Treat these modules
 with caution.
